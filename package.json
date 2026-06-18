@@ -1,0 +1,17 @@
+{
+  "name": "invenitalia",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "InvenItalia — weather, attractions, transport & fun facts for all Italian comuni",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.23.0"
+  }
+}

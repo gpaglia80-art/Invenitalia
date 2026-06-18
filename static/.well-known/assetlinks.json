@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.invenitalia.app",
+      "sha256_cert_fingerprints": [
+        "FD:FB:B6:61:4B:F4:96:AA:38:0A:04:EA:15:F6:4D:B8:E6:1F:1D:04:35:CC:AC:8E:01:48:D8:68:D0:7E:1C:D2"
+      ]
+    }
+  }
+]
