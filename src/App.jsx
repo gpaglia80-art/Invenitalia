@@ -1,6 +1,6 @@
 // InvenItalia — reconstructed source (V7 skeleton + live-build i18n/weather/funfacts). Stage 1: no Tours yet.
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, Fragment } from "react";
 
 // ── PALETTE ───────────────────────────────────────────────────────────────────
 const C = {
@@ -7980,7 +7980,7 @@ const _COMUNI = [
 ["Villaperuccio","CI",13],
 ["Teulada","CI",13],
 ["Ostia","RM",6,41.7333,12.2667,83000],
-["Pompeii","NA",3,40.7462,14.4989,25720],
+
 ["Paestum","SA",3,40.4212,15.0047,1000],
 ["Leuca","LE",12,39.7942,18.3517,2000],
 ["Metaponto","MT",1,40.3716,16.8231,2000],
@@ -8198,7 +8198,7 @@ Object.assign(TR.en, {
       { icon:"✈️", label:"Airport",        sub:"Airports near {c}",                q:"airport near {c} Italy" },
       { icon:"🚆", label:"Train Stations", sub:"Railway stations in {c}",           q:"train station {c} Italy" },
       { icon:"🚇", label:"Metro Stations", sub:"Underground & subway stops",        q:"metro station {c} Italy" },
-      { icon:"🚌", label:"Bus Terminals",  sub:"Local & intercity bus terminals",   q:"bus terminal {c} Italy" },
+      { icon:"🚌", label:"Bus Stops", sub:"Bus stops, terminals & coach stations", q:"bus stop {c} Italy" },
       { icon:"⛴️", label:"Ferry & Port",   sub:"Ferry terminals, ports & harbour",  q:"ferry terminal port {c} Italy" },
     ],
     rentals: [
@@ -8230,7 +8230,7 @@ Object.assign(TR.it, {
       { icon:"✈️", label:"Aeroporto",         sub:"Aeroporti vicino a {c}",           q:"aeroporto vicino {c} Italia" },
       { icon:"🚆", label:"Stazioni Treni",    sub:"Stazioni ferroviarie a {c}",       q:"stazione treni {c} Italia" },
       { icon:"🚇", label:"Metropolitana",     sub:"Fermate metro e sotterranee",       q:"metropolitana {c} Italia" },
-      { icon:"🚌", label:"Autostazioni",      sub:"Terminal bus locali e interurbani", q:"autostazione terminal bus {c} Italia" },
+      { icon:"🚌", label:"Fermate Bus", sub:"Fermate, autostazioni e capolinea", q:"fermata autobus {c} Italia" },
       { icon:"⛴️", label:"Traghetti e Porto", sub:"Terminal traghetti, porti e scali", q:"terminal traghetti porto {c} Italia" },
     ],
     rentals: [
@@ -8619,10 +8619,86 @@ function ExplorePage({ city, setCity, lang, t }) {
     </div>
 
     {!city ? (
-      <div style={s.empty}>
-        <div style={s.emptyIco}>🗺️</div>
-        <div style={s.emptyTtl}>{t.emptyTtl}</div>
-        <div style={s.emptySub}>{t.emptySub}</div>
+      <div style={{ ...s.empty, position:"relative", overflow:"hidden", minHeight:"calc(100dvh - 188px)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"30px 22px" }}>
+        <svg viewBox="0 0 400 640" aria-hidden="true" preserveAspectRatio="xMidYMid slice" style={{ position:"absolute", inset:0, width:"100%", height:"100%", pointerEvents:"none" }}>
+          <defs>
+            <linearGradient id="ivWash" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#97A267" />
+              <stop offset="55%" stopColor="#B6B07E" />
+              <stop offset="100%" stopColor="#CDBC8D" />
+            </linearGradient>
+            <filter id="ivSoft" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="3.4" /></filter>
+            <radialGradient id="ivGlow" cx="50%" cy="44%" r="46%">
+              <stop offset="0%" stopColor="#FBF7EF" stopOpacity="0.92" />
+              <stop offset="60%" stopColor="#FBF7EF" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#FBF7EF" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+
+          {/* faint antique graticule / contour lines */}
+          <g fill="none" stroke="#B6A47C" strokeWidth="1" opacity="0.2">
+            <path d="M0 120 C120 100 280 140 400 108" />
+            <path d="M0 224 C140 204 260 252 400 216" />
+            <path d="M0 336 C120 326 280 366 400 332" />
+            <path d="M0 452 C140 432 250 482 400 452" />
+            <path d="M0 566 C120 550 280 590 400 562" />
+            <path d="M126 0 C104 170 156 330 126 640" />
+            <path d="M300 0 C322 190 270 380 300 640" />
+          </g>
+
+          {/* watercolour Italy (soft) */}
+          <g opacity="0.5" filter="url(#ivSoft)">
+            <path fill="url(#ivWash)" d="M84 150 L150 96 L214 92 L276 112 L278 136 L304 188 L326 246 L332 280 L384 290 L346 312 L362 356 L394 398 L366 416 L322 382 L314 410 L304 446 L338 500 L300 544 L282 510 L292 470 L274 436 L250 404 L236 380 L246 362 L214 330 L196 300 L168 260 L148 222 L120 192 L98 170 Z" />
+            <path fill="url(#ivWash)" d="M214 562 L302 568 L252 606 Z" />
+            <path fill="url(#ivWash)" d="M52 330 C76 322 86 352 84 388 C82 420 70 436 50 430 C34 424 30 392 34 362 C37 342 42 334 52 330 Z" />
+          </g>
+          {/* crisp antique coastline */}
+          <g fill="none" stroke="#9C875C" strokeWidth="1.2" strokeLinejoin="round" opacity="0.42">
+            <path d="M84 150 L150 96 L214 92 L276 112 L278 136 L304 188 L326 246 L332 280 L384 290 L346 312 L362 356 L394 398 L366 416 L322 382 L314 410 L304 446 L338 500 L300 544 L282 510 L292 470 L274 436 L250 404 L236 380 L246 362 L214 330 L196 300 L168 260 L148 222 L120 192 L98 170 Z" />
+            <path d="M214 562 L302 568 L252 606 Z" />
+            <path d="M52 330 C76 322 86 352 84 388 C82 420 70 436 50 430 C34 424 30 392 34 362 C37 342 42 334 52 330 Z" />
+          </g>
+
+          {/* sketched mountains, lower-left */}
+          <g fill="none" stroke="#9C875C" strokeWidth="1.1" strokeLinejoin="round" strokeLinecap="round" opacity="0.34">
+            <path d="M-6 612 L36 568 L66 596 L104 556 L150 592 L186 562 L214 596" />
+            <path d="M-6 596 L26 566 L58 582 L96 548 L138 578 L176 552 L206 580" />
+            <path d="M44 566 L52 558 L60 566 M104 552 L112 544 L120 552" />
+          </g>
+
+          {/* engraved coastal town with dome, lower-right */}
+          <g fill="none" stroke="#9C875C" strokeWidth="1.1" strokeLinejoin="round" strokeLinecap="round" opacity="0.42">
+            {/* waterline */}
+            <path d="M250 600 Q320 592 400 600" />
+            <path d="M258 608 Q330 601 400 608" opacity="0.7" />
+            {/* low buildings left */}
+            <rect x="276" y="556" width="20" height="42" />
+            <rect x="298" y="544" width="22" height="54" />
+            <path d="M280 566 L292 566 M280 576 L292 576 M302 556 L314 556 M302 568 L314 568 M302 580 L314 580" opacity="0.7" />
+            {/* church body + dome */}
+            <rect x="322" y="520" width="34" height="78" />
+            <path d="M322 520 Q339 492 356 520" />
+            <line x1="339" y1="492" x2="339" y2="480" />
+            <path d="M333 480 L345 480 M339 474 L339 486" />
+            <path d="M330 538 L348 538 M330 552 L348 552 M336 566 L336 598 M342 566 L342 598" opacity="0.7" />
+            {/* bell tower */}
+            <rect x="360" y="500" width="14" height="98" />
+            <path d="M360 500 L367 488 L374 500 Z" />
+            <path d="M363 520 L371 520 M363 534 L371 534 M363 548 L371 548" opacity="0.7" />
+            {/* building right */}
+            <rect x="378" y="538" width="18" height="60" />
+            <path d="M382 550 L392 550 M382 562 L392 562 M382 574 L392 574" opacity="0.7" />
+          </g>
+
+          {/* centre glow for text legibility */}
+          <rect x="0" y="0" width="400" height="640" fill="url(#ivGlow)" />
+        </svg>
+
+        <div style={{ position:"relative", zIndex:1 }}>
+          <div style={s.emptyIco}>🗺️</div>
+          <div style={s.emptyTtl}>{t.emptyTtl}</div>
+          <div style={s.emptySub}>{t.emptySub}</div>
+        </div>
       </div>
     ) : (<>
       {(() => {
@@ -8875,11 +8951,511 @@ function FunFactsPage({ city, setCity, lang, t }) {
 // ═════════════════════════════════════════════════════════════════════════════
 // APP
 // ═════════════════════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════════════════
+// TOURS — i18n additions, data, and page  (Stage 2)
+// ═════════════════════════════════════════════════════════════════════════════
+Object.assign(TR.en, {
+  navTours: "Tours",
+  titleTours: ["Curated ", "Tours"],
+  subTours: "Themed routes across Italy · town by town",
+});
+Object.assign(TR.it, {
+  navTours: "Itinerari",
+  titleTours: ["Itinerari ", "Curati"],
+  subTours: "Percorsi tematici · borgo dopo borgo",
+});
+
+// Towns that recur in this many itineraries (or more) get highlighted.
+const TOUR_MIN_HL = 2;
+const TOUR_HUB = "#D9531E";
+
+// stops are ordered North → South. reg = default region; bg overrides per-stop.
+// k = canonical keys for the recurrence count; q = Google-Maps query override.
+const TOURS = [
+  // ───────────── REGIONAL ─────────────
+  { id:"cilento", sec:"reg", reg:"Campania", route:true, start:"Agropoli",
+    area:{it:"Campania",en:"Campania"}, title:{it:"Cilento",en:"Cilento"},
+    summary:{it:"Borghi marinari, spiagge selvagge e templi greci nel sud della Campania.",en:"Seaside villages, wild beaches and Greek temples in southern Campania."},
+    stops:[
+      {n:"Paestum",b:{it:"Custodisce il Parco Archeologico con i templi della Magna Grecia meglio conservati d'Europa.",en:"Home to the archaeological park with the best-preserved Magna Graecia temples in Europe."}},
+      {n:"Agropoli",b:{it:"La 'porta del Cilento', dominata dal Castello Aragonese e affacciata sulla Baia di Trentova.",en:"The 'gateway to the Cilento', crowned by its Aragonese castle above the Bay of Trentova."}},
+      {n:"Castellabate",b:{it:"Borgo medievale e sito UNESCO, reso celebre dal film 'Benvenuti al Sud'; comprende le frazioni costiere di Santa Maria e San Marco.",en:"A medieval village and UNESCO site made famous by the film 'Benvenuti al Sud', taking in the coastal hamlets of Santa Maria and San Marco."}},
+      {n:"Pioppi",b:{it:"Borgo marinaro pluripremiato per l'ambiente, riconosciuto come patria della Dieta Mediterranea.",en:"An award-winning seaside village known as the birthplace of the Mediterranean Diet."}},
+      {n:"Acciaroli",b:{it:"Frazione di Pollica celebre per il porticciolo, la Torre Normanna e le acque cristalline.",en:"A hamlet of Pollica known for its little harbour, the Norman tower and crystal-clear water."}},
+      {n:"Ascea",b:{it:"Spiagge dorate e gli Scavi di Velia, antica culla della filosofia eleatica.",en:"Golden beaches and the ruins of Velia, ancient cradle of Eleatic philosophy."}},
+      {n:"Palinuro",b:{it:"Famoso per il promontorio roccioso, le grotte marine e la Baia del Buon Dormire.",en:"Famous for its rocky headland, sea caves and the Baia del Buon Dormire."}},
+      {n:"Marina di Camerota",b:{it:"Capitale del turismo balneare, rinomata per calette come Cala Bianca e la Baia degli Infreschi.",en:"A beach-holiday capital, prized for coves like Cala Bianca and the Baia degli Infreschi."}}
+    ]},
+  { id:"salento", sec:"reg", reg:"Puglia", route:true, start:"Lecce",
+    area:{it:"Puglia",en:"Apulia"}, title:{it:"Salento",en:"Salento"},
+    summary:{it:"Barocco, due mari e spiagge caraibiche sul tacco d'Italia.",en:"Baroque towns, two seas and Caribbean-like beaches on Italy's heel."},
+    stops:[
+      {n:"Lecce",b:{it:"La 'Firenze del Sud', imperdibile per il barocco di Piazza del Duomo e la Basilica di Santa Croce.",en:"The 'Florence of the South', unmissable for the baroque of Piazza del Duomo and the Basilica di Santa Croce."}},
+      {n:"Porto Cesareo",b:{it:"Perfetta per le famiglie: 17 km di spiagge caraibiche e un mare limpidissimo.",en:"Ideal for families: 17 km of Caribbean-like beaches and exceptionally clear sea."}},
+      {n:"Otranto",b:{it:"Punto più a est d'Italia, con il Castello Aragonese, i mosaici della Cattedrale e la Baia dei Turchi.",en:"Italy's easternmost town, with its Aragonese castle, the cathedral mosaics and the Baia dei Turchi."}},
+      {n:"Gallipoli",b:{it:"Centro storico cinto dal mare e raggiunto da un antico ponte, con spiagge come Baia Verde e una vivace movida.",en:"A sea-ringed old town reached by an old bridge, with beaches like Baia Verde and lively nightlife."}},
+      {n:"Specchia e Presicce",k:["Specchia","Presicce"],q:"Specchia",b:{it:"Borghi autentici dell'entroterra, entrambi tra i più belli d'Italia.",en:"Authentic inland villages, both among Italy's most beautiful."}},
+      {n:"Santa Maria di Leuca",b:{it:"L'estremo lembo della Puglia, dove Ionio e Adriatico si incontrano, con il Faro e il Santuario.",en:"The very tip of Puglia, where the Ionian and Adriatic meet, with its lighthouse and sanctuary."}}
+    ]},
+  { id:"arch-campania", sec:"reg", reg:"Campania", route:true, start:"Napoli",
+    area:{it:"Campania",en:"Campania"}, title:{it:"Archeologico Campania",en:"Archaeological Campania"},
+    summary:{it:"Da Pompei ai Campi Flegrei, sulle tracce della Campania antica.",en:"From Pompeii to the Phlegraean Fields, tracing ancient Campania."},
+    stops:[
+      {n:"Santa Maria Capua Vetere",b:{it:"L'Anfiteatro Campano, secondo solo al Colosseo, e l'adiacente Mitreo sotterraneo.",en:"The Campanian amphitheatre, second only to the Colosseum, and the underground Mithraeum beside it."}},
+      {n:"Napoli",b:{it:"Si parte dal MANN per i capolavori di Pompei e dalla Napoli Sotterranea, anima greco-romana della città.",en:"Begin at the MANN museum for Pompeii's masterpieces and at Underground Naples, the city's Greco-Roman soul."}},
+      {n:"Campi Flegrei",q:"Campi Flegrei",b:{it:"Il Parco Archeologico di Cuma con l'Antro della Sibilla e, a Baia, il Parco Sommerso.",en:"The archaeological park of Cumae with the Sibyl's cave and, at Baia, the submerged park."}},
+      {n:"Pompei ed Ercolano",k:["Pompei","Ercolano"],q:"Pompei",b:{it:"Gli scavi di Pompei per la vita quotidiana antica; Ercolano per ville aristocratiche e mosaici intatti.",en:"Pompeii's excavations for daily ancient life; Herculaneum for aristocratic villas and intact mosaics."}},
+      {n:"Paestum",b:{it:"Tre maestosi templi dorici fra i meglio conservati al mondo e la 'Tomba del Tuffatore' al museo.",en:"Three majestic Doric temples among the best preserved on earth, plus the 'Diver's Tomb' in the museum."}}
+    ]},
+  { id:"amalfi", sec:"reg", reg:"Campania", route:true, start:"Vietri sul Mare",
+    area:{it:"Campania",en:"Campania"}, title:{it:"Costiera Amalfitana",en:"Amalfi Coast"},
+    summary:{it:"Borghi pastello a strapiombo sul mare tra Vietri e Positano.",en:"Pastel villages clinging to the sea from Vietri to Positano."},
+    stops:[
+      {n:"Vietri sul Mare",b:{it:"La capitale della ceramica campana, fra cupole dipinte a mano e botteghe artigiane.",en:"The capital of Campanian ceramics, with hand-painted domes and artisan workshops."}},
+      {n:"Ravello",b:{it:"Arroccata a 350 metri, con le viste di Villa Cimbrone e Villa Rufolo.",en:"Perched at 350 metres, with the views from Villa Cimbrone and Villa Rufolo."}},
+      {n:"Cetara",b:{it:"Autentico villaggio di pescatori, celebre per la colatura di alici.",en:"A genuine fishing village, famous worldwide for its anchovy 'colatura'."}},
+      {n:"Atrani",b:{it:"Il comune più piccolo d'Italia, a due passi da Amalfi, dal fascino marinaro intatto.",en:"Italy's smallest municipality, steps from Amalfi, with its seafaring charm intact."}},
+      {n:"Amalfi",b:{it:"Il cuore storico e culturale, dominato dal Duomo di Sant'Andrea e dalle sue stradine.",en:"The historic and cultural heart, crowned by the Duomo di Sant'Andrea and its tangle of lanes."}},
+      {n:"Positano",b:{it:"Il borgo verticale per eccellenza, fra boutique e la cupola in maiolica di Santa Maria Assunta.",en:"The vertical village par excellence, all boutiques beneath the majolica dome of Santa Maria Assunta."}},
+      {n:"Furore",b:{it:"Famosa per il suo fiordo, un'insenatura nascosta tra rocce a strapiombo sul mare.",en:"Famous for its fjord, a hidden inlet between cliffs plunging into the sea."}}
+    ]},
+  { id:"dolomiti", sec:"reg", reg:"Trentino-Alto Adige", route:true, start:"Cortina d'Ampezzo",
+    area:{it:"Dolomiti",en:"The Dolomites"}, title:{it:"Dolomiti",en:"The Dolomites"},
+    summary:{it:"Le vette più belle delle Alpi, da Brunico a Feltre.",en:"The Alps' most beautiful peaks, from Brunico to Feltre."},
+    stops:[
+      {n:"Brunico",bg:"Trentino-Alto Adige",b:{it:"Vivace città che unisce un centro medievale al comprensorio di Plan de Corones.",en:"A lively town pairing a medieval centre with the Kronplatz ski area."}},
+      {n:"San Candido",bg:"Trentino-Alto Adige",b:{it:"Perla dell'Alta Pusteria, nota per la Collegiata e la vicina Val Fiscalina.",en:"A gem of the Alta Pusteria, known for its collegiate church and nearby Val Fiscalina."}},
+      {n:"San Cassiano",bg:"Trentino-Alto Adige",q:"San Cassiano in Badia, Bolzano",b:{it:"In Alta Badia, rinomato per l'eccellenza gastronomica e il fascino tirolese.",en:"In Alta Badia, renowned for fine dining and Tyrolean charm."}},
+      {n:"Ortisei",bg:"Trentino-Alto Adige",b:{it:"Centro della Val Gardena, celebre per l'artigianato in legno e i suoi edifici curatissimi.",en:"The hub of Val Gardena, known for woodcarving and its immaculate buildings."}},
+      {n:"Cortina d'Ampezzo",bg:"Veneto",b:{it:"La 'Regina delle Dolomiti', la meta più iconica ed elegante.",en:"The 'Queen of the Dolomites', the most iconic and elegant destination."}},
+      {n:"Vigo di Fassa",bg:"Trentino-Alto Adige",b:{it:"Tra i Borghi più belli d'Italia, con vista sul gruppo del Catinaccio.",en:"One of Italy's loveliest villages, facing the Catinaccio group."}},
+      {n:"Alleghe",bg:"Veneto",b:{it:"Adagiato sulle rive dell'omonimo lago, sotto il massiccio del Civetta.",en:"Set on the shores of its lake, below the Civetta massif."}},
+      {n:"San Martino di Castrozza",bg:"Trentino-Alto Adige",b:{it:"Ai piedi delle maestose Pale di San Martino.",en:"At the foot of the majestic Pale di San Martino."}},
+      {n:"Belluno",bg:"Veneto",b:{it:"Capoluogo ricco di palazzi rinascimentali e scorci naturali.",en:"A provincial capital full of Renaissance palaces and natural views."}},
+      {n:"Feltre",bg:"Veneto",b:{it:"Cittadella murata ricca di storia e palazzi affrescati.",en:"A walled citadel rich in history and frescoed palaces."}}
+    ]},
+  { id:"valdorcia", sec:"reg", reg:"Toscana", route:true, start:"Montepulciano",
+    area:{it:"Toscana",en:"Tuscany"}, title:{it:"Val d'Orcia",en:"Val d'Orcia"},
+    summary:{it:"Colline UNESCO, vino e borghi rinascimentali nel cuore della Toscana.",en:"UNESCO hills, wine and Renaissance towns in the heart of Tuscany."},
+    stops:[
+      {n:"Montepulciano",b:{it:"Splendida città rinascimentale, famosa per Piazza Grande e il Vino Nobile.",en:"A splendid Renaissance town, famed for Piazza Grande and Vino Nobile wine."}},
+      {n:"Pienza",b:{it:"La 'città ideale' del Rinascimento voluta da Pio II, celebre per il pecorino.",en:"The Renaissance 'ideal city' built for Pope Pius II, famous for its pecorino."}},
+      {n:"San Quirico d'Orcia",b:{it:"Gioiello medievale tra mura, con gli Horti Leonini e la vicina Cappella di Vitaleta.",en:"A walled medieval gem, with the Horti Leonini gardens and the nearby Vitaleta chapel."}},
+      {n:"Montalcino",b:{it:"Borgo medievale fortificato in cima a una collina, patria del Brunello.",en:"A fortified medieval hill-town, home of Brunello wine."}},
+      {n:"Bagno Vignoni",b:{it:"Borgo unico al mondo, con la piazza occupata da una grande vasca termale romana.",en:"A one-of-a-kind village whose main square is a great Roman thermal pool."}},
+      {n:"Castiglione d'Orcia",b:{it:"Dominato dalla Rocca di Tentennano, con vista sull'intera vallata.",en:"Overlooked by the Rocca di Tentennano, with views across the whole valley."}},
+      {n:"Radicofani",b:{it:"Sul punto più alto della valle, dominato da una fortezza visibile per chilometri.",en:"On the valley's highest point, crowned by a fortress visible for miles."}}
+    ]},
+  { id:"langhe", sec:"reg", reg:"Piemonte", route:true, start:"Alba",
+    area:{it:"Piemonte",en:"Piedmont"}, title:{it:"Le Langhe",en:"The Langhe"},
+    summary:{it:"Le colline del Barolo, dei tartufi e dei castelli del Piemonte.",en:"The Piedmont hills of Barolo, truffles and castles."},
+    stops:[
+      {n:"Barbaresco",b:{it:"Dominato dalla Torre medievale, perfetto per degustare un altro grande rosso piemontese.",en:"Dominated by its medieval tower, the place to taste another great Piedmont red."}},
+      {n:"Neive",b:{it:"Tra i Borghi più belli d'Italia, con un centro medievale perfettamente conservato.",en:"One of Italy's loveliest villages, with a perfectly preserved medieval centre."}},
+      {n:"Alba",b:{it:"Capitale delle Langhe, celebre per il Tartufo Bianco e le torri medievali.",en:"The capital of the Langhe, famed for white truffles and medieval towers."}},
+      {n:"La Morra",b:{it:"Famosa per il Belvedere di Piazza Castello e la vista a 360° sulle colline del Barolo.",en:"Known for its belvedere in Piazza Castello and 360° views over the Barolo hills."}},
+      {n:"Serralunga d'Alba",b:{it:"Caratterizzato dal castello medievale che si slancia verticale come una lama.",en:"Defined by a medieval castle that rises sheer like a blade."}},
+      {n:"Barolo",b:{it:"Il borgo che dà nome al vino, con il Castello Falletti e il museo WiMu.",en:"The village that names the wine, with Castello Falletti and the WiMu wine museum."}}
+    ]},
+  { id:"cinqueterre", sec:"reg", reg:"Liguria", route:true, start:"Monterosso al Mare",
+    area:{it:"Liguria",en:"Liguria"}, title:{it:"Cinque Terre",en:"Cinque Terre"},
+    summary:{it:"Cinque borghi colorati a picco sul mare ligure.",en:"Five colourful villages perched above the Ligurian sea."},
+    stops:[
+      {n:"Monterosso al Mare",b:{it:"Il borgo più grande e pianeggiante, con ampie spiagge di sabbia: ideale per famiglie.",en:"The largest, flattest village, with wide sandy beaches: ideal for families."}},
+      {n:"Vernazza",b:{it:"La più pittoresca, con un porticciolo naturale e una piazzetta sul mare tra case pastello.",en:"The most picturesque, with a natural harbour and a seaside square framed by pastel houses."}},
+      {n:"Corniglia",b:{it:"La più autentica e tranquilla, arroccata in alto: panorama a 360° in cima alla Lardarina.",en:"The most authentic and quiet, perched high up: a 360° view atop the Lardarina steps."}},
+      {n:"Manarola",b:{it:"Lo scorcio da cartolina, abbarbicata su una roccia scura: perfetta al tramonto.",en:"The postcard view, clinging to dark rock and perfect at sunset."}},
+      {n:"Riomaggiore",b:{it:"Romantica, con il porticciolo tra case-torre colorate e l'inizio della Via dell'Amore.",en:"Romantic, with a harbour among colourful tower-houses and the start of the Via dell'Amore."}}
+    ]},
+  { id:"como", sec:"reg", reg:"Lombardia", route:true, start:"Como",
+    area:{it:"Lombardia",en:"Lombardy"}, title:{it:"Lago di Como",en:"Lake Como"},
+    summary:{it:"Ville, giardini e borghi eleganti sulle sponde del Lario.",en:"Villas, gardens and elegant villages on the shores of Lake Como."},
+    stops:[
+      {n:"Menaggio",b:{it:"Sulla sponda occidentale, con un elegante lungolago e un centro caratteristico.",en:"On the western shore, with an elegant lakefront and a charming centre."}},
+      {n:"Varenna",b:{it:"Pittoresco borgo di pescatori sotto il Castello di Vezio, perfetto per una passeggiata romantica.",en:"A picturesque fishing village below Vezio Castle, perfect for a romantic stroll."}},
+      {n:"Tremezzo",b:{it:"Ospita Villa Carlotta, rinomata per il giardino botanico e le opere d'arte.",en:"Home to Villa Carlotta, known for its botanical garden and artworks."}},
+      {n:"Bellagio",b:{it:"Celebre per Punta Spartivento, le scalinate acciottolate e i giardini di Villa Melzi.",en:"Famous for Punta Spartivento, cobbled stairways and the gardens of Villa Melzi."}},
+      {n:"Argegno",b:{it:"Piccolo borgo vivace, ottimo punto di partenza per la funivia verso Pigra.",en:"A small, lively village and a fine starting point for the cable car to Pigra."}},
+      {n:"Nesso",b:{it:"Suggestivo per il profondo Orrido, una gola naturale, e il ponte medievale.",en:"Striking for its deep Orrido gorge and a medieval bridge."}},
+      {n:"Cernobbio",b:{it:"Famosa per le boutique esclusive e Villa d'Este, icona di lusso.",en:"Known for exclusive boutiques and Villa d'Este, an icon of luxury."}},
+      {n:"Como",b:{it:"Capoluogo dominato dal Duomo, ideale punto di partenza per esplorare il Lario.",en:"A historic capital crowned by its cathedral, the ideal base for exploring the lake."}}
+    ]},
+  { id:"garda", sec:"reg", reg:"Veneto", route:true, start:"Desenzano del Garda",
+    area:{it:"Lago di Garda",en:"Lake Garda"}, title:{it:"Lago di Garda",en:"Lake Garda"},
+    summary:{it:"Castelli scaligeri, terme e limonaie sul lago più grande d'Italia.",en:"Scaliger castles, spas and lemon groves on Italy's largest lake."},
+    stops:[
+      {n:"Riva del Garda",bg:"Trentino-Alto Adige",b:{it:"La capitale dell'alto lago, fra centro veneziano, la Rocca e gli sport acquatici.",en:"The capital of the upper lake, blending a Venetian centre, its Rocca and watersports."}},
+      {n:"Limone sul Garda",bg:"Lombardia",b:{it:"Famosa per le limonaie e la spettacolare ciclopedonale a sbalzo sul lago.",en:"Famous for its lemon houses and a spectacular cantilevered cycle-path over the water."}},
+      {n:"Malcesine",bg:"Veneto",b:{it:"Sotto il Castello Scaligero, da cui sale la funivia panoramica sul Monte Baldo.",en:"Below its Scaliger castle, where a panoramic cable car climbs Monte Baldo."}},
+      {n:"Bardolino",bg:"Veneto",b:{it:"Sulla sponda veneta, rinomata per l'omonimo vino rosso e il lungolago fiorito.",en:"On the Veneto shore, known for its namesake red wine and a flower-lined promenade."}},
+      {n:"Sirmione",bg:"Lombardia",b:{it:"La 'perla del Garda', con il castello scaligero sull'acqua, le Grotte di Catullo e le terme.",en:"The 'pearl of Garda', with its lakeside Scaliger castle, the Grotte di Catullo and thermal spa."}},
+      {n:"Desenzano del Garda",bg:"Lombardia",b:{it:"Il comune più grande e vivace del lago, fra shopping, vita notturna e Porto Vecchio.",en:"The lake's largest, liveliest town, with shopping, nightlife and the old harbour."}},
+      {n:"Peschiera del Garda",bg:"Veneto",b:{it:"Città-fortezza patrimonio UNESCO, cinta da canali difensivi.",en:"A fortress town and UNESCO site, ringed by defensive canals."}}
+    ]},
+  { id:"trasimeno", sec:"reg", reg:"Umbria", route:true, start:"Castiglione del Lago",
+    area:{it:"Umbria",en:"Umbria"}, title:{it:"Lago Trasimeno",en:"Lake Trasimeno"},
+    summary:{it:"Borghi collinari e isole sul placido lago umbro.",en:"Hill-villages and islands on Umbria's tranquil lake."},
+    stops:[
+      {n:"Passignano sul Trasimeno",b:{it:"Borgo di pescatori sotto una Rocca medievale, scalo per i traghetti all'Isola Maggiore.",en:"A fishing village below a medieval fort, the ferry stop for Isola Maggiore."}},
+      {n:"Isola Maggiore",q:"Isola Maggiore, Trasimeno",b:{it:"L'unica isola abitata, con un antico borgo di pescatori e sentieri nella natura.",en:"The only inhabited island, with an old fishing hamlet and nature trails."}},
+      {n:"Castiglione del Lago",b:{it:"Su un promontorio roccioso, con la Rocca del Leone e il Palazzo della Corgna.",en:"On a rocky promontory, with the Rocca del Leone and Palazzo della Corgna."}},
+      {n:"Corciano",b:{it:"Poco distante dal lago, tra i borghi medievali più belli d'Italia.",en:"Near the lake, one of Italy's most beautiful medieval villages."}},
+      {n:"Isola Polvese",q:"Isola Polvese, Trasimeno",b:{it:"La più grande, ricca di uliveti, un monastero e un castello medievale.",en:"The largest island, full of olive groves, a monastery and a medieval castle."}},
+      {n:"Panicale",b:{it:"Borgo collinare con terrazze panoramiche sull'intero specchio d'acqua.",en:"A hill-village with panoramic terraces over the whole lake."}},
+      {n:"Città della Pieve",b:{it:"Città natale del Perugino, con vicoli strettissimi tra cui il più stretto d'Italia.",en:"Birthplace of the painter Perugino, with narrow alleys including Italy's narrowest."}}
+    ]},
+  { id:"romagna", sec:"reg", reg:"Emilia-Romagna", route:true, start:"Rimini",
+    area:{it:"Emilia-Romagna",en:"Emilia-Romagna"}, title:{it:"Costiera Romagnola",en:"Romagna Riviera"},
+    summary:{it:"Spiagge, movida e borghi di pescatori sull'Adriatico.",en:"Beaches, nightlife and fishing quarters along the Adriatic."},
+    stops:[
+      {n:"Milano Marittima (Cervia)",k:["Milano Marittima"],q:"Milano Marittima",b:{it:"Pinete, boutique di lusso e stabilimenti alla moda, per una vacanza glamour.",en:"Pine groves, luxury boutiques and fashionable beach clubs for a glamorous stay."}},
+      {n:"Cesenatico",b:{it:"Conserva il borgo antico col Porto Canale leonardesco, ottimo per il pesce fresco.",en:"Keeps its old quarter around a Leonardo-designed canal port, great for fresh fish."}},
+      {n:"Bellaria-Igea Marina",b:{it:"Ottima per un soggiorno rilassante e a misura di bambino.",en:"A great choice for a relaxed, child-friendly stay."}},
+      {n:"Rimini",b:{it:"Mare e storia: l'Arco d'Augusto, il Ponte di Tiberio e il borgo San Giuliano.",en:"Beach and history: the Arch of Augustus, the Tiberius Bridge and the San Giuliano quarter."}},
+      {n:"Riccione",b:{it:"Regno della movida e dello shopping lungo l'esclusivo Viale Ceccarini.",en:"A nightlife and shopping hub along the exclusive Viale Ceccarini."}},
+      {n:"Cattolica",b:{it:"La 'Regina dell'Adriatico', con mare sicuro, spiagge per famiglie e il suo Acquario.",en:"The 'Queen of the Adriatic', with safe seas, family beaches and its aquarium."}}
+    ]},
+  { id:"abruzzo", sec:"reg", reg:"Abruzzo", route:true, start:"Roccaraso",
+    area:{it:"Abruzzo",en:"Abruzzo"}, title:{it:"Montagna Abruzzese",en:"Abruzzo Mountains"},
+    summary:{it:"Borghi di pietra, parchi e castelli tra le vette dell'Appennino.",en:"Stone villages, parks and castles among the Apennine peaks."},
+    stops:[
+      {n:"Campo Imperatore",q:"Campo Imperatore",b:{it:"Vasto altopiano a 2.000 metri nel massiccio del Gran Sasso.",en:"A vast plateau at 2,000 metres in the Gran Sasso massif."}},
+      {n:"Santo Stefano di Sessanio",b:{it:"Borgo fortificato perfettamente conservato nel Parco del Gran Sasso.",en:"A perfectly preserved fortified village in the Gran Sasso park."}},
+      {n:"Rocca Calascio",q:"Rocca Calascio",b:{it:"Il celebre castello diroccato, tra i più alti e scenografici d'Europa.",en:"Its famous ruined castle, among the highest and most scenic in Europe."}},
+      {n:"Scanno",b:{it:"Case in pietra e vicoli medievali, vicino al lago a forma di cuore.",en:"Stone houses and medieval alleys beside its heart-shaped lake."}},
+      {n:"Pescocostanzo",b:{it:"Gioiello rinascimentale e barocco d'alta quota, noto per merletti e oreficeria.",en:"A high-altitude Renaissance-baroque gem, known for lacework and goldsmithing."}},
+      {n:"Roccaraso",b:{it:"Principale polo sciistico dell'Appennino centrale, con chilometri di piste.",en:"The central Apennines' main ski resort, with miles of slopes."}},
+      {n:"Pescasseroli",b:{it:"Cuore del Parco Nazionale d'Abruzzo, ideale per avvistare l'orso bruno marsicano.",en:"The heart of Abruzzo National Park, ideal for spotting the Marsican brown bear."}}
+    ]},
+  { id:"calabria", sec:"reg", reg:"Calabria", route:true, start:"Tropea",
+    area:{it:"Calabria",en:"Calabria"}, title:{it:"Calabria Tirrenica",en:"Tyrrhenian Calabria"},
+    summary:{it:"Spiagge, scogliere e borghi marinari sul Tirreno calabrese.",en:"Beaches, cliffs and seaside villages on Calabria's Tyrrhenian coast."},
+    stops:[
+      {n:"Praia a Mare",b:{it:"Dominata dall'Isola di Dino e dalle sue grotte marine.",en:"Overlooked by the Isle of Dino and its sea caves."}},
+      {n:"Scalea",b:{it:"Caratteristico centro storico fatto di vicoli e mura antiche.",en:"A characterful old town of alleys and ancient walls."}},
+      {n:"Diamante",b:{it:"Borgo della Riviera dei Cedri, celebre per i murales e i peperoncini.",en:"A village of the 'Citron Riviera', famed for its murals and chilli peppers."}},
+      {n:"Fiumefreddo Bruzio",b:{it:"Borgo medievale arroccato con vista panoramica sul mare.",en:"A medieval village perched high with sweeping sea views."}},
+      {n:"Pizzo Calabro",b:{it:"Borgo marinaro noto per il Castello Murat e il gelato 'tartufo'.",en:"A seaside village known for Castello Murat and its 'tartufo' ice cream."}},
+      {n:"Tropea",b:{it:"Famosa per il santuario di Santa Maria dell'Isola e la cipolla rossa.",en:"Famous for the clifftop sanctuary of Santa Maria dell'Isola and its red onion."}},
+      {n:"Capo Vaticano",q:"Capo Vaticano",b:{it:"Scogliere spettacolari e le famose spiagge di Grotticelle.",en:"Spectacular cliffs and the celebrated Grotticelle beaches."}},
+      {n:"Scilla",b:{it:"Borgo di pescatori dominato dal Castello Ruffo e dal mito di Ulisse.",en:"A fishing village beneath Castello Ruffo, steeped in the myth of Odysseus."}}
+    ]},
+  { id:"sicilia-est", sec:"reg", reg:"Sicilia", route:true, start:"Catania",
+    area:{it:"Sicilia",en:"Sicily"}, title:{it:"Sicilia Orientale",en:"Eastern Sicily"},
+    summary:{it:"Barocco, templi greci e l'Etna nel sud-est della Sicilia.",en:"Baroque towns, Greek ruins and Mount Etna in south-east Sicily."},
+    stops:[
+      {n:"Taormina",b:{it:"La 'perla dello Ionio', con il Teatro Antico e le acque dell'Isola Bella.",en:"The 'pearl of the Ionian', with its ancient theatre and the waters of Isola Bella."}},
+      {n:"Catania",b:{it:"Vivace e barocca alle pendici dell'Etna, con Piazza del Duomo e la Via Etnea.",en:"Lively and baroque at the foot of Etna, with Piazza del Duomo and Via Etnea."}},
+      {n:"Siracusa e Ortigia",k:["Siracusa"],q:"Siracusa",b:{it:"L'immenso patrimonio greco della Neapolis e l'isola di Ortigia tra vicoli e palazzi sul mare.",en:"The vast Greek heritage of the Neapolis park and the islet of Ortigia, all lanes and seafront palaces."}},
+      {n:"Ragusa Ibla",q:"Ragusa Ibla",b:{it:"Il cuore antico di Ragusa, tra vicoli tortuosi, palazzi e il Duomo di San Giorgio.",en:"The ancient heart of Ragusa, a maze of lanes, palaces and the Duomo di San Giorgio."}},
+      {n:"Noto",b:{it:"Capitale del Barocco siciliano, patrimonio UNESCO, con la Cattedrale e il Corso Vittorio Emanuele.",en:"The capital of Sicilian baroque and a UNESCO site, with its cathedral and grand main street."}},
+      {n:"Modica",b:{it:"Incastonata in una gola, famosa per il barocco e l'antico cioccolato artigianale.",en:"Set in a rocky gorge, famous for baroque architecture and age-old artisan chocolate."}}
+    ]},
+
+  // ───────────── NATIONAL (thematic, no full route) ─────────────
+  { id:"vino", sec:"naz", route:false, start:"Barolo",
+    area:{it:"Tema · Vino",en:"Theme · Wine"}, title:{it:"Itinerario del Vino",en:"The Wine Trail"},
+    summary:{it:"Dodici comuni che danno il nome ai grandi vini italiani.",en:"Twelve towns that give their names to Italy's great wines."},
+    stops:[
+      {n:"Valdobbiadene",bg:"Veneto",b:{it:"Cuore del Prosecco Superiore DOCG, tra colline UNESCO e vigneti 'eroici'.",en:"The heart of Prosecco Superiore DOCG, amid UNESCO hills and 'heroic' vineyards."}},
+      {n:"Marano di Valpolicella",bg:"Veneto",b:{it:"Sulle colline veronesi, patria di rossi monumentali come l'Amarone della Valpolicella.",en:"In the Verona hills, home of monumental reds like Amarone della Valpolicella."}},
+      {n:"Soave",bg:"Veneto",b:{it:"Borgo murato sotto un castello scaligero, dà nome al bianco Soave di uva Garganega.",en:"A walled village below a Scaliger castle, naming the Garganega-based white Soave."}},
+      {n:"Barolo",bg:"Piemonte",b:{it:"Dà nome al 'Re dei Vini', con il Castello Falletti, il WiMu e vigne di Nebbiolo pregiatissime.",en:"Lends its name to the 'King of Wines', with Castello Falletti, the WiMu museum and prized Nebbiolo vineyards."}},
+      {n:"Greve in Chianti",bg:"Toscana",b:{it:"Porta del Chianti Classico, con la celebre piazza triangolare e il Gallo Nero.",en:"Gateway to Chianti Classico, with its triangular square and the Black Rooster symbol."}},
+      {n:"Montepulciano",bg:"Toscana",b:{it:"Borgo rinascimentale murato con cantine sotterranee, celebre per il Vino Nobile DOCG.",en:"A walled Renaissance town with underground cellars, famed for Vino Nobile DOCG."}},
+      {n:"Montalcino",bg:"Toscana",b:{it:"Borgo medievale della Val d'Orcia, patria del pregiatissimo Brunello di Sangiovese.",en:"A medieval Val d'Orcia village, home of the prized Sangiovese Brunello."}},
+      {n:"Montefalco",bg:"Umbria",b:{it:"La 'Ringhiera dell'Umbria', patria del potente Sagrantino di Montefalco.",en:"The 'balcony of Umbria', home of the powerful Sagrantino di Montefalco."}},
+      {n:"Frascati",bg:"Lazio",b:{it:"Sui Colli Albani vicino a Roma, storica città del bianco fresco Frascati.",en:"On the Alban Hills near Rome, a historic town of the crisp white Frascati."}},
+      {n:"Castelvenere",bg:"Campania",b:{it:"Nel Sannio, fra le più alte densità di vigneti d'Italia, con cantine tufacee e Falanghina.",en:"In the Sannio, among Italy's densest vineyard areas, with tuff cellars and Falanghina."}},
+      {n:"Manduria",bg:"Puglia",b:{it:"Nel Salento, patria del Primitivo di Manduria, rosso intenso e caldo.",en:"In the Salento, home of Primitivo di Manduria, an intense, warm red."}},
+      {n:"Castiglione di Sicilia",bg:"Sicilia",b:{it:"Sul versante nord dell'Etna, riferimento per gli eleganti vini dell'Etna DOC.",en:"On Etna's northern slope, a reference for the elegant Etna DOC wines."}}
+    ]},
+  { id:"carne", sec:"naz", route:false, start:"Firenze",
+    area:{it:"Tema · Carne",en:"Theme · Meat"}, title:{it:"Itinerario della Carne",en:"The Meat Trail"},
+    summary:{it:"Un viaggio nelle grandi tradizioni italiane della carne.",en:"A journey through Italy's great meat traditions."},
+    stops:[
+      {n:"Milano",bg:"Lombardia",b:{it:"La cotoletta con l'osso impanata nel burro e l'ossobuco col risotto allo zafferano.",en:"The bone-in breaded cutlet fried in butter, and ossobuco with saffron risotto."}},
+      {n:"Torino e Carrù",k:["Torino","Carrù"],q:"Carrù",bg:"Piemonte",b:{it:"Carrù capitale del gran bollito misto; Torino paradiso della carne cruda battuta al coltello.",en:"Carrù, capital of the great mixed boil; Turin, a paradise of hand-cut raw beef."}},
+      {n:"Bologna e Modena",k:["Bologna","Modena"],q:"Bologna",bg:"Emilia-Romagna",b:{it:"Il ragù alla bolognese e, nel modenese, lo zampone e il cotechino di maiale.",en:"Bolognese ragù and, around Modena, pork zampone and cotechino."}},
+      {n:"Firenze",bg:"Toscana",b:{it:"Patria della Bistecca alla Fiorentina, alta lombata di Chianina cotta al sangue sulla brace.",en:"Home of the Bistecca alla Fiorentina, a thick Chianina T-bone grilled rare over coals."}},
+      {n:"Arezzo e Siena",k:["Arezzo","Siena"],q:"Arezzo",bg:"Toscana",b:{it:"Nella Valdichiana, terra della vera Chianina, della cinta senese e della cacciagione.",en:"In the Valdichiana, land of true Chianina beef, cinta senese pork and game."}},
+      {n:"Roma",bg:"Lazio",b:{it:"Regno del 'quinto quarto', dell'abbacchio a scottadito e dei saltimbocca.",en:"The realm of offal cooking, grilled lamb chops and saltimbocca."}},
+      {n:"Martina Franca e Cisternino",k:["Martina Franca","Cisternino"],q:"Martina Franca",bg:"Puglia",b:{it:"I 'fornelli pronti' con forno a legna e le celebri bombette di capocollo ripiene.",en:"The wood-fired butcher-grills and the famous stuffed pork 'bombette'."}},
+      {n:"Cosenza",bg:"Calabria",b:{it:"Specialità di Suino Nero di Calabria e di carne podolica allevata sulla Sila.",en:"Specialities of Calabrian Black Pig and Podolica beef raised on the Sila plateau."}}
+    ]},
+  { id:"pesce", sec:"naz", route:false, start:"Bari",
+    area:{it:"Tema · Pesce",en:"Theme · Seafood"}, title:{it:"Itinerario del Pesce",en:"The Seafood Trail"},
+    summary:{it:"Le capitali italiane del pesce, dal crudo alle zuppe.",en:"Italy's seafood capitals, from raw fish to hearty stews."},
+    stops:[
+      {n:"Milano",bg:"Lombardia",b:{it:"Pur lontana dal mare, ospita il più importante mercato ittico d'Italia per freschezza.",en:"Though far from the sea, it hosts Italy's foremost fish market for freshness and volume."}},
+      {n:"Camogli e Santa Margherita Ligure",k:["Camogli","Santa Margherita Ligure"],q:"Camogli",bg:"Liguria",b:{it:"I gamberi rossi di Santa Margherita e il pesce azzurro cucinato alla ligure.",en:"The red prawns of Santa Margherita and oily fish cooked Ligurian-style."}},
+      {n:"Livorno",bg:"Toscana",b:{it:"Universalmente nota per il cacciucco, densa zuppa di pesce della tradizione povera.",en:"Universally known for cacciucco, a rich fish stew born of humble origins."}},
+      {n:"Anzio e Fiumicino",k:["Anzio","Fiumicino"],q:"Anzio",bg:"Lazio",b:{it:"Anzio per il crudo e le paranze, Fiumicino per la cucina di mare moderna.",en:"Anzio for raw fish and trawler catch, Fiumicino for modern seafood cooking."}},
+      {n:"Bari",bg:"Puglia",b:{it:"Capitale del crudo: polpi 'arricciati', allievi, ricci e cozze sul lungomare.",en:"The capital of raw seafood: curled octopus, cuttlefish, sea urchins and mussels on the seafront."}},
+      {n:"Napoli",bg:"Campania",b:{it:"Spaghetti alle vongole, cuoppo di paranza, polpo alla luciana e zuppa di cozze.",en:"Spaghetti with clams, fried-fish 'cuoppo', octopus alla luciana and mussel soup."}},
+      {n:"Carloforte",bg:"Sardegna",b:{it:"Sull'Isola di San Pietro, capitale del tonno rosso di mattanza, cucinato in ogni sua parte.",en:"On San Pietro island, the capital of trap-caught bluefin tuna, cooked nose to tail."}},
+      {n:"Palermo e Catania",k:["Palermo","Catania"],q:"Palermo",bg:"Sicilia",b:{it:"Palermo con pasta con le sarde e tonno rosso; Catania con la Pescheria e i frutti di mare.",en:"Palermo for pasta with sardines and bluefin tuna; Catania for its fish market and shellfish."}}
+    ]},
+  { id:"goloso", sec:"naz", route:false, start:"Torino",
+    area:{it:"Tema · Dolci",en:"Theme · Sweets"}, title:{it:"Itinerario Goloso",en:"The Sweet-Tooth Trail"},
+    summary:{it:"Le città simbolo della pasticceria italiana, da nord a sud.",en:"The towns that define Italian pastry, north to south."},
+    stops:[
+      {n:"Milano",bg:"Lombardia",b:{it:"Patria del Panettone e della raffinata pasticceria mignon.",en:"Home of Panettone and of refined miniature pastries."}},
+      {n:"Venezia e Treviso",k:["Venezia","Treviso"],q:"Treviso",bg:"Veneto",b:{it:"Treviso rivendica il Tiramisù; Venezia risponde con Baicoli, Bussolai e Zaeti.",en:"Treviso claims tiramisù; Venice answers with Baicoli, Bussolai and Zaeti biscuits."}},
+      {n:"Mantova",bg:"Lombardia",b:{it:"Celebre per la Torta Sbrisolona e, nelle feste, l'Anello di Monaco.",en:"Famed for the crumbly Sbrisolona cake and, at Christmas, the Anello di Monaco."}},
+      {n:"Torino",bg:"Piemonte",b:{it:"Capitale del cioccolato e del Gianduiotto, del Bicerin e dei marron glacé.",en:"The capital of chocolate and the Gianduiotto, the Bicerin drink and marrons glacés."}},
+      {n:"Prato",bg:"Toscana",b:{it:"Patria dei Cantucci, i biscotti alle mandorle da inzuppare nel Vin Santo.",en:"Home of cantucci, the twice-baked almond biscuits dipped in Vin Santo."}},
+      {n:"Siena",bg:"Toscana",b:{it:"Dolci medievali speziati: Panforte, Ricciarelli e Cavallucci.",en:"Spiced medieval sweets: panforte, ricciarelli and cavallucci."}},
+      {n:"Roma",bg:"Lazio",b:{it:"Il Maritozzo con la panna, soffice pagnotta dolce farcita di panna montata.",en:"The maritozzo, a soft sweet bun filled with whipped cream."}},
+      {n:"Napoli",bg:"Campania",b:{it:"Sfogliatella, Babà, Pastiera e Zeppole di San Giuseppe.",en:"Sfogliatella, rum babà, pastiera and St Joseph's zeppole."}},
+      {n:"Lecce",bg:"Puglia",b:{it:"Patria del Pasticciotto, guscio di frolla ripieno di crema calda.",en:"Home of the pasticciotto, a shortcrust shell filled with hot custard."}},
+      {n:"Palermo e Catania",k:["Palermo","Catania"],q:"Palermo",bg:"Sicilia",b:{it:"Cassata e cannoli, frutta martorana a Palermo, granita con brioche a Catania.",en:"Cassata and cannoli, marzipan fruit in Palermo, granita with brioche in Catania."}}
+    ]},
+  { id:"arte", sec:"naz", route:false, start:"Roma",
+    area:{it:"Tema · Arte",en:"Theme · Art"}, title:{it:"Itinerario dell'Arte",en:"The Art Trail"},
+    summary:{it:"Le grandi capitali dell'arte italiana, città per città.",en:"Italy's great art capitals, city by city."},
+    stops:[
+      {n:"Milano",bg:"Lombardia",b:{it:"L'Ultima Cena di Leonardo, il Duomo gotico, il Castello Sforzesco e Brera.",en:"Leonardo's Last Supper, the Gothic cathedral, the Sforza Castle and the Brera gallery."}},
+      {n:"Venezia",bg:"Veneto",b:{it:"Città sull'acqua patrimonio UNESCO: Piazza San Marco, la Basilica e Palazzo Ducale.",en:"A UNESCO city on water: St Mark's Square, the basilica and the Doge's Palace."}},
+      {n:"Torino",bg:"Piemonte",b:{it:"Barocco e Savoia: Museo Egizio, Mole Antonelliana, Palazzo Reale e Venaria.",en:"Baroque and Savoy: the Egyptian Museum, the Mole Antonelliana, the Royal Palace and Venaria."}},
+      {n:"Bologna",bg:"Emilia-Romagna",b:{it:"62 km di portici UNESCO, le torri Asinelli e Garisenda e San Petronio.",en:"Sixty-two km of UNESCO porticoes, the Asinelli and Garisenda towers and San Petronio."}},
+      {n:"Firenze",bg:"Toscana",b:{it:"Culla del Rinascimento: Uffizi, il David all'Accademia, il Duomo e Ponte Vecchio.",en:"Cradle of the Renaissance: the Uffizi, Michelangelo's David, the Duomo and Ponte Vecchio."}},
+      {n:"Pisa",bg:"Toscana",b:{it:"La Piazza dei Miracoli con la Torre Pendente, il Duomo e il Battistero.",en:"The Piazza dei Miracoli with the Leaning Tower, cathedral and baptistery."}},
+      {n:"Siena",bg:"Toscana",b:{it:"Città medievale intatta: Piazza del Campo, il Palio e il Duomo gotico.",en:"An intact medieval city: Piazza del Campo, the Palio and the Gothic cathedral."}},
+      {n:"Roma",bg:"Lazio",b:{it:"Museo a cielo aperto: Colosseo, Fori, Pantheon e i capolavori dei Musei Vaticani.",en:"An open-air museum: the Colosseum, the Forums, the Pantheon and the Vatican Museums' masterpieces."}},
+      {n:"Napoli",bg:"Campania",b:{it:"Il più grande centro storico UNESCO d'Europa, il Cristo Velato e le stazioni dell'arte.",en:"Europe's largest UNESCO old town, the Veiled Christ and the metro's 'art stations'."}},
+      {n:"Palermo",bg:"Sicilia",b:{it:"Capitale arabo-normanna UNESCO: la Cattedrale, il Palazzo dei Normanni e la Cappella Palatina.",en:"A UNESCO Arab-Norman capital: the cathedral, the Norman Palace and the Palatine Chapel."}}
+    ]}
+];
+
+// Tours i18n (page-local)
+const TOUR_TXT = {
+  it: { tabReg:"Regionali", tabNaz:"Nazionali", regSub:"per territorio", nazSub:"per tema",
+        stops:"tappe", route:"Apri il percorso in Maps", back:"Tutti gli itinerari",
+        openMaps:"Apri in Maps", viewCity:"Vedi in Esplora", startLbl:"Partenza",
+        legend:"Le città che ricorrono in più itinerari sono evidenziate.",
+        inTours:(n)=>`in ${n} itinerari`, appearsIn:(n)=>`Presente in ${n} itinerari`, current:"attuale", tapHint:"Tocca per vedere gli itinerari" },
+  en: { tabReg:"Regional", tabNaz:"National", regSub:"by territory", nazSub:"by theme",
+        stops:"stops", route:"Open route in Maps", back:"All itineraries",
+        openMaps:"Open in Maps", viewCity:"View in Explore", startLbl:"Start",
+        legend:"Towns appearing in several itineraries are highlighted.",
+        inTours:(n)=>`in ${n} tours`, appearsIn:(n)=>`Appears in ${n} tours`, current:"current", tapHint:"Tap to see its itineraries" }
+};
+
+// recurrence counts across every stop of every itinerary
+const TOUR_COUNTS = (() => {
+  const c = {};
+  TOURS.forEach(t => t.stops.forEach(st => (st.k || [st.n]).forEach(k => { c[k] = (c[k]||0)+1; })));
+  return c;
+})();
+const tourHubCount = (st) => Math.max(0, ...(st.k || [st.n]).map(k => TOUR_COUNTS[k] >= TOUR_MIN_HL ? TOUR_COUNTS[k] : 0));
+const tourIsHub = (st) => tourHubCount(st) >= TOUR_MIN_HL;
+const TOUR_HAS_HUBS = Object.values(TOUR_COUNTS).some(v => v >= TOUR_MIN_HL);
+
+// lowercase comune name -> city object (for jumping into Explore)
+const CITY_BY_NAME = (() => { const m = {}; CITIES.forEach(c => { m[c.n.toLowerCase()] = c; }); return m; })();
+const resolveTourCity = (st) => {
+  const key = (st.k && st.k[0]) || st.q || st.n;
+  return CITY_BY_NAME[String(key).toLowerCase()] || null;
+};
+
+const tourMapsQuery = (st) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((st.q || st.n) + ", Italia")}`;
+const tourMapsRoute = (tour) => {
+  const pts = tour.stops.map(st => (st.q || st.n) + ", Italia");
+  const params = new URLSearchParams({ api:"1", origin:pts[0], destination:pts[pts.length-1], travelmode:"driving" });
+  const wp = pts.slice(1, -1).join("|"); if (wp) params.set("waypoints", wp);
+  return `https://www.google.com/maps/dir/?api=1&${params.toString()}`;
+};
+
+// ═════════════════════════════════════════════════════════════════════════════
+// TOURS PAGE
+// ═════════════════════════════════════════════════════════════════════════════
+const toursForKey = (key) => TOURS.filter(tt => tt.stops.some(st => (st.k || [st.n]).includes(key)));
+
+function ToursPage({ lang, t, setCity, setTab }) {
+  const [section, setSection] = useState("reg");
+  const [activeId, setActiveId] = useState(null);
+  const [popup, setPopup] = useState(null);
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") setPopup(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+  const TX = TOUR_TXT[lang];
+  const active = TOURS.find(x => x.id === activeId);
+  const list = TOURS.filter(x => x.sec === section);
+
+  const tabBtn = (id, label, subl) => (
+    <button onClick={() => setSection(id)} style={{
+      flex:"1 1 0", border:"none", cursor:"pointer", fontFamily:"'DM Sans',sans-serif",
+      background: section===id ? C.card : "transparent",
+      color: section===id ? C.deep : C.gray, fontWeight: section===id ? 700 : 500,
+      fontSize:13, padding:"8px 6px", borderRadius:9,
+      boxShadow: section===id ? "0 1px 4px rgba(26,18,8,.12)" : "none" }}>
+      {label}<span style={{ display:"block", fontSize:10, color:C.gray, fontWeight:500, marginTop:1 }}>{subl}</span>
+    </button>
+  );
+
+  // ── DETAIL ──
+  if (active) {
+    const heroBg = active.reg ? getBg(active.reg) : `linear-gradient(135deg, ${C.terra}, ${C.gold})`;
+    return (
+      <div style={{ animation:"ivFade .3s ease both" }}>
+        <div style={{ padding:"10px 16px 0" }}>
+          <button onClick={() => setActiveId(null)} style={{
+            background:"none", border:"none", cursor:"pointer", color:C.terra,
+            fontSize:13, fontWeight:600, fontFamily:"'DM Sans',sans-serif", padding:"4px 0", display:"inline-flex", alignItems:"center", gap:6 }}>
+            ‹ {TX.back}
+          </button>
+        </div>
+
+        <div style={{ margin:"6px 16px 18px", borderRadius:16, overflow:"hidden", position:"relative", minHeight:150, display:"flex", alignItems:"flex-end", background:heroBg }}>
+          <div style={{ position:"absolute", inset:0, background:"linear-gradient(180deg, rgba(20,14,6,.15) 0%, rgba(20,14,6,.55) 45%, rgba(20,14,6,.92) 100%)" }} />
+          <div style={{ position:"relative", padding:"16px 16px 14px", width:"100%" }}>
+            <div style={{ fontSize:11, letterSpacing:2, textTransform:"uppercase", color:C.gold, fontWeight:700 }}>{active.area[lang]}</div>
+            <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:27, color:"#fff", lineHeight:1.1, margin:"6px 0 7px", textShadow:"0 2px 14px rgba(0,0,0,.5)" }}>{active.title[lang]}</div>
+            <div style={{ fontSize:14, color:"rgba(255,255,255,.93)", lineHeight:1.5 }}>{active.summary[lang]}</div>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:9, marginTop:13, alignItems:"center" }}>
+              {active.start && <span style={{ display:"inline-flex", alignItems:"center", gap:5, fontSize:11, fontWeight:700, color:"#20160A", background:C.gold, borderRadius:20, padding:"5px 11px", letterSpacing:.3 }}>▸ {TX.startLbl}: {active.start}</span>}
+              {active.route && <a href={tourMapsRoute(active)} target="_blank" rel="noopener noreferrer" style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:12.5, fontWeight:700, color:"#fff", background:"rgba(255,255,255,.16)", border:"1px solid rgba(255,255,255,.35)", borderRadius:20, padding:"6px 12px", textDecoration:"none" }}>🗺️ {TX.route}</a>}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ padding:"0 16px 8px" }}>
+          {active.stops.map((st, i) => {
+            const hub = tourIsHub(st), cnt = tourHubCount(st), last = i === active.stops.length - 1;
+            const cityObj = resolveTourCity(st);
+            const nodeColor = hub ? TOUR_HUB : C.gold;
+            return (
+              <div key={i} style={{ display:"flex", gap:13, paddingBottom: last ? 4 : 20 }}>
+                <div style={{ flex:"0 0 30px", display:"flex", flexDirection:"column", alignItems:"center" }}>
+                  <div style={{ width:30, height:30, borderRadius:"50%", background:C.cream, border:`2px solid ${nodeColor}`, color:nodeColor, fontFamily:"'Playfair Display',serif", fontWeight:700, fontSize:14, display:"flex", alignItems:"center", justifyContent:"center", flex:"0 0 auto" }}>{i+1}</div>
+                  {!last && <div style={{ width:2, flex:1, marginTop:3, background:"repeating-linear-gradient(to bottom, "+C.gold+" 0 5px, transparent 5px 9px)", opacity:.5 }} />}
+                </div>
+                <div style={{ flex:"1 1 auto", paddingBottom:2 }}>
+                  {hub ? (
+                    <button onClick={() => setPopup(st)} title={TX.tapHint} style={{ display:"flex", alignItems:"center", gap:7, flexWrap:"wrap", background:"none", border:"none", padding:0, cursor:"pointer", fontFamily:"inherit", textAlign:"left" }}>
+                      <span style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:18, fontWeight:700, color:TOUR_HUB, textDecoration:"underline", textDecorationStyle:"dotted", textUnderlineOffset:"3px" }}>{st.n}</span>
+                      {st.bg && <span style={{ fontSize:10, fontWeight:600, letterSpacing:.4, color:C.gray, border:"1px solid "+C.border, borderRadius:6, padding:"1px 6px" }}>{st.bg}</span>}
+                      <span style={{ display:"inline-flex", alignItems:"center", gap:3, fontSize:10.5, fontWeight:700, color:TOUR_HUB, background:"rgba(217,83,30,.12)", borderRadius:20, padding:"2px 8px" }}>↻ {TX.inTours(cnt)} ›</span>
+                    </button>
+                  ) : (
+                    <div style={{ display:"flex", alignItems:"center", gap:7, flexWrap:"wrap" }}>
+                      <span style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:18, fontWeight:700, color:C.deep }}>{st.n}</span>
+                      {st.bg && <span style={{ fontSize:10, fontWeight:600, letterSpacing:.4, color:C.gray, border:"1px solid "+C.border, borderRadius:6, padding:"1px 6px" }}>{st.bg}</span>}
+                    </div>
+                  )}
+                  <div style={{ fontSize:13.5, color:C.gray, lineHeight:1.55, margin:"6px 0 9px" }}>{st.b[lang]}</div>
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
+                    {cityObj && (
+                      <button onClick={() => { setCity(cityObj); setTab("explore"); }} style={{
+                        display:"inline-flex", alignItems:"center", gap:6, background:C.card, border:"1px solid "+C.border, color:C.deep,
+                        borderRadius:9, fontSize:12, fontWeight:600, padding:"7px 11px", cursor:"pointer", fontFamily:"'DM Sans',sans-serif" }}>
+                        🔎 {TX.viewCity}
+                      </button>
+                    )}
+                    <a href={tourMapsQuery(st)} target="_blank" rel="noopener noreferrer" style={{
+                      display:"inline-flex", alignItems:"center", gap:6, background:C.card, border:"1px solid "+C.border, color:C.deep,
+                      borderRadius:9, fontSize:12, fontWeight:600, padding:"7px 11px", textDecoration:"none" }}>
+                      📍 {TX.openMaps}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {popup && (() => {
+          const recKeys = (popup.k || [popup.n]).filter(k => TOUR_COUNTS[k] >= TOUR_MIN_HL);
+          const groups = recKeys.map(k => ({ key:k, tours: toursForKey(k) }));
+          return (
+            <div onClick={() => setPopup(null)} style={{ position:"fixed", inset:0, background:"rgba(10,7,3,.55)", zIndex:60, display:"flex", alignItems:"flex-end", justifyContent:"center", animation:"ivFade .2s ease both" }}>
+              <div onClick={(e) => e.stopPropagation()} style={{ width:"100%", maxWidth:430, background:C.card, borderTopLeftRadius:18, borderTopRightRadius:18, padding:"18px 18px calc(18px + env(safe-area-inset-bottom))", maxHeight:"76vh", overflowY:"auto", boxShadow:"0 -8px 40px rgba(0,0,0,.45)", animation:"ivFade .24s ease both" }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:10 }}>
+                  <div>
+                    <div style={{ fontSize:10.5, letterSpacing:1.5, textTransform:"uppercase", color:TOUR_HUB, fontWeight:700 }}>↻ {TX.appearsIn(tourHubCount(popup))}</div>
+                    <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:21, color:C.deep, marginTop:3, lineHeight:1.15 }}>{popup.n}</div>
+                  </div>
+                  <button onClick={() => setPopup(null)} aria-label="Close" style={{ background:"none", border:"none", color:C.gray, fontSize:24, lineHeight:1, cursor:"pointer", padding:0 }}>×</button>
+                </div>
+                {groups.map((g, gi) => (
+                  <div key={gi} style={{ marginTop: gi ? 14 : 0 }}>
+                    {groups.length > 1 && <div style={{ fontSize:12, fontWeight:700, color:C.deep, margin:"0 0 7px" }}>{g.key}</div>}
+                    <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                      {g.tours.map(tr => {
+                        const cur = active && tr.id === active.id;
+                        return (
+                          <button key={tr.id} onClick={() => { setActiveId(tr.id); setPopup(null); const el = document.getElementById("scroll-root"); if (el) el.scrollTop = 0; }}
+                            style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:10, textAlign:"left", width:"100%", cursor:"pointer",
+                              background: cur ? "rgba(212,168,67,.16)" : C.cream, border:"1px solid "+(cur ? C.gold : C.border), borderRadius:11, padding:"11px 13px", fontFamily:"'DM Sans',sans-serif" }}>
+                            <span style={{ flex:1 }}>
+                              <span style={{ display:"block", fontFamily:"'Playfair Display',Georgia,serif", fontSize:15.5, color:C.deep, lineHeight:1.2 }}>{tr.title[lang]}</span>
+                              <span style={{ display:"block", fontSize:11, color:C.gray, marginTop:2 }}>{tr.area[lang]}{cur ? " · " + TX.current : ""}</span>
+                            </span>
+                            <span style={{ color:C.gold, fontSize:18, flex:"0 0 auto" }}>›</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+        <div style={{ height:18 }} />
+      </div>
+    );
+  }
+
+  // ── LIST ──
+  return (
+    <div style={{ animation:"ivFade .3s ease both" }}>
+      <div style={{ display:"flex", gap:6, margin:"14px 16px 12px", background:C.border, borderRadius:12, padding:4 }}>
+        {tabBtn("reg", TX.tabReg, TX.regSub)}
+        {tabBtn("naz", TX.tabNaz, TX.nazSub)}
+      </div>
+
+      {TOUR_HAS_HUBS && (
+        <div style={{ display:"flex", alignItems:"center", gap:8, margin:"0 18px 12px", fontSize:12, color:C.gray, lineHeight:1.4 }}>
+          <span style={{ flex:"0 0 auto", fontSize:11, fontWeight:700, color:TOUR_HUB, background:"rgba(217,83,30,.12)", borderRadius:20, padding:"2px 8px" }}>↻</span>
+          <span>{TX.legend}</span>
+        </div>
+      )}
+
+      <div style={{ padding:"0 16px", display:"flex", flexDirection:"column", gap:12 }}>
+        {list.map(tour => (
+          <button key={tour.id} onClick={() => { setActiveId(tour.id); const el = document.getElementById("scroll-root"); if (el) el.scrollTop = 0; }}
+            style={{ width:"100%", textAlign:"left", cursor:"pointer", position:"relative", overflow:"hidden",
+              background:C.card, border:"1px solid "+C.border, borderLeft:"3px solid "+C.gold, borderRadius:14,
+              padding:"15px 16px", boxShadow:"0 4px 22px rgba(26,18,8,.07)", fontFamily:"'DM Sans',sans-serif" }}>
+            <div style={{ fontSize:10.5, letterSpacing:2, textTransform:"uppercase", color:C.terra, fontWeight:700 }}>{tour.area[lang]}</div>
+            <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:20, color:C.deep, margin:"5px 0 4px", lineHeight:1.15 }}>{tour.title[lang]}</div>
+            <div style={{ fontSize:13.5, color:C.gray, lineHeight:1.5 }}>{tour.summary[lang]}</div>
+            <div style={{ display:"flex", alignItems:"center", gap:7, marginTop:11 }}>
+              {tour.stops.map((st, i) => (
+                <Fragment key={i}>
+                  <span style={{ width:8, height:8, borderRadius:"50%", background:C.cream, border:`1.5px solid ${tourIsHub(st)?TOUR_HUB:C.gold}`, flex:"0 0 auto" }} />
+                  {i < tour.stops.length-1 && <span style={{ height:1.5, flex:"1 1 auto", background:"repeating-linear-gradient(to right, "+C.gray+" 0 4px, transparent 4px 7px)", opacity:.5 }} />}
+                </Fragment>
+              ))}
+              <span style={{ flex:"0 0 auto", fontSize:11, color:C.gray, marginLeft:6 }}><b style={{ color:C.deep }}>{tour.stops.length}</b> {TX.stops}</span>
+            </div>
+          </button>
+        ))}
+      </div>
+      <div style={{ height:18 }} />
+    </div>
+  );
+}
+
 const NAV = [
   { id:"explore",     icon:"🗺️", key:"navExplore" },
   { id:"transport",   icon:"🚌", key:"navTransport" },
   { id:"curiosities", icon:"💡", key:"navKnow" },
-  // Stage 2 — add Tours: { id:"tours", icon:"🧭", key:"navTours" },
+  { id:"tours",       icon:"🧭", key:"navTours" },
 ];
 
 export default function App() {
@@ -8905,6 +9481,7 @@ export default function App() {
     explore:     { title: t.titleExplore, sub: t.subExplore },
     transport:   { title: t.titleAround,  sub: t.subTransport },
     curiosities: { title: t.titleKnow,    sub: t.subKnow },
+    tours:       { title: t.titleTours,   sub: t.subTours },
   };
   const { title, sub } = headerInfo[tab] || headerInfo.explore;
 
@@ -8944,6 +9521,7 @@ export default function App() {
         <div style={{ display: tab==="explore"     ? "block" : "none" }}><ExplorePage   city={city} setCity={setCity} lang={lang} t={t} /></div>
         <div style={{ display: tab==="transport"   ? "block" : "none" }}><TransportPage city={city} setCity={setCity} lang={lang} t={t} /></div>
         <div style={{ display: tab==="curiosities" ? "block" : "none" }}><FunFactsPage  city={city} setCity={setCity} lang={lang} t={t} /></div>
+        <div style={{ display: tab==="tours"       ? "block" : "none" }}><ToursPage     lang={lang} t={t} setCity={setCity} setTab={switchTab} /></div>
       </div>
 
       {/* SIDE DRAWER */}

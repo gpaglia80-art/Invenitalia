@@ -26,9 +26,10 @@ npm run build    # outputs everything to dist/
 
 The deployable site is the **`dist/`** folder.
 
-## Deploy with GitHub → Cloudflare Pages (CI/CD)
+## Deploy with GitHub → Cloudflare (CI/CD)
 
-This sets up automatic builds: every push to GitHub triggers a Cloudflare build & deploy.
+Every push to GitHub triggers a Cloudflare build & deploy. Cloudflare can host this two ways —
+both build the same `dist/` folder.
 
 1. **Create a GitHub repo** and push this project:
    ```bash
@@ -39,16 +40,24 @@ This sets up automatic builds: every push to GitHub triggers a Cloudflare build 
    git remote add origin https://github.com/<you>/invenitalia.git
    git push -u origin main
    ```
-2. **Cloudflare dashboard** → Workers & Pages → **Create** → **Pages** → **Connect to Git**.
-3. Select your repo, then set **Build settings**:
-   - Framework preset: **None**
-   - Build command: **`npm run build`**
-   - Build output directory: **`dist`**
-4. **Save and Deploy.** Cloudflare runs the build and serves `dist/` at a `*.pages.dev` URL.
+2. **Cloudflare dashboard** → Workers & Pages → **Create** → **Connect to Git**, pick your repo.
+3. **Build settings:** Framework preset **None**, build command **`npm run build`**, output dir **`dist`**.
 
-> **Important:** create this as a **new project** (e.g. `invenitalia-next`) so your existing
-> `invenitalia4.pages.dev` production deploy and the Play Store TWA stay untouched while you
-> verify. Once you're happy, you can switch the TWA / production over.
+### If it deploys as a Worker (`wrangler deploy`)
+Cloudflare's newer flow deploys static sites as a Worker. This repo ships a `wrangler.jsonc`
+so that works with no prompts:
+- It points static assets at `dist/` and sets `not_found_handling: "single-page-application"`
+  (the proper Workers way to serve `index.html` for unknown paths — this replaces the old
+  `_redirects` SPA rule, which Workers rejects as an infinite loop).
+- Edit the `"name"` field in `wrangler.jsonc` if your Worker/project is named something else.
+
+### If it deploys as Pages
+The `wrangler.jsonc` is ignored by Pages; nothing else is needed. (There is no `_redirects`
+file — this app has no URL-path routing, so no SPA catch-all is required.)
+
+> **Important:** deploy to a **new project** first (e.g. `invenitalia-next` / `invenitaliaupd`)
+> so your existing `invenitalia4.pages.dev` production deploy and the Play Store TWA stay
+> untouched while you verify. Once you're happy, switch the TWA / production over.
 
 Future changes: edit `src/App.jsx`, commit, push → Cloudflare rebuilds automatically.
 
