@@ -1,5 +1,5 @@
-/* InvenItalia — Service Worker v5 (pass-through, no navigation caching) */
-const CACHE = 'invenitalia-v5';
+/* InvenItalia — Service Worker v6 (pass-through, no navigation caching) */
+const CACHE = 'invenitalia-v6';
 const STATIC = ['/icons/icon-192.png', '/icons/icon-512.png', '/manifest.json'];
 
 self.addEventListener('install', e => {

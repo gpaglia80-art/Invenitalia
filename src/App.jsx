@@ -8449,10 +8449,43 @@ function fallbackFacts(city, lang) {
   return [g];
 }
 
+// Precomputed offline fun-facts (Argos-translated Italian->English gap-fill)
+let _precomp = null, _precompP = null;
+function loadPrecomp() {
+  if (_precomp) return Promise.resolve(_precomp);
+  if (!_precompP) _precompP = fetch("/facts.json")
+    .then(r => (r.ok ? r.json() : {}))
+    .then(j => (_precomp = j || {}))
+    .catch(() => (_precomp = {}));
+  return _precompP;
+}
+const _GEN_EN = [{ e:"📍", t:"Did You Know?" }, { e:"🎨", t:"Worth Noting" }, { e:"🌿", t:"Local Detail" }, { e:"⭐", t:"Highlight" }];
+const _GEN_IT = [{ e:"📍", t:"Lo Sapevi?" }, { e:"🎨", t:"Da Notare" }, { e:"🌿", t:"Dettaglio Locale" }, { e:"⭐", t:"In Evidenza" }];
+function precompToFacts(arr, city, lang) {
+  const gen = lang === "it" ? _GEN_IT : _GEN_EN;
+  return arr.map((s, i) => {
+    if (i === 0) return { emoji:"🇮🇹", title:(lang === "it" ? "Su " : "About ") + city.n, fact:s };
+    const g = gen[(i - 1) % gen.length];
+    return { emoji:g.e, title:g.t, fact:s };
+  });
+}
+
 async function fetchFunFacts(city, lang = "en") {
   if (!window._factCache) window._factCache = new Map();
   const ck = city.n + "|" + city.r + "|" + lang;
   if (window._factCache.has(ck)) return window._factCache.get(ck);
+
+  // Offline gap-fill: when English Wikipedia is thin, serve the Argos-translated
+  // Italian facts instead of the sparse live English article.
+  if (lang === "en") {
+    const pc = await loadPrecomp();
+    const hit = pc[city.n + "|" + (city.p || "")];
+    if (hit && hit.en && hit.en.length) {
+      const f = precompToFacts(hit.en, city, lang);
+      window._factCache.set(ck, f);
+      return f;
+    }
+  }
 
   const strip = html => {
     if (typeof document === "undefined") return html;
