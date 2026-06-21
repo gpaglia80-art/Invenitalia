@@ -8491,8 +8491,23 @@ async function fetchFunFacts(city, lang = "en") {
     if (typeof document === "undefined") return html;
     const d = document.createElement("div");
     d.innerHTML = html;
-    d.querySelectorAll("style,script,table,.reference,sup,.mw-editsection,.navbox").forEach(z => z.remove());
-    return (d.textContent || "").replace(/\[[^\]]{1,12}\]/g, "").replace(/\s+/g, " ").trim();
+    // remove tables, references, the section heading (so the body doesn't repeat
+    // the fact's title), and any Wikipedia maintenance/notice boxes.
+    d.querySelectorAll(
+      "style,script,table,sup,h1,h2,h3,h4,h5,h6,.reference,.mw-editsection,.navbox,.toc,.thumb,.metadata,.noprint,.mw-empty-elt," +
+      "[role='note'],[class*='avviso'],[class*='ambox'],[class*='mbox'],[class*='hatnote'],[class*='dablink'],[class*='sistemare']"
+    ).forEach(z => z.remove());
+    let txt = (d.textContent || "").replace(/\[[^\]]{1,12}\]/g, "").replace(/\s+/g, " ").trim();
+    // belt-and-suspenders: drop any residual maintenance boilerplate phrasing
+    txt = txt
+      .replace(/Si propone di dividere questa pagina[^.]*?\.\s*/g, "")
+      .replace(/Questa voce o sezione[^.]*?(?:standard|Wikipedia|riferimento)[^.]*?\.\s*/g, "")
+      .replace(/Contribuisci a migliorarla[^.]*?\.\s*/g, "")
+      .replace(/Segui i (?:suggerimenti|consigli)[^.]*?\.\s*/g, "")
+      .replace(/Commento:[^.]*?(?=[A-ZÀ-Þ])/g, "")
+      .replace(/Vedi anche la discussione\.?\s*/g, "")
+      .replace(/\s+/g, " ").trim();
+    return txt;
   };
   const truncate = (o, R) => {
     if (!o || o.length <= R) return o;
@@ -9005,260 +9020,280 @@ const TOUR_HUB = "#D9531E";
 // stops are ordered North → South. reg = default region; bg overrides per-stop.
 // k = canonical keys for the recurrence count; q = Google-Maps query override.
 const TOURS = [
-  // ───────────── REGIONAL ─────────────
-  { id:"cilento", sec:"reg", reg:"Campania", route:true, start:"Agropoli",
+  { id:"cilento", sec:"reg", reg:"Campania", route:true, img:"/img/tours/cilento.jpg", start:"Castellabate",
     area:{it:"Campania",en:"Campania"}, title:{it:"Cilento",en:"Cilento"},
     summary:{it:"Borghi marinari, spiagge selvagge e templi greci nel sud della Campania.",en:"Seaside villages, wild beaches and Greek temples in southern Campania."},
     stops:[
-      {n:"Paestum",b:{it:"Custodisce il Parco Archeologico con i templi della Magna Grecia meglio conservati d'Europa.",en:"Home to the archaeological park with the best-preserved Magna Graecia temples in Europe."}},
-      {n:"Agropoli",b:{it:"La 'porta del Cilento', dominata dal Castello Aragonese e affacciata sulla Baia di Trentova.",en:"The 'gateway to the Cilento', crowned by its Aragonese castle above the Bay of Trentova."}},
-      {n:"Castellabate",b:{it:"Borgo medievale e sito UNESCO, reso celebre dal film 'Benvenuti al Sud'; comprende le frazioni costiere di Santa Maria e San Marco.",en:"A medieval village and UNESCO site made famous by the film 'Benvenuti al Sud', taking in the coastal hamlets of Santa Maria and San Marco."}},
-      {n:"Pioppi",b:{it:"Borgo marinaro pluripremiato per l'ambiente, riconosciuto come patria della Dieta Mediterranea.",en:"An award-winning seaside village known as the birthplace of the Mediterranean Diet."}},
-      {n:"Acciaroli",b:{it:"Frazione di Pollica celebre per il porticciolo, la Torre Normanna e le acque cristalline.",en:"A hamlet of Pollica known for its little harbour, the Norman tower and crystal-clear water."}},
-      {n:"Ascea",b:{it:"Spiagge dorate e gli Scavi di Velia, antica culla della filosofia eleatica.",en:"Golden beaches and the ruins of Velia, ancient cradle of Eleatic philosophy."}},
-      {n:"Palinuro",b:{it:"Famoso per il promontorio roccioso, le grotte marine e la Baia del Buon Dormire.",en:"Famous for its rocky headland, sea caves and the Baia del Buon Dormire."}},
-      {n:"Marina di Camerota",b:{it:"Capitale del turismo balneare, rinomata per calette come Cala Bianca e la Baia degli Infreschi.",en:"A beach-holiday capital, prized for coves like Cala Bianca and the Baia degli Infreschi."}}
+      {n:"Castellabate", b:{it:"Borgo medievale e sito UNESCO, famoso per il film Benvenuti al Sud. Include le frazioni costiere di Santa Maria e San Marco.",en:"A medieval village and UNESCO site, famous for the film 'Benvenuti al Sud'. It includes the coastal hamlets of Santa Maria and San Marco."}},
+      {n:"Acciaroli", b:{it:"Frazione di Pollica, celebre per il suo porticciolo, la Torre Normanna e le acque cristalline.",en:"A hamlet of Pollica, renowned for its little harbour, the Norman tower and crystal-clear waters."}},
+      {n:"Palinuro", b:{it:"Famoso per il suo promontorio roccioso e le grotte marine. Ospita la suggestiva Baia del Buon Dormire.",en:"Famous for its rocky headland and sea caves. It is home to the evocative Baia del Buon Dormire."}},
+      {n:"Marina di Camerota", b:{it:"Capitale del turismo balneare, rinomata per calette incontaminate come Cala Bianca e la Baia degli Infreschi.",en:"A capital of beach tourism, prized for unspoilt coves such as Cala Bianca and the Baia degli Infreschi."}},
+      {n:"Agropoli", b:{it:"La \"porta del Cilento\". Dominata dall'imponente Castello Aragonese e affacciata sulla splendida Baia di Trentova.",en:"The 'gateway to the Cilento'. Crowned by the imposing Aragonese castle and overlooking the beautiful Bay of Trentova."}},
+      {n:"Paestum", b:{it:"Custodisce l'omonimo Parco Archeologico, che vanta i templi della Magna Grecia meglio conservati d'Europa.",en:"Home to its archaeological park, which boasts the best-preserved Magna Graecia temples in Europe."}},
+      {n:"Pioppi", b:{it:"Borgo marinaro insignito di riconoscimenti ambientali e rinomato come la patria della Dieta Mediterranea.",en:"A seaside village awarded for its environment and known as the birthplace of the Mediterranean Diet."}},
+      {n:"Ascea", b:{it:"Unisce il relax delle spiagge dorate al fascino storico degli Scavi di Velia, antica culla della filosofia eleatica.",en:"It blends relaxing golden beaches with the historic appeal of the Velia excavations, ancient cradle of Eleatic philosophy."}},
     ]},
-  { id:"salento", sec:"reg", reg:"Puglia", route:true, start:"Lecce",
+  { id:"salento", sec:"reg", reg:"Puglia", route:true, img:"/img/tours/salento.jpg", start:"Lecce",
     area:{it:"Puglia",en:"Apulia"}, title:{it:"Salento",en:"Salento"},
     summary:{it:"Barocco, due mari e spiagge caraibiche sul tacco d'Italia.",en:"Baroque towns, two seas and Caribbean-like beaches on Italy's heel."},
     stops:[
-      {n:"Lecce",b:{it:"La 'Firenze del Sud', imperdibile per il barocco di Piazza del Duomo e la Basilica di Santa Croce.",en:"The 'Florence of the South', unmissable for the baroque of Piazza del Duomo and the Basilica di Santa Croce."}},
-      {n:"Porto Cesareo",b:{it:"Perfetta per le famiglie: 17 km di spiagge caraibiche e un mare limpidissimo.",en:"Ideal for families: 17 km of Caribbean-like beaches and exceptionally clear sea."}},
-      {n:"Otranto",b:{it:"Punto più a est d'Italia, con il Castello Aragonese, i mosaici della Cattedrale e la Baia dei Turchi.",en:"Italy's easternmost town, with its Aragonese castle, the cathedral mosaics and the Baia dei Turchi."}},
-      {n:"Gallipoli",b:{it:"Centro storico cinto dal mare e raggiunto da un antico ponte, con spiagge come Baia Verde e una vivace movida.",en:"A sea-ringed old town reached by an old bridge, with beaches like Baia Verde and lively nightlife."}},
-      {n:"Specchia e Presicce",k:["Specchia","Presicce"],q:"Specchia",b:{it:"Borghi autentici dell'entroterra, entrambi tra i più belli d'Italia.",en:"Authentic inland villages, both among Italy's most beautiful."}},
-      {n:"Santa Maria di Leuca",b:{it:"L'estremo lembo della Puglia, dove Ionio e Adriatico si incontrano, con il Faro e il Santuario.",en:"The very tip of Puglia, where the Ionian and Adriatic meet, with its lighthouse and sanctuary."}}
+      {n:"Lecce", b:{it:"La \"Firenze del Sud\", imperdibile per il suo stile barocco. Da visitare Piazza del Duomo e la Basilica di Santa Croce.",en:"The 'Florence of the South', unmissable for its baroque style. Don't miss Piazza del Duomo and the Basilica di Santa Croce."}},
+      {n:"Gallipoli", b:{it:"Centro storico circondato dal mare, raggiungibile tramite un antico ponte. Ideale per chi cerca spiagge sabbiose (come la Baia Verde) e una vivace vita serale.",en:"An old town surrounded by the sea, reached by an ancient bridge. Ideal for those seeking sandy beaches (such as Baia Verde) and lively evenings."}},
+      {n:"Otranto", b:{it:"Punto più a est d'Italia, famosa per il Castello Aragonese e i mosaici della Cattedrale. È circondata da calette meravigliose come la Baia dei Turchi.",en:"Italy's easternmost point, famous for its Aragonese castle and the cathedral's mosaics. It is ringed by wonderful coves like the Baia dei Turchi."}},
+      {n:"Porto Cesareo", b:{it:"Perfetta per le famiglie, offre 17 km di spiagge caraibiche e un mare limpidissimo.",en:"Perfect for families, it offers 17 km of Caribbean-like beaches and exceptionally clear sea."}},
+      {n:"Santa Maria di Leuca", b:{it:"Estremo lembo della Puglia, dove si incontrano i due mari (Ionio e Adriatico). Suggestiva per il suo Faro e il Santuario.",en:"The very tip of Puglia, where the two seas (Ionian and Adriatic) meet. Striking for its lighthouse and sanctuary."}},
+      {n:"Specchia", b:{it:"Suggestivo borgo medievale nel cuore del Salento, considerato tra i più belli d'Italia per il suo nucleo storico collinare e i frantoi ipogei. È famoso per le stradine caratteristiche, i palazzi nobiliari e i panorami sulle campagne di ulivi secolari circostanti.",en:"An evocative medieval village in the heart of the Salento, counted among Italy's most beautiful for its hilltop old town and underground oil mills. It is famous for its characteristic lanes, noble palaces and views over the surrounding groves of centuries-old olive trees."}},
+      {n:"Presicce", b:{it:"Uno dei Borghi più Belli d'Italia, situato nel basso Salento e celebre come la \"Città degli ipogei\" per la sua straordinaria rete sotterranea di frantoi scavati nella roccia. In superficie, il centro storico affascina con i suoi eleganti palazzi signorili, le caratteristiche case a corte e le architetture barocche avvolte da uliveti secolari.",en:"One of the Most Beautiful Villages in Italy, in the lower Salento and known as the 'town of hypogea' for its extraordinary underground network of rock-cut oil mills. Above ground, the old town charms with elegant manor houses, characteristic courtyard homes and baroque architecture wrapped in age-old olive groves."}},
     ]},
-  { id:"arch-campania", sec:"reg", reg:"Campania", route:true, start:"Napoli",
+  { id:"arch-campania", sec:"reg", reg:"Campania", route:true, img:"/img/tours/arch-campania.jpg", start:"Napoli",
     area:{it:"Campania",en:"Campania"}, title:{it:"Archeologico Campania",en:"Archaeological Campania"},
     summary:{it:"Da Pompei ai Campi Flegrei, sulle tracce della Campania antica.",en:"From Pompeii to the Phlegraean Fields, tracing ancient Campania."},
     stops:[
-      {n:"Santa Maria Capua Vetere",b:{it:"L'Anfiteatro Campano, secondo solo al Colosseo, e l'adiacente Mitreo sotterraneo.",en:"The Campanian amphitheatre, second only to the Colosseum, and the underground Mithraeum beside it."}},
-      {n:"Napoli",b:{it:"Si parte dal MANN per i capolavori di Pompei e dalla Napoli Sotterranea, anima greco-romana della città.",en:"Begin at the MANN museum for Pompeii's masterpieces and at Underground Naples, the city's Greco-Roman soul."}},
-      {n:"Campi Flegrei",q:"Campi Flegrei",b:{it:"Il Parco Archeologico di Cuma con l'Antro della Sibilla e, a Baia, il Parco Sommerso.",en:"The archaeological park of Cumae with the Sibyl's cave and, at Baia, the submerged park."}},
-      {n:"Pompei ed Ercolano",k:["Pompei","Ercolano"],q:"Pompei",b:{it:"Gli scavi di Pompei per la vita quotidiana antica; Ercolano per ville aristocratiche e mosaici intatti.",en:"Pompeii's excavations for daily ancient life; Herculaneum for aristocratic villas and intact mosaics."}},
-      {n:"Paestum",b:{it:"Tre maestosi templi dorici fra i meglio conservati al mondo e la 'Tomba del Tuffatore' al museo.",en:"Three majestic Doric temples among the best preserved on earth, plus the 'Diver's Tomb' in the museum."}}
+      {n:"Napoli", b:{it:"Inizia dal Museo Archeologico Nazionale di Napoli (MANN) per ammirare i capolavori provenienti da Pompei. Visita la Napoli Sotterranea per scoprire l'anima greco-romana della città.",en:"Begin at the National Archaeological Museum (MANN) to admire the masterpieces from Pompeii. Visit Underground Naples to discover the city's Greco-Roman soul."}},
+      {n:"Pompei", b:{it:"Uno dei siti più straordinari al mondo, una città romana cristallizzata nel tempo dalla tragica eruzione del Vesuvio nel 79 d.C. Le sue strade, domus affrescate, templi e calchi dei residenti offrono un'immersione totale nella vita quotidiana dell'antichità, rendendola patrimonio mondiale UNESCO.",en:"One of the most extraordinary sites in the world, a Roman city frozen in time by the tragic eruption of Vesuvius in 79 AD. Its streets, frescoed houses, temples and casts of residents offer total immersion in ancient daily life, making it a UNESCO World Heritage Site."}},
+      {n:"Ercolano", b:{it:"Gioiello dell'antichità romana che, a differenza di Pompei, fu sommerso da una nube piroclastica che ha preservato intatti materiali organici come legni, tessuti e persino scheletri. Più piccola e compatta, questa città residenziale incanta per le sue lussuose domus a due piani, i mosaici splendenti e l'incredibile stato di conservazione degli arredi domestici",en:"A jewel of Roman antiquity which, unlike Pompeii, was buried by a pyroclastic flow that preserved organic materials such as wood, fabrics and even skeletons. Smaller and more compact, this residential town enchants with its luxurious two-storey houses, gleaming mosaics and the incredible state of its furnishings."}},
+      {n:"Campi Flegrei", b:{it:"Visita il Parco Archeologico di Cuma e l'Antro della Sibilla. A Baia scopri il Parco Sommerso e il maestoso tempio di Diana.",en:"Visit the archaeological park of Cumae and the Sibyl's cave. At Baia, discover the submerged park and the majestic temple of Diana."}},
+      {n:"Santa Maria Capua Vetere", b:{it:"Ammira l'Anfiteatro Campano, secondo solo al Colosseo per dimensioni. Esplora l'adiacente Mitreo sotterraneo, dedicato al culto del dio Mitra.",en:"Admire the Campanian amphitheatre, second in size only to the Colosseum. Explore the adjacent underground Mithraeum, dedicated to the cult of the god Mithras."}},
+      {n:"Paestum", b:{it:"Ammira i tre maestosi templi dorici, tra i meglio conservati al mondo. Visita il Museo Archeologico Nazionale per scoprire la celebre \"Tomba del Tuffatore\".",en:"Admire the three majestic Doric temples, among the best preserved in the world. Visit the National Archaeological Museum to discover the famous 'Diver's Tomb'."}},
     ]},
-  { id:"amalfi", sec:"reg", reg:"Campania", route:true, start:"Vietri sul Mare",
+  { id:"amalfi", sec:"reg", reg:"Campania", route:true, img:"/img/tours/amalfi.jpg", start:"Positano",
     area:{it:"Campania",en:"Campania"}, title:{it:"Costiera Amalfitana",en:"Amalfi Coast"},
     summary:{it:"Borghi pastello a strapiombo sul mare tra Vietri e Positano.",en:"Pastel villages clinging to the sea from Vietri to Positano."},
     stops:[
-      {n:"Vietri sul Mare",b:{it:"La capitale della ceramica campana, fra cupole dipinte a mano e botteghe artigiane.",en:"The capital of Campanian ceramics, with hand-painted domes and artisan workshops."}},
-      {n:"Ravello",b:{it:"Arroccata a 350 metri, con le viste di Villa Cimbrone e Villa Rufolo.",en:"Perched at 350 metres, with the views from Villa Cimbrone and Villa Rufolo."}},
-      {n:"Cetara",b:{it:"Autentico villaggio di pescatori, celebre per la colatura di alici.",en:"A genuine fishing village, famous worldwide for its anchovy 'colatura'."}},
-      {n:"Atrani",b:{it:"Il comune più piccolo d'Italia, a due passi da Amalfi, dal fascino marinaro intatto.",en:"Italy's smallest municipality, steps from Amalfi, with its seafaring charm intact."}},
-      {n:"Amalfi",b:{it:"Il cuore storico e culturale, dominato dal Duomo di Sant'Andrea e dalle sue stradine.",en:"The historic and cultural heart, crowned by the Duomo di Sant'Andrea and its tangle of lanes."}},
-      {n:"Positano",b:{it:"Il borgo verticale per eccellenza, fra boutique e la cupola in maiolica di Santa Maria Assunta.",en:"The vertical village par excellence, all boutiques beneath the majolica dome of Santa Maria Assunta."}},
-      {n:"Furore",b:{it:"Famosa per il suo fiordo, un'insenatura nascosta tra rocce a strapiombo sul mare.",en:"Famous for its fjord, a hidden inlet between cliffs plunging into the sea."}}
+      {n:"Positano", b:{it:"il borgo verticale per eccellenza, con stradine piene di boutique e la cupola in maiolica della Chiesa di Santa Maria Assunta.",en:"The vertical village par excellence, with lanes full of boutiques and the majolica dome of the church of Santa Maria Assunta."}},
+      {n:"Amalfi", b:{it:"il cuore storico e culturale, dominato dall'imponente Duomo di Sant'Andrea e famoso per le sue suggestive stradine.",en:"The historic and cultural heart, dominated by the imposing Duomo di Sant'Andrea and famous for its evocative lanes."}},
+      {n:"Ravello", b:{it:"arroccata a 350 metri di altezza, offre la vista più spettacolare dai giardini di Villa Cimbrone e Villa Rufolo.",en:"Perched at 350 metres, it offers the most spectacular views from the gardens of Villa Cimbrone and Villa Rufolo."}},
+      {n:"Atrani", b:{it:"il comune più piccolo d'Italia, situato a pochi passi da Amalfi, conserva intatto il fascino del borgo marinaro.",en:"Italy's smallest municipality, a few steps from Amalfi, it keeps the charm of a seaside village fully intact."}},
+      {n:"Cetara", b:{it:"un autentico villaggio di pescatori, celebre in tutto il mondo per la sua tradizione culinaria e la colatura di alici.",en:"An authentic fishing village, famous worldwide for its culinary tradition and its anchovy 'colatura'."}},
+      {n:"Vietri sul Mare", b:{it:"la capitale della ceramica campana, con le sue caratteristiche cupole decorate a mano e botteghe artigiane.",en:"The capital of Campanian ceramics, with its characteristic hand-painted domes and artisan workshops."}},
+      {n:"Furore", b:{it:"famosa per il suo fiordo spettacolare, un'insenatura naturale nascosta tra le rocce a strapiombo sul mare",en:"Famous for its spectacular fjord, a natural inlet hidden among cliffs plunging into the sea."}},
     ]},
-  { id:"dolomiti", sec:"reg", reg:"Trentino-Alto Adige", route:true, start:"Cortina d'Ampezzo",
+  { id:"dolomiti", sec:"reg", reg:"Trentino-Alto Adige", route:true, img:"/img/tours/dolomiti.jpg", start:"Cortina d'Ampezzo",
     area:{it:"Dolomiti",en:"The Dolomites"}, title:{it:"Dolomiti",en:"The Dolomites"},
-    summary:{it:"Le vette più belle delle Alpi, da Brunico a Feltre.",en:"The Alps' most beautiful peaks, from Brunico to Feltre."},
+    summary:{it:"Le vette più belle delle Alpi, tra Veneto e Trentino-Alto Adige.",en:"The Alps’ most beautiful peaks, across Veneto and Trentino-Alto Adige."},
     stops:[
-      {n:"Brunico",bg:"Trentino-Alto Adige",b:{it:"Vivace città che unisce un centro medievale al comprensorio di Plan de Corones.",en:"A lively town pairing a medieval centre with the Kronplatz ski area."}},
-      {n:"San Candido",bg:"Trentino-Alto Adige",b:{it:"Perla dell'Alta Pusteria, nota per la Collegiata e la vicina Val Fiscalina.",en:"A gem of the Alta Pusteria, known for its collegiate church and nearby Val Fiscalina."}},
-      {n:"San Cassiano",bg:"Trentino-Alto Adige",q:"San Cassiano in Badia, Bolzano",b:{it:"In Alta Badia, rinomato per l'eccellenza gastronomica e il fascino tirolese.",en:"In Alta Badia, renowned for fine dining and Tyrolean charm."}},
-      {n:"Ortisei",bg:"Trentino-Alto Adige",b:{it:"Centro della Val Gardena, celebre per l'artigianato in legno e i suoi edifici curatissimi.",en:"The hub of Val Gardena, known for woodcarving and its immaculate buildings."}},
-      {n:"Cortina d'Ampezzo",bg:"Veneto",b:{it:"La 'Regina delle Dolomiti', la meta più iconica ed elegante.",en:"The 'Queen of the Dolomites', the most iconic and elegant destination."}},
-      {n:"Vigo di Fassa",bg:"Trentino-Alto Adige",b:{it:"Tra i Borghi più belli d'Italia, con vista sul gruppo del Catinaccio.",en:"One of Italy's loveliest villages, facing the Catinaccio group."}},
-      {n:"Alleghe",bg:"Veneto",b:{it:"Adagiato sulle rive dell'omonimo lago, sotto il massiccio del Civetta.",en:"Set on the shores of its lake, below the Civetta massif."}},
-      {n:"San Martino di Castrozza",bg:"Trentino-Alto Adige",b:{it:"Ai piedi delle maestose Pale di San Martino.",en:"At the foot of the majestic Pale di San Martino."}},
-      {n:"Belluno",bg:"Veneto",b:{it:"Capoluogo ricco di palazzi rinascimentali e scorci naturali.",en:"A provincial capital full of Renaissance palaces and natural views."}},
-      {n:"Feltre",bg:"Veneto",b:{it:"Cittadella murata ricca di storia e palazzi affrescati.",en:"A walled citadel rich in history and frescoed palaces."}}
+      {n:"Cortina d'Ampezzo", b:{it:"Conosciuta come la Regina delle Dolomiti, è la meta più iconica ed elegante.",en:"Known as the Queen of the Dolomites, it is the most iconic and elegant destination."}, bg:"Veneto"},
+      {n:"Ortisei", b:{it:"Centro principale della Val Gardena, famoso per l'artigianato in legno e i curatissimi edifici.",en:"The main hub of Val Gardena, famous for woodcarving and its immaculate buildings."}, bg:"Trentino-Alto Adige"},
+      {n:"San Martino di Castrozza", b:{it:"Situato ai piedi delle maestose Pale di San Martino.",en:"Set at the foot of the majestic Pale di San Martino."}, bg:"Trentino-Alto Adige"},
+      {n:"Brunico", b:{it:"Vivace città che unisce un centro storico medievale al comprensorio di Plan de Corones.",en:"A lively town that pairs a medieval old quarter with the Plan de Corones (Kronplatz) ski area."}, bg:"Trentino-Alto Adige"},
+      {n:"San Candido", b:{it:"Perla dell'Alta Pusteria famosa per la sua Collegiata e la vicinanza alla Val Fiscalina.",en:"A gem of the Alta Pusteria, famous for its collegiate church and its proximity to the Val Fiscalina."}, bg:"Trentino-Alto Adige"},
+      {n:"Belluno", b:{it:"Splendido capoluogo di provincia ricco di palazzi rinascimentali e scorci naturali.",en:"A splendid provincial capital rich in Renaissance palaces and natural views."}, bg:"Veneto"},
+      {n:"San Cassiano", b:{it:"In Alta Badia, è rinomato per l'eccellenza gastronomica e il fascino tirolese.",en:"In Alta Badia, renowned for its culinary excellence and Tyrolean charm."}, bg:"Trentino-Alto Adige", q:"San Cassiano in Badia, Bolzano"},
+      {n:"Alleghe", b:{it:"Adagiato sulle rive dell'omonimo lago e dominato dal massiccio del Civetta.",en:"Set on the shores of its lake and dominated by the Civetta massif."}, bg:"Veneto"},
+      {n:"Feltre", b:{it:"Cittadella murata ricca di storia, arte e palazzi affrescati.",en:"A walled citadel rich in history, art and frescoed palaces."}, bg:"Veneto"},
+      {n:"Vigo di Fassa", b:{it:"Inserito tra i Borghi più belli d'Italia, offre una vista magnifica sul gruppo del Catinaccio.",en:"One of the Most Beautiful Villages in Italy, it offers a magnificent view of the Catinaccio group."}, bg:"Trentino-Alto Adige"},
     ]},
-  { id:"valdorcia", sec:"reg", reg:"Toscana", route:true, start:"Montepulciano",
+  { id:"valdorcia", sec:"reg", reg:"Toscana", route:true, img:"/img/tours/valdorcia.jpg", start:"Pienza",
     area:{it:"Toscana",en:"Tuscany"}, title:{it:"Val d'Orcia",en:"Val d'Orcia"},
     summary:{it:"Colline UNESCO, vino e borghi rinascimentali nel cuore della Toscana.",en:"UNESCO hills, wine and Renaissance towns in the heart of Tuscany."},
     stops:[
-      {n:"Montepulciano",b:{it:"Splendida città rinascimentale, famosa per Piazza Grande e il Vino Nobile.",en:"A splendid Renaissance town, famed for Piazza Grande and Vino Nobile wine."}},
-      {n:"Pienza",b:{it:"La 'città ideale' del Rinascimento voluta da Pio II, celebre per il pecorino.",en:"The Renaissance 'ideal city' built for Pope Pius II, famous for its pecorino."}},
-      {n:"San Quirico d'Orcia",b:{it:"Gioiello medievale tra mura, con gli Horti Leonini e la vicina Cappella di Vitaleta.",en:"A walled medieval gem, with the Horti Leonini gardens and the nearby Vitaleta chapel."}},
-      {n:"Montalcino",b:{it:"Borgo medievale fortificato in cima a una collina, patria del Brunello.",en:"A fortified medieval hill-town, home of Brunello wine."}},
-      {n:"Bagno Vignoni",b:{it:"Borgo unico al mondo, con la piazza occupata da una grande vasca termale romana.",en:"A one-of-a-kind village whose main square is a great Roman thermal pool."}},
-      {n:"Castiglione d'Orcia",b:{it:"Dominato dalla Rocca di Tentennano, con vista sull'intera vallata.",en:"Overlooked by the Rocca di Tentennano, with views across the whole valley."}},
-      {n:"Radicofani",b:{it:"Sul punto più alto della valle, dominato da una fortezza visibile per chilometri.",en:"On the valley's highest point, crowned by a fortress visible for miles."}}
+      {n:"Pienza", b:{it:"definita la \"città ideale\" del Rinascimento, è un capolavoro architettonico voluto da Papa Pio II, famoso per il suo pecorino.",en:"Defined as the Renaissance 'ideal city', an architectural masterpiece commissioned by Pope Pius II and famous for its pecorino cheese."}},
+      {n:"Montalcino", b:{it:"borgo medievale fortificato situato in cima a una collina, celebre in tutto il mondo per il suo vino Brunello.",en:"A fortified medieval village set atop a hill, famous worldwide for its Brunello wine."}},
+      {n:"Montepulciano", b:{it:"splendida città rinascimentale famosa per Piazza Grande e per il pregiato vino Vino Nobile.",en:"A splendid Renaissance town famous for Piazza Grande and the prized Vino Nobile wine."}},
+      {n:"San Quirico d'Orcia", b:{it:"un gioiello medievale circondato da mura, noto per gli Horti Leonini e la vicina Cappella di Vitaleta.",en:"A walled medieval gem, known for the Horti Leonini gardens and the nearby Vitaleta chapel."}},
+      {n:"Bagno Vignoni", b:{it:"un caratteristico borgo unico al mondo, la cui piazza principale è occupata da un'enorme vasca termale d'epoca romana.",en:"A one-of-a-kind village whose main square is occupied by a huge Roman-era thermal pool."}},
+      {n:"Castiglione d'Orcia", b:{it:"dominato dalla Rocca di Tentennano, offre una vista spettacolare sull'intera vallata.",en:"Dominated by the Rocca di Tentennano, it offers a spectacular view over the whole valley."}},
+      {n:"Radicofani", b:{it:"si trova sul punto più alto della valle, dominato da una grande fortezza visibile da chilometri di distanza.",en:"It sits on the valley's highest point, crowned by a great fortress visible for miles around."}},
     ]},
-  { id:"langhe", sec:"reg", reg:"Piemonte", route:true, start:"Alba",
+  { id:"langhe", sec:"reg", reg:"Piemonte", route:true, img:"/img/tours/langhe.jpg", start:"Alba",
     area:{it:"Piemonte",en:"Piedmont"}, title:{it:"Le Langhe",en:"The Langhe"},
     summary:{it:"Le colline del Barolo, dei tartufi e dei castelli del Piemonte.",en:"The Piedmont hills of Barolo, truffles and castles."},
     stops:[
-      {n:"Barbaresco",b:{it:"Dominato dalla Torre medievale, perfetto per degustare un altro grande rosso piemontese.",en:"Dominated by its medieval tower, the place to taste another great Piedmont red."}},
-      {n:"Neive",b:{it:"Tra i Borghi più belli d'Italia, con un centro medievale perfettamente conservato.",en:"One of Italy's loveliest villages, with a perfectly preserved medieval centre."}},
-      {n:"Alba",b:{it:"Capitale delle Langhe, celebre per il Tartufo Bianco e le torri medievali.",en:"The capital of the Langhe, famed for white truffles and medieval towers."}},
-      {n:"La Morra",b:{it:"Famosa per il Belvedere di Piazza Castello e la vista a 360° sulle colline del Barolo.",en:"Known for its belvedere in Piazza Castello and 360° views over the Barolo hills."}},
-      {n:"Serralunga d'Alba",b:{it:"Caratterizzato dal castello medievale che si slancia verticale come una lama.",en:"Defined by a medieval castle that rises sheer like a blade."}},
-      {n:"Barolo",b:{it:"Il borgo che dà nome al vino, con il Castello Falletti e il museo WiMu.",en:"The village that names the wine, with Castello Falletti and the WiMu wine museum."}}
+      {n:"Alba", b:{it:"Considerata la capitale delle Langhe, è famosa per il Tartufo Bianco e le sue torri medievali.",en:"Considered the capital of the Langhe, it is famous for its White Truffle and its medieval towers."}},
+      {n:"Barolo", b:{it:"Il borgo che dà il nome al celebre vino, dominato dal Castello Falletti e dal WiMu (Museo del Vino).",en:"The village that gives its name to the celebrated wine, dominated by Castello Falletti and the WiMu (Wine Museum)."}},
+      {n:"La Morra", b:{it:"Famosa per il suo Belvedere in Piazza Castello, offre una vista panoramica a 360 gradi sulle colline del Barolo.",en:"Famous for its belvedere in Piazza Castello, offering a 360-degree panorama over the Barolo hills."}},
+      {n:"Neive", b:{it:"Inserito tra i Borghi più belli d'Italia, vanta un centro storico medievale perfettamente conservato e palazzi signorosi.",en:"One of the Most Beautiful Villages in Italy, with a perfectly preserved medieval old town and noble palaces."}},
+      {n:"Barbaresco", b:{it:"Dominato dalla sua imponente Torre medievale, è il luogo perfetto per degustare un altro dei grandi vini rossi piemontesi.",en:"Dominated by its imposing medieval tower, it is the perfect place to taste another of the great Piedmont reds."}},
+      {n:"Serralunga d'Alba", b:{it:"Caratterizzato dal suo spettacolare castello medievale che si slancia in verticale come una lama.",en:"Defined by its spectacular medieval castle that rises vertically like a blade."}},
     ]},
-  { id:"cinqueterre", sec:"reg", reg:"Liguria", route:true, start:"Monterosso al Mare",
+  { id:"cinqueterre", sec:"reg", reg:"Liguria", route:true, img:"/img/tours/cinqueterre.jpg", start:"Vernazza",
     area:{it:"Liguria",en:"Liguria"}, title:{it:"Cinque Terre",en:"Cinque Terre"},
     summary:{it:"Cinque borghi colorati a picco sul mare ligure.",en:"Five colourful villages perched above the Ligurian sea."},
     stops:[
-      {n:"Monterosso al Mare",b:{it:"Il borgo più grande e pianeggiante, con ampie spiagge di sabbia: ideale per famiglie.",en:"The largest, flattest village, with wide sandy beaches: ideal for families."}},
-      {n:"Vernazza",b:{it:"La più pittoresca, con un porticciolo naturale e una piazzetta sul mare tra case pastello.",en:"The most picturesque, with a natural harbour and a seaside square framed by pastel houses."}},
-      {n:"Corniglia",b:{it:"La più autentica e tranquilla, arroccata in alto: panorama a 360° in cima alla Lardarina.",en:"The most authentic and quiet, perched high up: a 360° view atop the Lardarina steps."}},
-      {n:"Manarola",b:{it:"Lo scorcio da cartolina, abbarbicata su una roccia scura: perfetta al tramonto.",en:"The postcard view, clinging to dark rock and perfect at sunset."}},
-      {n:"Riomaggiore",b:{it:"Romantica, con il porticciolo tra case-torre colorate e l'inizio della Via dell'Amore.",en:"Romantic, with a harbour among colourful tower-houses and the start of the Via dell'Amore."}}
+      {n:"Vernazza", b:{it:"Considerata la più pittoresca e iconica. Ha un porticciolo naturale protetto e una piazzetta sul mare circondata da case color pastello.",en:"Considered the most picturesque and iconic. It has a sheltered natural harbour and a small seaside square framed by pastel houses."}},
+      {n:"Manarola", b:{it:"Famosa per il suo scorcio da cartolina. È abbarbicata su una roccia scura ed è il posto perfetto per ammirare il tramonto.",en:"Famous for its postcard view. Clinging to dark rock, it is the perfect spot to admire the sunset."}},
+      {n:"Riomaggiore", b:{it:"Molto romantica, con un porticciolo incastonato tra ripide case-torre colorate. È la più vicina a La Spezia ed è il punto di partenza della famosa Via dell'Amore.",en:"Very romantic, with a harbour set among steep, colourful tower-houses. It is the closest to La Spezia and the start of the famous Via dell'Amore."}},
+      {n:"Monterosso al Mare", b:{it:"Ideale se cerchi comodità e ampie spiagge di sabbia. È il borgo più grande e pianeggiante, perfetto per famiglie.",en:"Ideal if you want comfort and wide sandy beaches. It is the largest and flattest village, perfect for families."}},
+      {n:"Corniglia", b:{it:"La più autentica e tranquilla. Essendo l'unica arroccata in alto su un promontorio, regala un panorama mozzafiato a 360 gradi, ma richiede di salire la scalinata detta Lardarina",en:"The most authentic and quiet. As the only one perched high on a promontory, it offers a breathtaking 360-degree view, but requires climbing the stairway known as the Lardarina."}},
     ]},
-  { id:"como", sec:"reg", reg:"Lombardia", route:true, start:"Como",
+  { id:"como", sec:"reg", reg:"Lombardia", route:true, img:"/img/tours/como.jpg", start:"Bellagio",
     area:{it:"Lombardia",en:"Lombardy"}, title:{it:"Lago di Como",en:"Lake Como"},
     summary:{it:"Ville, giardini e borghi eleganti sulle sponde del Lario.",en:"Villas, gardens and elegant villages on the shores of Lake Como."},
     stops:[
-      {n:"Menaggio",b:{it:"Sulla sponda occidentale, con un elegante lungolago e un centro caratteristico.",en:"On the western shore, with an elegant lakefront and a charming centre."}},
-      {n:"Varenna",b:{it:"Pittoresco borgo di pescatori sotto il Castello di Vezio, perfetto per una passeggiata romantica.",en:"A picturesque fishing village below Vezio Castle, perfect for a romantic stroll."}},
-      {n:"Tremezzo",b:{it:"Ospita Villa Carlotta, rinomata per il giardino botanico e le opere d'arte.",en:"Home to Villa Carlotta, known for its botanical garden and artworks."}},
-      {n:"Bellagio",b:{it:"Celebre per Punta Spartivento, le scalinate acciottolate e i giardini di Villa Melzi.",en:"Famous for Punta Spartivento, cobbled stairways and the gardens of Villa Melzi."}},
-      {n:"Argegno",b:{it:"Piccolo borgo vivace, ottimo punto di partenza per la funivia verso Pigra.",en:"A small, lively village and a fine starting point for the cable car to Pigra."}},
-      {n:"Nesso",b:{it:"Suggestivo per il profondo Orrido, una gola naturale, e il ponte medievale.",en:"Striking for its deep Orrido gorge and a medieval bridge."}},
-      {n:"Cernobbio",b:{it:"Famosa per le boutique esclusive e Villa d'Este, icona di lusso.",en:"Known for exclusive boutiques and Villa d'Este, an icon of luxury."}},
-      {n:"Como",b:{it:"Capoluogo dominato dal Duomo, ideale punto di partenza per esplorare il Lario.",en:"A historic capital crowned by its cathedral, the ideal base for exploring the lake."}}
+      {n:"Bellagio", b:{it:"Celebre per la sua posizione panoramica su Punta Spartivento, le scalinate acciottolate e i meravigliosi giardini di Villa Melzi.",en:"Famous for its panoramic position on Punta Spartivento, its cobbled stairways and the wonderful gardens of Villa Melzi."}},
+      {n:"Varenna", b:{it:"Un pittoresco borgo di pescatori dominato dal Castello di Vezio, perfetto per una passeggiata romantica.",en:"A picturesque fishing village dominated by Vezio Castle, perfect for a romantic stroll."}},
+      {n:"Tremezzo", b:{it:"Ospita Villa Carlotta, rinomata per il suo giardino botanico e le opere d'arte.",en:"Home to Villa Carlotta, renowned for its botanical garden and artworks."}},
+      {n:"Como", b:{it:"Capoluogo ricco di storia, dominato dal Duomo e ideale come punto di partenza per esplorare il Lario.",en:"A provincial capital rich in history, dominated by its cathedral and an ideal base for exploring Lake Como."}},
+      {n:"Menaggio", b:{it:"Sulla sponda occidentale, offre un elegante lungolago e un centro storico caratteristico.",en:"On the western shore, it offers an elegant lakefront and a characterful old town."}},
+      {n:"Cernobbio", b:{it:"Famosa per le sue boutique esclusive e Villa d'Este, icona di lusso e ospitalità.",en:"Famous for its exclusive boutiques and Villa d'Este, an icon of luxury and hospitality."}},
+      {n:"Nesso", b:{it:"Suggestivo per il suo profondo Orrido (una gola naturale) e il ponte medievale.",en:"Striking for its deep Orrido (a natural gorge) and its medieval bridge."}},
+      {n:"Argegno", b:{it:"Piccolo borgo vivace, ottimo punto di partenza per salire in funivia verso Pigra.",en:"A small, lively village and an excellent base for the cable car up to Pigra."}},
     ]},
-  { id:"garda", sec:"reg", reg:"Veneto", route:true, start:"Desenzano del Garda",
+  { id:"garda", sec:"reg", reg:"Veneto", route:true, img:"/img/tours/garda.jpg", start:"Sirmione",
     area:{it:"Lago di Garda",en:"Lake Garda"}, title:{it:"Lago di Garda",en:"Lake Garda"},
     summary:{it:"Castelli scaligeri, terme e limonaie sul lago più grande d'Italia.",en:"Scaliger castles, spas and lemon groves on Italy's largest lake."},
     stops:[
-      {n:"Riva del Garda",bg:"Trentino-Alto Adige",b:{it:"La capitale dell'alto lago, fra centro veneziano, la Rocca e gli sport acquatici.",en:"The capital of the upper lake, blending a Venetian centre, its Rocca and watersports."}},
-      {n:"Limone sul Garda",bg:"Lombardia",b:{it:"Famosa per le limonaie e la spettacolare ciclopedonale a sbalzo sul lago.",en:"Famous for its lemon houses and a spectacular cantilevered cycle-path over the water."}},
-      {n:"Malcesine",bg:"Veneto",b:{it:"Sotto il Castello Scaligero, da cui sale la funivia panoramica sul Monte Baldo.",en:"Below its Scaliger castle, where a panoramic cable car climbs Monte Baldo."}},
-      {n:"Bardolino",bg:"Veneto",b:{it:"Sulla sponda veneta, rinomata per l'omonimo vino rosso e il lungolago fiorito.",en:"On the Veneto shore, known for its namesake red wine and a flower-lined promenade."}},
-      {n:"Sirmione",bg:"Lombardia",b:{it:"La 'perla del Garda', con il castello scaligero sull'acqua, le Grotte di Catullo e le terme.",en:"The 'pearl of Garda', with its lakeside Scaliger castle, the Grotte di Catullo and thermal spa."}},
-      {n:"Desenzano del Garda",bg:"Lombardia",b:{it:"Il comune più grande e vivace del lago, fra shopping, vita notturna e Porto Vecchio.",en:"The lake's largest, liveliest town, with shopping, nightlife and the old harbour."}},
-      {n:"Peschiera del Garda",bg:"Veneto",b:{it:"Città-fortezza patrimonio UNESCO, cinta da canali difensivi.",en:"A fortress town and UNESCO site, ringed by defensive canals."}}
+      {n:"Sirmione", b:{it:"La \"perla del Garda\". Celebre per il suo castello scaligero sull'acqua, le rovine romane delle Grotte di Catullo e le rinomate terme.",en:"The 'pearl of Garda'. Famous for its lakeside Scaliger castle, the Roman ruins of the Grotte di Catullo and its renowned spa."}, bg:"Lombardia"},
+      {n:"Malcesine", b:{it:"Dominata dal Castello Scaligero, offre una vista spettacolare ed è il punto di partenza per salire con la funivia panoramica sul Monte Baldo.",en:"Dominated by its Scaliger castle, it offers a spectacular view and is the departure point for the panoramic cable car up Monte Baldo."}, bg:"Veneto"},
+      {n:"Riva del Garda", b:{it:"La capitale dell'alto lago. Unisce un centro storico di stampo veneziano, dominato dalla Rocca, agli amanti degli sport acquatici e della natura.",en:"The capital of the upper lake. It blends a Venetian-style old town, crowned by its Rocca, with watersports and nature."}, bg:"Trentino-Alto Adige"},
+      {n:"Limone sul Garda", b:{it:"Famosa per le sue caratteristiche limonaie, il centro storico suggestivo e l'incredibile pista ciclopedonale a sbalzo sul lago.",en:"Famous for its characteristic lemon houses, evocative old town and the incredible cantilevered cycle-path over the lake."}, bg:"Lombardia"},
+      {n:"Bardolino", b:{it:"Sulla sponda veneta, è un borgo incantevole rinomato in tutto il mondo per l'omonimo vino rosso e per il suo lungolago fiorito.",en:"On the Veneto shore, a charming village known worldwide for its namesake red wine and its flower-lined lakefront."}, bg:"Veneto"},
+      {n:"Peschiera del Garda", b:{it:"Una città fortezza unica nel suo genere, dichiarata Patrimonio dell'Umanità UNESCO, interamente circondata da canali difensivi.",en:"A one-of-a-kind fortress town, declared a UNESCO World Heritage Site, entirely ringed by defensive canals."}, bg:"Veneto"},
+      {n:"Desenzano del Garda", b:{it:"Il comune più grande e vivace del lago, ideale per lo shopping, la vita notturna e per visitare il suo castello e il Porto Vecchio.",en:"The largest and liveliest town on the lake, ideal for shopping, nightlife and for visiting its castle and the old harbour."}, bg:"Lombardia"},
     ]},
-  { id:"trasimeno", sec:"reg", reg:"Umbria", route:true, start:"Castiglione del Lago",
+  { id:"trasimeno", sec:"reg", reg:"Umbria", route:true, img:"/img/tours/trasimeno.jpg", start:"Castiglione del Lago",
     area:{it:"Umbria",en:"Umbria"}, title:{it:"Lago Trasimeno",en:"Lake Trasimeno"},
-    summary:{it:"Borghi collinari e isole sul placido lago umbro.",en:"Hill-villages and islands on Umbria's tranquil lake."},
+    summary:{it:"Borghi collinari e isole sul placido lago umbro.",en:"Hill-villages and islands on Umbria’s tranquil lake."},
     stops:[
-      {n:"Passignano sul Trasimeno",b:{it:"Borgo di pescatori sotto una Rocca medievale, scalo per i traghetti all'Isola Maggiore.",en:"A fishing village below a medieval fort, the ferry stop for Isola Maggiore."}},
-      {n:"Isola Maggiore",q:"Isola Maggiore, Trasimeno",b:{it:"L'unica isola abitata, con un antico borgo di pescatori e sentieri nella natura.",en:"The only inhabited island, with an old fishing hamlet and nature trails."}},
-      {n:"Castiglione del Lago",b:{it:"Su un promontorio roccioso, con la Rocca del Leone e il Palazzo della Corgna.",en:"On a rocky promontory, with the Rocca del Leone and Palazzo della Corgna."}},
-      {n:"Corciano",b:{it:"Poco distante dal lago, tra i borghi medievali più belli d'Italia.",en:"Near the lake, one of Italy's most beautiful medieval villages."}},
-      {n:"Isola Polvese",q:"Isola Polvese, Trasimeno",b:{it:"La più grande, ricca di uliveti, un monastero e un castello medievale.",en:"The largest island, full of olive groves, a monastery and a medieval castle."}},
-      {n:"Panicale",b:{it:"Borgo collinare con terrazze panoramiche sull'intero specchio d'acqua.",en:"A hill-village with panoramic terraces over the whole lake."}},
-      {n:"Città della Pieve",b:{it:"Città natale del Perugino, con vicoli strettissimi tra cui il più stretto d'Italia.",en:"Birthplace of the painter Perugino, with narrow alleys including Italy's narrowest."}}
+      {n:"Castiglione del Lago", b:{it:"Sorge su un promontorio roccioso ed è famoso per la Rocca del Leone e per il Palazzo della Corgna.",en:"Set on a rocky promontory, it is famous for the Rocca del Leone and the Palazzo della Corgna."}},
+      {n:"Passignano sul Trasimeno", b:{it:"Caratteristico borgo di pescatori dominato da una Rocca medievale e perfetto punto di partenza per i traghetti verso l'Isola Maggiore.",en:"A characterful fishing village dominated by a medieval fort and the perfect departure point for ferries to Isola Maggiore."}},
+      {n:"Panicale", b:{it:"Affascinante borgo collinare con terrazze panoramiche che offrono una vista mozzafiato su tutto lo specchio d'acqua.",en:"A charming hill-village with panoramic terraces offering a breathtaking view over the whole lake."}},
+      {n:"Città della Pieve", b:{it:"Dominante sulla vallata, è celebre per essere la città natale del pittore Perugino e per i suoi vicoli stretti, tra cui il più stretto d'Italia.",en:"Overlooking the valley, it is famous as the birthplace of the painter Perugino and for its narrow alleys, including the narrowest in Italy."}},
+      {n:"Corciano", b:{it:"A breve distanza dal lago, è considerato uno dei borghi medievali più belli d'Italia.",en:"A short distance from the lake, it is considered one of the most beautiful medieval villages in Italy."}},
+      {n:"Isola Maggiore", b:{it:"L'unica abitata, conserva un antico borgo di pescatori e sentieri immersi nella natura.",en:"The only inhabited island, it preserves an old fishing hamlet and trails immersed in nature."}, q:"Isola Maggiore, Trasimeno"},
+      {n:"Isola Polvese", b:{it:"La più grande, ricca di uliveti, un monastero e un castello medievale.",en:"The largest island, rich in olive groves, with a monastery and a medieval castle."}, q:"Isola Polvese, Trasimeno"},
     ]},
-  { id:"romagna", sec:"reg", reg:"Emilia-Romagna", route:true, start:"Rimini",
+  { id:"romagna", sec:"reg", reg:"Emilia-Romagna", route:true, img:"/img/tours/romagna.jpg", start:"Rimini",
     area:{it:"Emilia-Romagna",en:"Emilia-Romagna"}, title:{it:"Costiera Romagnola",en:"Romagna Riviera"},
     summary:{it:"Spiagge, movida e borghi di pescatori sull'Adriatico.",en:"Beaches, nightlife and fishing quarters along the Adriatic."},
     stops:[
-      {n:"Milano Marittima (Cervia)",k:["Milano Marittima"],q:"Milano Marittima",b:{it:"Pinete, boutique di lusso e stabilimenti alla moda, per una vacanza glamour.",en:"Pine groves, luxury boutiques and fashionable beach clubs for a glamorous stay."}},
-      {n:"Cesenatico",b:{it:"Conserva il borgo antico col Porto Canale leonardesco, ottimo per il pesce fresco.",en:"Keeps its old quarter around a Leonardo-designed canal port, great for fresh fish."}},
-      {n:"Bellaria-Igea Marina",b:{it:"Ottima per un soggiorno rilassante e a misura di bambino.",en:"A great choice for a relaxed, child-friendly stay."}},
-      {n:"Rimini",b:{it:"Mare e storia: l'Arco d'Augusto, il Ponte di Tiberio e il borgo San Giuliano.",en:"Beach and history: the Arch of Augustus, the Tiberius Bridge and the San Giuliano quarter."}},
-      {n:"Riccione",b:{it:"Regno della movida e dello shopping lungo l'esclusivo Viale Ceccarini.",en:"A nightlife and shopping hub along the exclusive Viale Ceccarini."}},
-      {n:"Cattolica",b:{it:"La 'Regina dell'Adriatico', con mare sicuro, spiagge per famiglie e il suo Acquario.",en:"The 'Queen of the Adriatic', with safe seas, family beaches and its aquarium."}}
+      {n:"Rimini", b:{it:"Unisce una vastissima offerta balneare a un centro storico ricchissimo. Scopri l'Arco d'Augusto e il Ponte di Tiberio. Esplora il suggestivo borgo di pescatori di Borgo San Giuliano.",en:"It combines a vast array of beaches with a richly historic centre. Discover the Arch of Augustus and the Tiberius Bridge. Explore the evocative fishing quarter of Borgo San Giuliano."}},
+      {n:"Cesenatico", b:{it:"Mantiene intatto il fascino del borgo antico grazie al celebre Porto Canale Leonardesco. È la meta ideale per gustare ottimo pesce fresco nei ristoranti tipici.",en:"It keeps the charm of its old quarter intact thanks to the famous Leonardo-designed canal port. The ideal place to enjoy excellent fresh fish in its traditional restaurants."}},
+      {n:"Milano Marittima", b:{it:"Famosa per le sue pinete, le boutique di lusso e gli stabilimenti balneari alla moda. Perfetta per chi cerca il jet set e una vacanza glamour.",en:"Famous for its pine groves, luxury boutiques and fashionable beach clubs. Perfect for those seeking the jet set and a glamorous holiday."}},
+      {n:"Riccione", b:{it:"Punto di riferimento assoluto per i giovani e per gli amanti della vita notturna. Passeggia lungo l'esclusivo Viale Ceccarini per lo shopping.",en:"An absolute reference point for the young and for nightlife lovers. Stroll along the exclusive Viale Ceccarini for shopping."}},
+      {n:"Cattolica", b:{it:"Conosciuta come la \"Regina dell'Adriatico\", ha un mare molto sicuro e spiagge perfette per le famiglie. Ospita il famoso Acquario di Cattolica.",en:"Known as the 'Queen of the Adriatic', it has very safe waters and beaches perfect for families. It is home to the famous Cattolica Aquarium."}},
+      {n:"Bellaria-Igea Marina", b:{it:"Ottima scelta per un soggiorno più rilassante e a misura di bambino.",en:"An excellent choice for a more relaxed, child-friendly stay."}},
     ]},
-  { id:"abruzzo", sec:"reg", reg:"Abruzzo", route:true, start:"Roccaraso",
+  { id:"abruzzo", sec:"reg", reg:"Abruzzo", route:true, img:"/img/tours/abruzzo.jpg", start:"Scanno",
     area:{it:"Abruzzo",en:"Abruzzo"}, title:{it:"Montagna Abruzzese",en:"Abruzzo Mountains"},
     summary:{it:"Borghi di pietra, parchi e castelli tra le vette dell'Appennino.",en:"Stone villages, parks and castles among the Apennine peaks."},
     stops:[
-      {n:"Campo Imperatore",q:"Campo Imperatore",b:{it:"Vasto altopiano a 2.000 metri nel massiccio del Gran Sasso.",en:"A vast plateau at 2,000 metres in the Gran Sasso massif."}},
-      {n:"Santo Stefano di Sessanio",b:{it:"Borgo fortificato perfettamente conservato nel Parco del Gran Sasso.",en:"A perfectly preserved fortified village in the Gran Sasso park."}},
-      {n:"Rocca Calascio",q:"Rocca Calascio",b:{it:"Il celebre castello diroccato, tra i più alti e scenografici d'Europa.",en:"Its famous ruined castle, among the highest and most scenic in Europe."}},
-      {n:"Scanno",b:{it:"Case in pietra e vicoli medievali, vicino al lago a forma di cuore.",en:"Stone houses and medieval alleys beside its heart-shaped lake."}},
-      {n:"Pescocostanzo",b:{it:"Gioiello rinascimentale e barocco d'alta quota, noto per merletti e oreficeria.",en:"A high-altitude Renaissance-baroque gem, known for lacework and goldsmithing."}},
-      {n:"Roccaraso",b:{it:"Principale polo sciistico dell'Appennino centrale, con chilometri di piste.",en:"The central Apennines' main ski resort, with miles of slopes."}},
-      {n:"Pescasseroli",b:{it:"Cuore del Parco Nazionale d'Abruzzo, ideale per avvistare l'orso bruno marsicano.",en:"The heart of Abruzzo National Park, ideal for spotting the Marsican brown bear."}}
+      {n:"Scanno", b:{it:"Famosa per le case in pietra, i vicoli medievali e il vicino Lago di Scanno, noto per la caratteristica conformazione a cuore.",en:"Famous for its stone houses, medieval alleys and the nearby Lake Scanno, known for its characteristic heart shape."}},
+      {n:"Roccaraso", b:{it:"Principale polo sciistico dell'Appennino centrale, offre chilometri di piste e moderne strutture per gli sport invernali ed estivi.",en:"The main ski resort of the central Apennines, offering miles of slopes and modern facilities for winter and summer sports."}},
+      {n:"Pescocostanzo", b:{it:"Gioiello rinascimentale e barocco, situato ad alta quota, famoso per la lavorazione artigianale di merletti e oro.",en:"A high-altitude Renaissance and baroque gem, famous for its artisan lacework and goldsmithing."}},
+      {n:"Santo Stefano di Sessanio", b:{it:"Un borgo fortificato perfettamente conservato all'interno del Parco Nazionale del Gran Sasso, ideale per un salto indietro nel tempo.",en:"A perfectly preserved fortified village inside the Gran Sasso National Park, ideal for a step back in time."}},
+      {n:"Rocca Calascio", b:{it:"Dominato dal celebre castello diroccato, uno dei più alti e scenografici d'Europa, situato in uno scenario montano spettacolare.",en:"Dominated by its famous ruined castle, one of the highest and most scenic in Europe, set in a spectacular mountain landscape."}},
+      {n:"Pescasseroli", b:{it:"Cuore pulsante del Parco Nazionale d'Abruzzo, perfetto per avvistare la fauna locale come l'orso bruno marsicano e per escursioni nel verde.",en:"The beating heart of Abruzzo National Park, perfect for spotting local wildlife such as the Marsican brown bear and for hikes in the green."}},
+      {n:"Campo Imperatore", b:{it:"Vasto altopiano a 2.000 metri di quota nel massiccio del Gran Sasso, circondato dalle vette più alte dell'Appennino.",en:"A vast plateau at 2,000 metres in the Gran Sasso massif, ringed by the highest peaks of the Apennines."}},
     ]},
-  { id:"calabria", sec:"reg", reg:"Calabria", route:true, start:"Tropea",
+  { id:"calabria", sec:"reg", reg:"Calabria", route:true, img:"/img/tours/calabria.jpg", start:"Tropea",
     area:{it:"Calabria",en:"Calabria"}, title:{it:"Calabria Tirrenica",en:"Tyrrhenian Calabria"},
     summary:{it:"Spiagge, scogliere e borghi marinari sul Tirreno calabrese.",en:"Beaches, cliffs and seaside villages on Calabria's Tyrrhenian coast."},
     stops:[
-      {n:"Praia a Mare",b:{it:"Dominata dall'Isola di Dino e dalle sue grotte marine.",en:"Overlooked by the Isle of Dino and its sea caves."}},
-      {n:"Scalea",b:{it:"Caratteristico centro storico fatto di vicoli e mura antiche.",en:"A characterful old town of alleys and ancient walls."}},
-      {n:"Diamante",b:{it:"Borgo della Riviera dei Cedri, celebre per i murales e i peperoncini.",en:"A village of the 'Citron Riviera', famed for its murals and chilli peppers."}},
-      {n:"Fiumefreddo Bruzio",b:{it:"Borgo medievale arroccato con vista panoramica sul mare.",en:"A medieval village perched high with sweeping sea views."}},
-      {n:"Pizzo Calabro",b:{it:"Borgo marinaro noto per il Castello Murat e il gelato 'tartufo'.",en:"A seaside village known for Castello Murat and its 'tartufo' ice cream."}},
-      {n:"Tropea",b:{it:"Famosa per il santuario di Santa Maria dell'Isola e la cipolla rossa.",en:"Famous for the clifftop sanctuary of Santa Maria dell'Isola and its red onion."}},
-      {n:"Capo Vaticano",q:"Capo Vaticano",b:{it:"Scogliere spettacolari e le famose spiagge di Grotticelle.",en:"Spectacular cliffs and the celebrated Grotticelle beaches."}},
-      {n:"Scilla",b:{it:"Borgo di pescatori dominato dal Castello Ruffo e dal mito di Ulisse.",en:"A fishing village beneath Castello Ruffo, steeped in the myth of Odysseus."}}
+      {n:"Tropea", b:{it:"famosa per il santuario di Santa Maria dell'Isola e la cipolla rossa.",en:"Famous for the sanctuary of Santa Maria dell'Isola and its red onion."}},
+      {n:"Scilla", b:{it:"borgo di pescatori dominato dal Castello Ruffo e dal mito di Ulisse.",en:"A fishing village dominated by Castello Ruffo and the myth of Odysseus."}},
+      {n:"Pizzo Calabro", b:{it:"borgo marinaro noto per il Castello Murat e il gelato al tartufo.",en:"A seaside village known for Castello Murat and its 'tartufo' ice cream."}},
+      {n:"Diamante", b:{it:"borgo della Riviera dei Cedri celebre per i murales e i peperoncini.",en:"A village of the Riviera dei Cedri, famous for its murals and chilli peppers."}},
+      {n:"Capo Vaticano", b:{it:"vanta scogliere spettacolari e le famose spiagge di Grotticelle.",en:"It boasts spectacular cliffs and the famous Grotticelle beaches."}},
+      {n:"Fiumefreddo Bruzio", b:{it:"borgo medievale arroccato con vista panoramica sul mare.",en:"A medieval village perched high with a panoramic view over the sea."}},
+      {n:"Praia a Mare", b:{it:"dominata dall'Isola di Dino e dalle sue grotte marine.",en:"Overlooked by the Isle of Dino and its sea caves."}},
+      {n:"Scalea", b:{it:"possiede un caratteristico centro storico con vicoli e mura antiche.",en:"It has a characterful old town of alleys and ancient walls."}},
     ]},
-  { id:"sicilia-est", sec:"reg", reg:"Sicilia", route:true, start:"Catania",
+  { id:"sicilia-est", sec:"reg", reg:"Sicilia", route:true, img:"/img/tours/sicilia-est.jpg", start:"Siracusa",
     area:{it:"Sicilia",en:"Sicily"}, title:{it:"Sicilia Orientale",en:"Eastern Sicily"},
     summary:{it:"Barocco, templi greci e l'Etna nel sud-est della Sicilia.",en:"Baroque towns, Greek ruins and Mount Etna in south-east Sicily."},
     stops:[
-      {n:"Taormina",b:{it:"La 'perla dello Ionio', con il Teatro Antico e le acque dell'Isola Bella.",en:"The 'pearl of the Ionian', with its ancient theatre and the waters of Isola Bella."}},
-      {n:"Catania",b:{it:"Vivace e barocca alle pendici dell'Etna, con Piazza del Duomo e la Via Etnea.",en:"Lively and baroque at the foot of Etna, with Piazza del Duomo and Via Etnea."}},
-      {n:"Siracusa e Ortigia",k:["Siracusa"],q:"Siracusa",b:{it:"L'immenso patrimonio greco della Neapolis e l'isola di Ortigia tra vicoli e palazzi sul mare.",en:"The vast Greek heritage of the Neapolis park and the islet of Ortigia, all lanes and seafront palaces."}},
-      {n:"Ragusa Ibla",q:"Ragusa Ibla",b:{it:"Il cuore antico di Ragusa, tra vicoli tortuosi, palazzi e il Duomo di San Giorgio.",en:"The ancient heart of Ragusa, a maze of lanes, palaces and the Duomo di San Giorgio."}},
-      {n:"Noto",b:{it:"Capitale del Barocco siciliano, patrimonio UNESCO, con la Cattedrale e il Corso Vittorio Emanuele.",en:"The capital of Sicilian baroque and a UNESCO site, with its cathedral and grand main street."}},
-      {n:"Modica",b:{it:"Incastonata in una gola, famosa per il barocco e l'antico cioccolato artigianale.",en:"Set in a rocky gorge, famous for baroque architecture and age-old artisan chocolate."}}
+      {n:"Siracusa", b:{it:"Celebre per il suo immenso patrimonio greco (Parco Archeologico della Neapolis)e il centro storico di Ortigia, un'isola magica ricca di vicoli, palazzi nobiliari e vista sul mare.",en:"Famous for its immense Greek heritage (the Neapolis Archaeological Park) and the old town of Ortigia, a magical island full of lanes, noble palaces and sea views."}},
+      {n:"Taormina", b:{it:"La \"perla dello Ionio\", famosa in tutto il mondo per il suo Teatro Antico, i panorami mozzafiato sul Mar Ionio e le splendide acque dell'Isola Bella.",en:"The 'pearl of the Ionian', famous worldwide for its ancient theatre, breathtaking views over the Ionian Sea and the splendid waters of Isola Bella."}},
+      {n:"Catania", b:{it:"Vivace e ricca di storia, si trova alle pendici dell'Etna. Offre un centro storico barocco (patrimonio UNESCO) costruito in pietra lavica, con Piazza del Duomo e la famosa Via Etnea.",en:"Lively and rich in history, it lies at the foot of Etna. It offers a baroque old town (a UNESCO site) built in lava stone, with Piazza del Duomo and the famous Via Etnea."}},
+      {n:"Noto", b:{it:"La capitale del Barocco siciliano. Dichiarata Patrimonio dell'Umanità, incanta con la sua Cattedrale ricostruita, le chiese dorate e l'elegante Corso Vittorio Emanuele.",en:"The capital of Sicilian baroque. A World Heritage Site, it enchants with its rebuilt cathedral, golden churches and the elegant Corso Vittorio Emanuele."}},
+      {n:"Ragusa Ibla", b:{it:"Il cuore antico e affascinante di Ragusa, caratterizzato da vicoli tortuosi, palazzi storici e splendide chiese come il Duomo di San Giorgio.",en:"The ancient, charming heart of Ragusa, marked by winding lanes, historic palaces and splendid churches such as the Duomo di San Giorgio."}},
+      {n:"Modica", b:{it:"Nascosta in una gola rocciosa, è famosa sia per l'incredibile architettura barocca che per l'antica e rinomata tradizione del cioccolato artigianico.",en:"Hidden in a rocky gorge, it is famous both for its incredible baroque architecture and for its ancient, renowned tradition of artisan chocolate."}},
     ]},
-
-  // ───────────── NATIONAL (thematic, no full route) ─────────────
-  { id:"vino", sec:"naz", route:false, start:"Barolo",
+  { id:"castelli-romani", sec:"reg", reg:"Lazio", route:true, img:"/img/tours/castelli-romani.jpg", start:"Frascati",
+    area:{it:"Lazio",en:"Lazio"}, title:{it:"Castelli Romani",en:"Castelli Romani"},
+    summary:{it:"Borghi papali, vino e laghi vulcanici sui Colli Albani vicino a Roma.",en:"Papal towns, wine and volcanic lakes on the Alban Hills near Rome."},
+    stops:[
+      {n:"Frascati", b:{it:"Considerata la \"capitale\" culturale dei Castelli, è celebre nel mondo per le sue monumentali Ville Tuscolane e per la produzione del vino Frascati DOCG.",en:"Considered the cultural 'capital' of the Castelli, it is famous worldwide for its monumental Tusculan villas and for producing Frascati DOCG wine."}},
+      {n:"Castel Gandolfo", b:{it:"Affacciato sul Lago Albano, fa parte dei borghi più belli d'Italia ed è storicamente famoso per ospitare il Palazzo Apostolico, residenza estiva dei Papi.",en:"Overlooking Lake Albano, it is one of the Most Beautiful Villages in Italy and historically famous for housing the Apostolic Palace, the popes' summer residence."}},
+      {n:"Ariccia", b:{it:"Universalmente nota per la tradizione della porchetta e per le sue tipiche fraschette (osterie), è dominata dallo spettacolare Ponte e da Palazzo Chigi.",en:"Universally known for its porchetta tradition and its typical 'fraschette' (taverns), it is dominated by the spectacular bridge and Palazzo Chigi."}},
+      {n:"Albano Laziale", b:{it:"Città ricca di testimonianze storiche romane, come i Cisternoni e l'Anfiteatro, sorge lungo l'antica Via Appia.",en:"A town rich in Roman remains, such as the Cisternoni and the amphitheatre, set along the ancient Appian Way."}},
+      {n:"Marino", b:{it:"Famosa a livello internazionale per la storica Sagra dell'Uva, durante la quale le fontane del centro cittadino \"spillano\" vino anziché acqua.",en:"Internationally famous for the historic Grape Festival, during which the fountains of the town centre 'pour' wine instead of water."}},
+      {n:"Grottaferrata", b:{it:"Elegante centro residenziale noto per la millenaria Abbazia Greca di San Nilo, fondata nel 1004 e tuttora attiva.",en:"An elegant residential centre known for the thousand-year-old Greek Abbey of San Nilo, founded in 1004 and still active today."}},
+      {n:"Nemi", b:{it:"Il comune più piccolo dell'area, arroccato su uno sperone che domina l'omonimo lago vulcanico, celebre per la coltivazione delle fragoline di bosco.",en:"The smallest municipality in the area, perched on a spur overlooking its volcanic lake and famous for growing wild strawberries."}},
+    ]},
+  { id:"vino", sec:"naz", route:false, img:"/img/tours/vino.jpg", start:"Barolo",
     area:{it:"Tema · Vino",en:"Theme · Wine"}, title:{it:"Itinerario del Vino",en:"The Wine Trail"},
     summary:{it:"Dodici comuni che danno il nome ai grandi vini italiani.",en:"Twelve towns that give their names to Italy's great wines."},
     stops:[
-      {n:"Valdobbiadene",bg:"Veneto",b:{it:"Cuore del Prosecco Superiore DOCG, tra colline UNESCO e vigneti 'eroici'.",en:"The heart of Prosecco Superiore DOCG, amid UNESCO hills and 'heroic' vineyards."}},
-      {n:"Marano di Valpolicella",bg:"Veneto",b:{it:"Sulle colline veronesi, patria di rossi monumentali come l'Amarone della Valpolicella.",en:"In the Verona hills, home of monumental reds like Amarone della Valpolicella."}},
-      {n:"Soave",bg:"Veneto",b:{it:"Borgo murato sotto un castello scaligero, dà nome al bianco Soave di uva Garganega.",en:"A walled village below a Scaliger castle, naming the Garganega-based white Soave."}},
-      {n:"Barolo",bg:"Piemonte",b:{it:"Dà nome al 'Re dei Vini', con il Castello Falletti, il WiMu e vigne di Nebbiolo pregiatissime.",en:"Lends its name to the 'King of Wines', with Castello Falletti, the WiMu museum and prized Nebbiolo vineyards."}},
-      {n:"Greve in Chianti",bg:"Toscana",b:{it:"Porta del Chianti Classico, con la celebre piazza triangolare e il Gallo Nero.",en:"Gateway to Chianti Classico, with its triangular square and the Black Rooster symbol."}},
-      {n:"Montepulciano",bg:"Toscana",b:{it:"Borgo rinascimentale murato con cantine sotterranee, celebre per il Vino Nobile DOCG.",en:"A walled Renaissance town with underground cellars, famed for Vino Nobile DOCG."}},
-      {n:"Montalcino",bg:"Toscana",b:{it:"Borgo medievale della Val d'Orcia, patria del pregiatissimo Brunello di Sangiovese.",en:"A medieval Val d'Orcia village, home of the prized Sangiovese Brunello."}},
-      {n:"Montefalco",bg:"Umbria",b:{it:"La 'Ringhiera dell'Umbria', patria del potente Sagrantino di Montefalco.",en:"The 'balcony of Umbria', home of the powerful Sagrantino di Montefalco."}},
-      {n:"Frascati",bg:"Lazio",b:{it:"Sui Colli Albani vicino a Roma, storica città del bianco fresco Frascati.",en:"On the Alban Hills near Rome, a historic town of the crisp white Frascati."}},
-      {n:"Castelvenere",bg:"Campania",b:{it:"Nel Sannio, fra le più alte densità di vigneti d'Italia, con cantine tufacee e Falanghina.",en:"In the Sannio, among Italy's densest vineyard areas, with tuff cellars and Falanghina."}},
-      {n:"Manduria",bg:"Puglia",b:{it:"Nel Salento, patria del Primitivo di Manduria, rosso intenso e caldo.",en:"In the Salento, home of Primitivo di Manduria, an intense, warm red."}},
-      {n:"Castiglione di Sicilia",bg:"Sicilia",b:{it:"Sul versante nord dell'Etna, riferimento per gli eleganti vini dell'Etna DOC.",en:"On Etna's northern slope, a reference for the elegant Etna DOC wines."}}
+      {n:"Barolo", b:{it:"Questo piccolo e celeberrimo comune immerso nelle Langhe dà il nome al famoso \"Re dei Vini\" italiano. Dominato dal Castello Falletti, ospita il WiMu (Museo del Vino) ed è circondato da alcune delle vigne di Nebbiolo più preziose al mondo.",en:"This small, celebrated village set in the Langhe gives its name to the famous Italian 'King of Wines'. Dominated by Castello Falletti, it houses the WiMu (Wine Museum) and is surrounded by some of the most prized Nebbiolo vineyards in the world."}, bg:"Piemonte"},
+      {n:"Valdobbiadene", b:{it:"Adagiato tra le spettacolari colline patrimonio UNESCO, questo paese è il cuore pulsante del Prosecco di Conegliano Valdobbiadene Superiore DOCG. È il punto di arrivo della più antica strada del vino d'Italia, caratterizzato da vigneti ripidissimi coltivati in modo \"eroico\".",en:"Nestled among the spectacular UNESCO hills, this town is the beating heart of Prosecco di Conegliano Valdobbiadene Superiore DOCG. It is the end point of Italy's oldest wine road, marked by very steep vineyards farmed in a 'heroic' way."}, bg:"Veneto"},
+      {n:"Soave", b:{it:"Situato in provincia di Verona, questo splendido borgo è racchiuso da una cinta muraria medievale perfettamente conservata e dominato da un imponente castello scaligero. Dà il nome al Soave DOC, uno dei vini bianchi italiani più conosciuti all'estero, a base di uva Garganega.",en:"In the province of Verona, this splendid village is enclosed by perfectly preserved medieval walls and dominated by an imposing Scaliger castle. It gives its name to Soave DOC, one of the Italian white wines best known abroad, based on the Garganega grape."}, bg:"Veneto"},
+      {n:"Marano di Valpolicella", b:{it:"Arroccato sulle colline veronesi, è uno dei comuni storici della Valpolicella, celebre in tutto il mondo per la produzione di vini rossi monumentali come l'Amarone della Valpolicella e il Recioto.",en:"Perched on the Verona hills, it is one of the historic villages of the Valpolicella, famous worldwide for monumental red wines such as Amarone della Valpolicella and Recioto."}, bg:"Veneto"},
+      {n:"Montalcino", b:{it:"Splendido borgo medievale arroccato su una collina della Val d'Orcia. È la patria del Brunello di Montalcino, uno dei vini rossi più pregiati, longevi e costosi al mondo, ottenuto da uve Sangiovese in purezza.",en:"A splendid medieval village perched on a Val d'Orcia hill. It is the home of Brunello di Montalcino, one of the most prized, long-lived and expensive red wines in the world, made from pure Sangiovese grapes."}, bg:"Toscana"},
+      {n:"Montepulciano", b:{it:"Posizionato tra la Val d'Orcia e la Valdichiana, questo borgo rinascimentale è racchiuso da antiche mura e ospita spettacolari cantine storiche sotterranee. È celebre per il Vino Nobile di Montepulciano DOCG.",en:"Set between the Val d'Orcia and the Valdichiana, this Renaissance village is enclosed by ancient walls and houses spectacular historic underground cellars. It is famous for Vino Nobile di Montepulciano DOCG."}, bg:"Toscana"},
+      {n:"Greve in Chianti", b:{it:"Considerata la porta d'accesso alla zona del Chianti Classico, questa cittadina vanta una famosa piazza a pianta triangolare contornata da portici. È il punto di riferimento per gli amanti del Chianti Classico DOCG e del suo simbolo, il Gallo Nero.",en:"Considered the gateway to the Chianti Classico area, this town boasts a famous triangular arcaded square. It is the reference point for lovers of Chianti Classico DOCG and its symbol, the Black Rooster."}, bg:"Toscana"},
+      {n:"Montefalco", b:{it:"Definito la \"Ringhiera dell'Umbria\" per la sua straordinaria posizione panoramica, questo borgo medievale è famoso per il Sagrantino di Montefalco, un vino rosso autoctono di straordinaria potenza, struttura e tannicità.",en:"Dubbed the 'balcony of Umbria' for its remarkable panoramic position, this medieval village is famous for Sagrantino di Montefalco, a native red wine of extraordinary power, structure and tannin."}, bg:"Umbria"},
+      {n:"Frascati", b:{it:"Situato sui Colli Albani a breve distanza da Roma, è una delle storiche \"Città del Vino\" del Lazio. Gode di una secolare tradizione legata al Frascati DOC/DOCG, un bianco fresco e beverino un tempo storicamente servito nelle tipiche \"fraschette\".",en:"Set on the Alban Hills a short distance from Rome, it is one of Lazio's historic 'wine towns'. It enjoys a centuries-old tradition tied to Frascati DOC/DOCG, a fresh, easy-drinking white once served in the typical 'fraschette'."}, bg:"Lazio"},
+      {n:"Manduria", b:{it:"Situata nel cuore del Salento, questa città di antiche origini messapiche è la patria indiscussa del Primitivo di Manduria, un vino rosso intenso, caldo e dai sentori di frutti rossi maturi che rappresenta l'eccellenza enologica pugliese.",en:"In the heart of the Salento, this town of ancient Messapian origins is the undisputed home of Primitivo di Manduria, an intense, warm red with notes of ripe red fruit that represents the peak of Apulian winemaking."}, bg:"Puglia"},
+      {n:"Castelvenere", b:{it:"Situato nel beneventano (regione storica del Sannio), è uno dei comuni con la più alta densità di vitigni in Italia. È famoso per le sue cantine tufacee scavate nel sottosuolo del borgo antico e per la valorizzazione di vitigni autoctoni come la Falanghina e la Camaiola.",en:"In the Benevento area (the historic Sannio region), it is one of the towns with the highest density of vineyards in Italy. It is famous for its tuff cellars dug beneath the old village and for championing native grapes such as Falanghina and Camaiola."}, bg:"Campania"},
+      {n:"Castiglione di Sicilia", b:{it:"Arroccato su una rupe sul versante nord dell'Etna, fa parte dei \"Borghi più belli d'Italia\". È uno dei centri di riferimento per i cosiddetti \"vini dell'Etna\" (Etna DOC), prodotti da vigneti che affondano le radici nel terreno lavico e che regalano rossi e bianchi di grandissima eleganza e mineralità.",en:"Perched on a crag on the northern slope of Etna, it is one of the Most Beautiful Villages in Italy. It is a reference point for the 'wines of Etna' (Etna DOC), produced from vineyards rooted in volcanic soil that yield reds and whites of great elegance and minerality."}, bg:"Sicilia"},
     ]},
-  { id:"carne", sec:"naz", route:false, start:"Firenze",
+  { id:"carne", sec:"naz", route:false, img:"/img/tours/carne.jpg", start:"Firenze",
     area:{it:"Tema · Carne",en:"Theme · Meat"}, title:{it:"Itinerario della Carne",en:"The Meat Trail"},
     summary:{it:"Un viaggio nelle grandi tradizioni italiane della carne.",en:"A journey through Italy's great meat traditions."},
     stops:[
-      {n:"Milano",bg:"Lombardia",b:{it:"La cotoletta con l'osso impanata nel burro e l'ossobuco col risotto allo zafferano.",en:"The bone-in breaded cutlet fried in butter, and ossobuco with saffron risotto."}},
-      {n:"Torino e Carrù",k:["Torino","Carrù"],q:"Carrù",bg:"Piemonte",b:{it:"Carrù capitale del gran bollito misto; Torino paradiso della carne cruda battuta al coltello.",en:"Carrù, capital of the great mixed boil; Turin, a paradise of hand-cut raw beef."}},
-      {n:"Bologna e Modena",k:["Bologna","Modena"],q:"Bologna",bg:"Emilia-Romagna",b:{it:"Il ragù alla bolognese e, nel modenese, lo zampone e il cotechino di maiale.",en:"Bolognese ragù and, around Modena, pork zampone and cotechino."}},
-      {n:"Firenze",bg:"Toscana",b:{it:"Patria della Bistecca alla Fiorentina, alta lombata di Chianina cotta al sangue sulla brace.",en:"Home of the Bistecca alla Fiorentina, a thick Chianina T-bone grilled rare over coals."}},
-      {n:"Arezzo e Siena",k:["Arezzo","Siena"],q:"Arezzo",bg:"Toscana",b:{it:"Nella Valdichiana, terra della vera Chianina, della cinta senese e della cacciagione.",en:"In the Valdichiana, land of true Chianina beef, cinta senese pork and game."}},
-      {n:"Roma",bg:"Lazio",b:{it:"Regno del 'quinto quarto', dell'abbacchio a scottadito e dei saltimbocca.",en:"The realm of offal cooking, grilled lamb chops and saltimbocca."}},
-      {n:"Martina Franca e Cisternino",k:["Martina Franca","Cisternino"],q:"Martina Franca",bg:"Puglia",b:{it:"I 'fornelli pronti' con forno a legna e le celebri bombette di capocollo ripiene.",en:"The wood-fired butcher-grills and the famous stuffed pork 'bombette'."}},
-      {n:"Cosenza",bg:"Calabria",b:{it:"Specialità di Suino Nero di Calabria e di carne podolica allevata sulla Sila.",en:"Specialities of Calabrian Black Pig and Podolica beef raised on the Sila plateau."}}
+      {n:"Firenze", b:{it:"Universalmente nota per la Bistecca alla Fiorentina, un taglio alto di lombata (con l'osso a \"T\") di vitellone rigorosamente di razza Chianina, cotto al sangue sulla brace di carbone.",en:"Universally known for the Bistecca alla Fiorentina, a thick T-bone loin cut strictly of Chianina beef, grilled rare over charcoal."}, bg:"Toscana"},
+      {n:"Arezzo", b:{it:"La sua gastronomia carnivora eccelle grazie alla pregiata bistecca alla fiorentina di razza Chianina, allevata nella vicina Val di Chiana, e a specialità tradizionali come il grifi (musetto di vitello cucinato in umido) e i fegatelli di maiale.",en:"Its meat cuisine excels thanks to the prized Chianina-beef Fiorentina steak, raised in the nearby Val di Chiana, and traditional specialities like grifi (stewed veal muzzle) and pork livers."}, bg:"Toscana"},
+      {n:"Siena", b:{it:"La sua cucina eccelle nell'uso di cariche pregiate, tra cui spiccano la carne di razza Chianina e i salumi di Cinta Senese DOP, un'antica razza suina locale prelibata per la preparazione di capocolli, prosciutti e salsicce saporite.",en:"Its cuisine excels in prized cuts, notably Chianina beef and Cinta Senese DOP cured meats, an ancient local pig breed prized for making capocolli, hams and tasty sausages."}, bg:"Toscana"},
+      {n:"Roma", b:{it:"Famosa per i tagli del \"quinto quarto\" (le frattaglie della tradizione povera come la trippa e la coda alla vaccinara), ma celebre anche per l'Abbacchio a scottadito (costolette di agnello da latte) e i Saltimbocca alla Romana.",en:"Famous for the 'quinto quarto' cuts (humble-tradition offal such as tripe and oxtail alla vaccinara), but also celebrated for abbacchio a scottadito (milk-fed lamb chops) and Saltimbocca alla Romana."}, bg:"Lazio"},
+      {n:"Milano", b:{it:"La sua specialità iconica è la Cotoletta alla Milanese (lombata di vitello con l'osso, impanata e fritta nel burro chiarificato). Altrettanto celebre è l'Ossobuco, servito tradizionalmente con il risotto allo zafferano.",en:"Its iconic speciality is the Cotoletta alla Milanese (bone-in veal loin, breaded and fried in clarified butter). Equally famous is Ossobuco, traditionally served with saffron risotto."}, bg:"Lombardia"},
+      {n:"Torino", b:{it:"La sua eccezionale tradizione carnivora celebra la pregiata razza bovina Piemontese, servita rigorosamente cruda come battuta al coltello, e il sontuoso Gran Bollito Misto, accompagnato dal classico bagnetto verde.",en:"Its exceptional meat tradition celebrates the prized Piedmontese beef breed, served strictly raw as hand-cut tartare, and the sumptuous Gran Bollito Misto, accompanied by the classic green bagnetto sauce."}, bg:"Piemonte"},
+      {n:"Carrù", b:{it:"Celebre per la pregiata carne di razza bovina Piemontese, protagonista indiscussa del maestoso Gran Bollito Misto (servito con i classici sette tagli e sette salse) e della storica Fiera del Bue Grasso che si tiene ogni dicembre.",en:"Famous for prized Piedmontese beef, the undisputed star of the majestic Gran Bollito Misto (served with its classic seven cuts and seven sauces) and of the historic Fiera del Bue Grasso held every December."}, bg:"Piemonte"},
+      {n:"Bologna", b:{it:"La sua leggendaria tradizione di carne trionfa con la celeberrima Mortadella IGP, i sontuosi salumi locali come il prosciutto dei colli e il ricco ragù bolognese, anima fondamentale delle iconiche lasagne e tagliatelle.",en:"Its legendary meat tradition triumphs with the famous Mortadella IGP, sumptuous local cured meats such as the hill ham, and the rich Bolognese ragù, the essential soul of its iconic lasagne and tagliatelle."}, bg:"Emilia-Romagna"},
+      {n:"Modena", b:{it:"La sua ricca gastronomia di carne brilla per le eccellenze suine come il Prosciutto di Modena DOP, lo Zampone e il Cotechino IGP, ma anche per i ricchi ripieni di carne dei tradizionali tortellini.",en:"Its rich meat gastronomy shines with pork excellences like Prosciutto di Modena DOP, Zampone and Cotechino IGP, as well as the rich meat fillings of traditional tortellini."}, bg:"Emilia-Romagna"},
+      {n:"Martina Franca", b:{it:"La sua tradizione culinaria eccelle nelle specialità di carne, guidata dal celebre Capocollo di Martina Franca e dalle bombette, gustosi involtini di maiale ripieni di caciocavallo cotti alla brace nei tipici fornelli pronti delle macellerie locali.",en:"Its culinary tradition excels in meat specialities, led by the famous Capocollo di Martina Franca and the bombette, tasty pork rolls stuffed with caciocavallo grilled in the local butchers' typical 'fornelli pronti'."}, bg:"Puglia"},
+      {n:"Cisternino", b:{it:"Famosa in tutta Italia per i suoi \"fornelli pronti\" (macellerie con forno a legna interno). La specialità assoluta sono le Bombette pugliesi, involtini di capocollo di maiale ripieni di formaggio e spezie.",en:"Famous throughout Italy for its 'fornelli pronti' (butchers with an in-house wood-fired oven). The absolute speciality is Apulian bombette, pork-capocollo rolls stuffed with cheese and spices."}, bg:"Puglia"},
+      {n:"Cosenza", b:{it:"La sua tradizione carnivora eccelle grazie alle prelibatezze del Suino Nero di Calabria, da cui si ricavano eccellenti capocolli, salsicce e la tipica nduja, e a piatti identitari come le costolette di maiale con patate e peperoni (i tipici piparielli).",en:"Its meat tradition excels thanks to the delicacies of the Calabrian Black Pig, from which fine capocolli, sausages and the typical nduja are made, and to identity dishes such as pork chops with potatoes and peppers (the typical piparielli)."}, bg:"Calabria"},
     ]},
-  { id:"pesce", sec:"naz", route:false, start:"Bari",
+  { id:"pesce", sec:"naz", route:false, img:"/img/tours/pesce.jpg", start:"Livorno",
     area:{it:"Tema · Pesce",en:"Theme · Seafood"}, title:{it:"Itinerario del Pesce",en:"The Seafood Trail"},
     summary:{it:"Le capitali italiane del pesce, dal crudo alle zuppe.",en:"Italy's seafood capitals, from raw fish to hearty stews."},
     stops:[
-      {n:"Milano",bg:"Lombardia",b:{it:"Pur lontana dal mare, ospita il più importante mercato ittico d'Italia per freschezza.",en:"Though far from the sea, it hosts Italy's foremost fish market for freshness and volume."}},
-      {n:"Camogli e Santa Margherita Ligure",k:["Camogli","Santa Margherita Ligure"],q:"Camogli",bg:"Liguria",b:{it:"I gamberi rossi di Santa Margherita e il pesce azzurro cucinato alla ligure.",en:"The red prawns of Santa Margherita and oily fish cooked Ligurian-style."}},
-      {n:"Livorno",bg:"Toscana",b:{it:"Universalmente nota per il cacciucco, densa zuppa di pesce della tradizione povera.",en:"Universally known for cacciucco, a rich fish stew born of humble origins."}},
-      {n:"Anzio e Fiumicino",k:["Anzio","Fiumicino"],q:"Anzio",bg:"Lazio",b:{it:"Anzio per il crudo e le paranze, Fiumicino per la cucina di mare moderna.",en:"Anzio for raw fish and trawler catch, Fiumicino for modern seafood cooking."}},
-      {n:"Bari",bg:"Puglia",b:{it:"Capitale del crudo: polpi 'arricciati', allievi, ricci e cozze sul lungomare.",en:"The capital of raw seafood: curled octopus, cuttlefish, sea urchins and mussels on the seafront."}},
-      {n:"Napoli",bg:"Campania",b:{it:"Spaghetti alle vongole, cuoppo di paranza, polpo alla luciana e zuppa di cozze.",en:"Spaghetti with clams, fried-fish 'cuoppo', octopus alla luciana and mussel soup."}},
-      {n:"Carloforte",bg:"Sardegna",b:{it:"Sull'Isola di San Pietro, capitale del tonno rosso di mattanza, cucinato in ogni sua parte.",en:"On San Pietro island, the capital of trap-caught bluefin tuna, cooked nose to tail."}},
-      {n:"Palermo e Catania",k:["Palermo","Catania"],q:"Palermo",bg:"Sicilia",b:{it:"Palermo con pasta con le sarde e tonno rosso; Catania con la Pescheria e i frutti di mare.",en:"Palermo for pasta with sardines and bluefin tuna; Catania for its fish market and shellfish."}}
+      {n:"Livorno", b:{it:"Universalmente conosciuta per il Cacciucco alla livornese, una zuppa di pesce densa e saporita, storicamente preparata con il pesce di scarto che i pescatori non riuscivano a vendere al mercato.",en:"Universally known for Cacciucco alla livornese, a dense, flavourful fish stew historically made with the leftover fish that fishermen could not sell at market."}, bg:"Toscana"},
+      {n:"Anzio", b:{it:"La sua prestigiosa cucina di mare eccelle grazie al pesce freschissimo delle sue paranze, celebrato in piatti cult come la tipica minestra di pesce portodanzese, i ricercati gamberi gobbetti e la golosa frittura di paranza.",en:"Its prestigious seafood cuisine excels thanks to the very fresh catch of its trawlers, celebrated in cult dishes such as the typical Anzio fish soup, the sought-after gobbetti prawns and the indulgent fried trawler catch."}, bg:"Lazio"},
+      {n:"Fiumicino", b:{it:"La sua eccezionale tradizione marinara brilla grazie al freschissimo pescato locale, protagonista di grandi classici come gli spaghetti alle telline, le croccanti fritture di paranza e i raffinati crudi di mare.",en:"Its exceptional seafaring tradition shines thanks to very fresh local catch, the star of great classics such as spaghetti alle telline, crisp fried trawler catch and refined raw seafood."}, bg:"Lazio"},
+      {n:"Camogli", b:{it:"Rinomata soprattutto per le acciughe, salate o fritte nella maxi padella della famosa Sagra del Pesce, e per il pescato locale proveniente dalla storica tonnarella, l'ultima rimasta in Liguria.",en:"Renowned above all for anchovies, salted or fried in the giant pan of its famous Fish Festival, and for local catch from the historic 'tonnarella', the last remaining in Liguria."}, bg:"Liguria"},
+      {n:"Santa Margherita Ligure", b:{it:"Famosa per il pesce azzurro marinato o cotto alla ligure con pinoli, olive taggiasche e patate.",en:"Famous for oily fish marinated or cooked Ligurian-style with pine nuts, taggiasca olives and potatoes."}, bg:"Liguria"},
+      {n:"Bari", b:{it:"Capitale indiscussa del pesce crudo in Italia. Sul lungomare di Bari è tradizione consumare polpi \"arricciati\" freschi sul momento, allievi (seppioline), ricci di mare e cozze, accompagnati da una birra fredda.",en:"Italy's undisputed capital of raw seafood. On Bari's seafront it is traditional to eat curled octopus fresh on the spot, cuttlefish, sea urchins and mussels, washed down with a cold beer."}, bg:"Puglia"},
+      {n:"Napoli", b:{it:"La Campania è considerata tra le regioni dove si mangia meglio il pesce al mondo. Napoli eccelle negli spaghetti alle vongole, nel cuoppo di paranza fritto, nel polpo alla luciana e nella ricca zuppa di cozze.",en:"Campania is considered one of the regions where seafood is eaten best in the world. Naples excels in spaghetti with clams, fried trawler 'cuoppo', octopus alla luciana and rich mussel soup."}, bg:"Campania"},
+      {n:"Palermo", b:{it:"La sua eccezionale cucina di mare si fonda su ingredienti del giorno come il pesce spada e le sarde, protagonisti assoluti di icone culinarie come la ricca pasta con le sarde e gli sfiziosi involtini di pesce spada alla palermitana.",en:"Its exceptional seafood cuisine is built on ingredients of the day such as swordfish and sardines, the absolute stars of culinary icons like pasta with sardines and Palermo-style swordfish rolls."}, bg:"Sicilia"},
+      {n:"Catania", b:{it:"La sua verace cucina di mare ruota attorno allo storico mercato della Pescheria, trionfando con i prelibati mascolini (alici), la pasta con il nero di seppia e le squisite grigliate di pesce spada e frutti di mare.",en:"Its authentic seafood cuisine revolves around the historic Pescheria market, triumphing with prized anchovies (mascolini), pasta with cuttlefish ink and exquisite grills of swordfish and shellfish."}, bg:"Sicilia"},
+      {n:"Carloforte", b:{it:"Situata sull'isola di San Pietro, è la capitale italiana del tonno rosso di mattanza, pescato nelle storiche tonnare fisse e cucinato in decine di varianti locali come il tonno alla carlofortina, la capunadda e il celebre pasticcio.",en:"On the island of San Pietro, it is Italy's capital of trap-caught bluefin tuna, fished in the historic fixed tonnare and cooked in dozens of local variations such as tuna alla carlofortina, capunadda and the famous pasticcio."}, bg:"Sardegna"},
+      {n:"Milano", b:{it:"Pur non trovandosi sul mare, Milano ospita il mercato ittico all'ingrosso più importante d'Italia per freschezza e volumi. Per questo motivo la città è considerata una delle migliori piazze italiane per mangiare pesce di altissima qualità proveniente da tutti i mari della penisola.",en:"Though not on the sea, Milan hosts Italy's most important wholesale fish market for freshness and volume. For this reason the city is considered one of the best places in Italy to eat top-quality fish from all the seas of the peninsula."}, bg:"Lombardia"},
     ]},
-  { id:"goloso", sec:"naz", route:false, start:"Torino",
+  { id:"goloso", sec:"naz", route:false, img:"/img/tours/goloso.jpg", start:"Torino",
     area:{it:"Tema · Dolci",en:"Theme · Sweets"}, title:{it:"Itinerario Goloso",en:"The Sweet-Tooth Trail"},
     summary:{it:"Le città simbolo della pasticceria italiana, da nord a sud.",en:"The towns that define Italian pastry, north to south."},
     stops:[
-      {n:"Milano",bg:"Lombardia",b:{it:"Patria del Panettone e della raffinata pasticceria mignon.",en:"Home of Panettone and of refined miniature pastries."}},
-      {n:"Venezia e Treviso",k:["Venezia","Treviso"],q:"Treviso",bg:"Veneto",b:{it:"Treviso rivendica il Tiramisù; Venezia risponde con Baicoli, Bussolai e Zaeti.",en:"Treviso claims tiramisù; Venice answers with Baicoli, Bussolai and Zaeti biscuits."}},
-      {n:"Mantova",bg:"Lombardia",b:{it:"Celebre per la Torta Sbrisolona e, nelle feste, l'Anello di Monaco.",en:"Famed for the crumbly Sbrisolona cake and, at Christmas, the Anello di Monaco."}},
-      {n:"Torino",bg:"Piemonte",b:{it:"Capitale del cioccolato e del Gianduiotto, del Bicerin e dei marron glacé.",en:"The capital of chocolate and the Gianduiotto, the Bicerin drink and marrons glacés."}},
-      {n:"Prato",bg:"Toscana",b:{it:"Patria dei Cantucci, i biscotti alle mandorle da inzuppare nel Vin Santo.",en:"Home of cantucci, the twice-baked almond biscuits dipped in Vin Santo."}},
-      {n:"Siena",bg:"Toscana",b:{it:"Dolci medievali speziati: Panforte, Ricciarelli e Cavallucci.",en:"Spiced medieval sweets: panforte, ricciarelli and cavallucci."}},
-      {n:"Roma",bg:"Lazio",b:{it:"Il Maritozzo con la panna, soffice pagnotta dolce farcita di panna montata.",en:"The maritozzo, a soft sweet bun filled with whipped cream."}},
-      {n:"Napoli",bg:"Campania",b:{it:"Sfogliatella, Babà, Pastiera e Zeppole di San Giuseppe.",en:"Sfogliatella, rum babà, pastiera and St Joseph's zeppole."}},
-      {n:"Lecce",bg:"Puglia",b:{it:"Patria del Pasticciotto, guscio di frolla ripieno di crema calda.",en:"Home of the pasticciotto, a shortcrust shell filled with hot custard."}},
-      {n:"Palermo e Catania",k:["Palermo","Catania"],q:"Palermo",bg:"Sicilia",b:{it:"Cassata e cannoli, frutta martorana a Palermo, granita con brioche a Catania.",en:"Cassata and cannoli, marzipan fruit in Palermo, granita with brioche in Catania."}}
+      {n:"Torino", b:{it:"Capitale indiscussa del cioccolato e del Gianduiotto. La città vanta storici caffè dove gustare il Bicerin (bevanda a base di caffè, cioccolato e crema di latte) e i tradizionali marron glacé.",en:"The undisputed capital of chocolate and the Gianduiotto. The city boasts historic cafés where you can enjoy the Bicerin (a drink of coffee, chocolate and cream) and traditional marrons glacés."}, bg:"Piemonte"},
+      {n:"Milano", b:{it:"Patria del Panettone, il re dei dolci natalizi lievitati, imitato a livello internazionale. La città è celebre anche per la raffinata pasticceria mignon e per storici locali che hanno fatto la storia della pasticceria meneghina.",en:"Home of Panettone, the king of leavened Christmas cakes, imitated worldwide. The city is also famous for refined miniature pastries and historic shops that have made Milanese pastry history."}, bg:"Lombardia"},
+      {n:"Mantova", b:{it:"Famosa nel mondo per la Torta Sbrisolona, un dolce friabile a base di farina gialla, bianca e mandorle. Di origine rinascimentale è anche l'Anello di Monaco, un ricco lievitato tipico delle feste.",en:"Famous worldwide for the Sbrisolona, a crumbly cake of yellow and white flour and almonds. Also of Renaissance origin is the Anello di Monaco, a rich leavened festive treat."}, bg:"Lombardia"},
+      {n:"Venezia", b:{it:"La sua ricca arte dolciaria vanta storici biscotti secchi da intingere nel vino come i baicoli, i golosi zaeti con uvetta e farina di mais, e i celebri bussolai di Burano, oltre alle mitiche frittelle veneziane del periodo di Carnevale.",en:"Its rich pastry art boasts historic dry biscuits to dip in wine such as baicoli, indulgent zaeti with raisins and cornmeal, and the famous bussolai of Burano, as well as the legendary Venetian fritters of Carnival."}, bg:"Veneto"},
+      {n:"Treviso", b:{it:"Famosa nel mondo per aver dato i natali al Tiramisù, nato nelle cucine dello storico ristorante Le Beccherie, e per altre specialità locali come la Focaccia Trevisana e la delicata pasticceria secca da credenza.",en:"Famous worldwide as the birthplace of Tiramisù, created in the kitchens of the historic restaurant Le Beccherie, and for other local specialities such as Trevisan focaccia and delicate dry pastries."}, bg:"Veneto"},
+      {n:"Siena", b:{it:"Celebre in tutto il mondo per i suoi ricchi dolci medievali a base di spezie e frutta candita, tra cui spiccano il Panforte, i Ricciarelli (morbidi dolcetti alle mandorle) e i Cavallucci.",en:"Famous worldwide for its rich medieval sweets based on spices and candied fruit, notably Panforte, Ricciarelli (soft almond treats) and Cavallucci."}, bg:"Toscana"},
+      {n:"Prato", b:{it:"Patria dei Cantucci (o biscotti di Prato), i famosi biscotti secchi alle mandorle cotti due volte nel forno, da inzuppare rigorosamente nel Vin Santo.",en:"Home of Cantucci (or Prato biscuits), the famous twice-baked dry almond biscuits, to be dipped strictly in Vin Santo."}, bg:"Toscana"},
+      {n:"Roma", b:{it:"Il simbolo dolce della capitale è il Maritozzo con la panna, una soffice pagnotta dolce, leggermente aromatica, tagliata in due e farcita con abbondante panna montata fresca.",en:"The capital's sweet symbol is the Maritozzo with cream, a soft, lightly aromatic sweet bun cut in two and filled with abundant fresh whipped cream."}, bg:"Lazio"},
+      {n:"Napoli", b:{it:"Una vera capitale della pasticceria. È famosa per la Sfogliatella (riccia o frolla), il Babà inzuppato nel rum, la Pastiera napoletana (tipica di Pasqua ma consumata tutto l'anno a base di grano e ricotta) e le Zeppole di San Giuseppe.",en:"A true capital of pastry. It is famous for the Sfogliatella (riccia or frolla), rum-soaked Babà, the Neapolitan Pastiera (typical of Easter but eaten all year, made with wheat and ricotta) and St Joseph's Zeppole."}, bg:"Campania"},
+      {n:"Palermo", b:{it:"La Sicilia è la patria della Cassata e dei Cannoli siciliani farciti con crema di ricotta fresca. Palermo eccelle anche nella Frutta Martorana (marzapane dipinto a mano).",en:"Sicily is the home of Cassata and Sicilian Cannoli filled with fresh ricotta cream. Palermo also excels in Frutta Martorana (hand-painted marzipan)."}, bg:"Sicilia"},
+      {n:"Catania", b:{it:"Celebre per le Olivette di Sant'Agata e per la sontuosa granita artigianale servita con la classica brioche col tuppo.",en:"Famous for the Olivette di Sant'Agata and for sumptuous artisan granita served with the classic brioche col tuppo."}, bg:"Sicilia"},
+      {n:"Lecce", b:{it:"Capitale del Salento e patria del Pasticciotto leccese, un guscio di friabile pasta frolla cotto al forno e ripiendo di profumata crema pasticcera caldissima.",en:"The capital of the Salento and home of the Pasticciotto leccese, a shell of crumbly shortcrust baked and filled with piping-hot scented custard."}, bg:"Puglia"},
     ]},
-  { id:"arte", sec:"naz", route:false, start:"Roma",
+  { id:"arte", sec:"naz", route:false, img:"/img/tours/arte.jpg", start:"Roma",
     area:{it:"Tema · Arte",en:"Theme · Art"}, title:{it:"Itinerario dell'Arte",en:"The Art Trail"},
-    summary:{it:"Le grandi capitali dell'arte italiana, città per città.",en:"Italy's great art capitals, city by city."},
+    summary:{it:"Le grandi capitali dell'arte italiana, città per città.",en:"Italy’s great art capitals, city by city."},
     stops:[
-      {n:"Milano",bg:"Lombardia",b:{it:"L'Ultima Cena di Leonardo, il Duomo gotico, il Castello Sforzesco e Brera.",en:"Leonardo's Last Supper, the Gothic cathedral, the Sforza Castle and the Brera gallery."}},
-      {n:"Venezia",bg:"Veneto",b:{it:"Città sull'acqua patrimonio UNESCO: Piazza San Marco, la Basilica e Palazzo Ducale.",en:"A UNESCO city on water: St Mark's Square, the basilica and the Doge's Palace."}},
-      {n:"Torino",bg:"Piemonte",b:{it:"Barocco e Savoia: Museo Egizio, Mole Antonelliana, Palazzo Reale e Venaria.",en:"Baroque and Savoy: the Egyptian Museum, the Mole Antonelliana, the Royal Palace and Venaria."}},
-      {n:"Bologna",bg:"Emilia-Romagna",b:{it:"62 km di portici UNESCO, le torri Asinelli e Garisenda e San Petronio.",en:"Sixty-two km of UNESCO porticoes, the Asinelli and Garisenda towers and San Petronio."}},
-      {n:"Firenze",bg:"Toscana",b:{it:"Culla del Rinascimento: Uffizi, il David all'Accademia, il Duomo e Ponte Vecchio.",en:"Cradle of the Renaissance: the Uffizi, Michelangelo's David, the Duomo and Ponte Vecchio."}},
-      {n:"Pisa",bg:"Toscana",b:{it:"La Piazza dei Miracoli con la Torre Pendente, il Duomo e il Battistero.",en:"The Piazza dei Miracoli with the Leaning Tower, cathedral and baptistery."}},
-      {n:"Siena",bg:"Toscana",b:{it:"Città medievale intatta: Piazza del Campo, il Palio e il Duomo gotico.",en:"An intact medieval city: Piazza del Campo, the Palio and the Gothic cathedral."}},
-      {n:"Roma",bg:"Lazio",b:{it:"Museo a cielo aperto: Colosseo, Fori, Pantheon e i capolavori dei Musei Vaticani.",en:"An open-air museum: the Colosseum, the Forums, the Pantheon and the Vatican Museums' masterpieces."}},
-      {n:"Napoli",bg:"Campania",b:{it:"Il più grande centro storico UNESCO d'Europa, il Cristo Velato e le stazioni dell'arte.",en:"Europe's largest UNESCO old town, the Veiled Christ and the metro's 'art stations'."}},
-      {n:"Palermo",bg:"Sicilia",b:{it:"Capitale arabo-normanna UNESCO: la Cattedrale, il Palazzo dei Normanni e la Cappella Palatina.",en:"A UNESCO Arab-Norman capital: the cathedral, the Norman Palace and the Palatine Chapel."}}
-    ]}
+      {n:"Roma", b:{it:"La \"Città Eterna\" custodisce oltre tremila anni di storia. È un museo a cielo aperto unico al mondo grazie al Colosseo, ai Fori Imperiali, al Pantheon e ai capolavori rinascimentali e barocchi di Michelangelo e Bernini (inclusi i Musei Vaticani).",en:"The 'Eternal City' guards over three thousand years of history. It is a one-of-a-kind open-air museum thanks to the Colosseum, the Imperial Forums, the Pantheon and the Renaissance and baroque masterpieces of Michelangelo and Bernini (including the Vatican Museums)."}, bg:"Lazio"},
+      {n:"Firenze", b:{it:"La culla del Rinascimento. Ospita la Galleria degli Uffizi (con le opere di Botticelli e Leonardo da Vinci), la Galleria dell'Accademia (casa del David di Michelangelo), il Duomo di Brunelleschi e Ponte Vecchio.",en:"The cradle of the Renaissance. It is home to the Uffizi Gallery (with works by Botticelli and Leonardo da Vinci), the Accademia Gallery (home of Michelangelo's David), Brunelleschi's Duomo and Ponte Vecchio."}, bg:"Toscana"},
+      {n:"Venezia", b:{it:"Una città unica al mondo, interamente edificata sull'acqua e patrimonio UNESCO. È celebre per Piazza San Marco, la Basilica bizantina, il Palazzo Ducale, i suoi canali e l'arte contemporanea della Biennale.",en:"A city unique in the world, built entirely on water and a UNESCO site. It is famous for St Mark's Square, the Byzantine basilica, the Doge's Palace, its canals and the contemporary art of the Biennale."}, bg:"Veneto"},
+      {n:"Milano", b:{it:"Oltre a essere la capitale della moda, custodisce tesori d'arte inestimabili come L'Ultima Cena di Leonardo da Vinci, lo sfarzoso Duomo gotico, il Castello Sforzesco e la Pinacoteca di Brera.",en:"As well as being the capital of fashion, it guards priceless art treasures such as Leonardo da Vinci's Last Supper, the lavish Gothic cathedral, the Sforza Castle and the Brera gallery."}, bg:"Lombardia"},
+      {n:"Napoli", b:{it:"Centro d'arte immenso e vibrante. Vanta il centro storico UNESCO più grande d'Europa, il Cristo Velato nella Cappella Sansevero, le stazioni dell'arte della metropolitana, i palazzi reali e le collezioni del Museo Archeologico Nazionale.",en:"An immense, vibrant art centre. It boasts Europe's largest UNESCO old town, the Veiled Christ in the Sansevero Chapel, the metro's 'art stations', royal palaces and the collections of the National Archaeological Museum."}, bg:"Campania"},
+      {n:"Bologna", b:{it:"Nota per i suoi 62 chilometri di portici (patrimonio UNESCO), le torri medievali degli Asinelli e della Garisenda, la Basilica di San Petronio e la più antica università del mondo occidentale.",en:"Known for its 62 kilometres of porticoes (a UNESCO site), the medieval Asinelli and Garisenda towers, the Basilica di San Petronio and the oldest university in the Western world."}, bg:"Emilia-Romagna"},
+      {n:"Torino", b:{it:"Prima capitale d'Italia, caratterizzata da un'elegante architettura barocca e sabauda. Ospita il Museo Egizio (il secondo più importante al mondo), la Mole Antonelliana, il Palazzo Reale e la Reggia di Venaria nelle vicinanze.",en:"Italy's first capital, marked by elegant baroque and Savoy architecture. It hosts the Egyptian Museum (the second most important in the world), the Mole Antonelliana, the Royal Palace and the nearby Royal Palace of Venaria."}, bg:"Piemonte"},
+      {n:"Pisa", b:{it:"Celebre a livello planetario per la Piazza dei Miracoli, che unisce in un complesso monumentale unico la celebre Torre Pendente, il Duomo, il Battistero e il Camposanto, massimi esempi del romanico pisano.",en:"Famous the world over for the Piazza dei Miracoli, which brings together in a unique monumental complex the celebrated Leaning Tower, the Duomo, the Baptistery and the Camposanto, supreme examples of Pisan Romanesque."}, bg:"Toscana"},
+      {n:"Siena", b:{it:"Splendida città medievale rimasta intatta nel tempo. È famosa per la caratteristica forma a conchiglia di Piazza del Campo (dove si corre il Palio), il maestoso Duomo gotico e i capolavori della scuola pittorica senese.",en:"A splendid medieval city left intact over time. It is famous for the shell shape of Piazza del Campo (where the Palio is run), the majestic Gothic cathedral and the masterpieces of the Sienese painting school."}, bg:"Toscana"},
+      {n:"Palermo", b:{it:"Capitale della cultura arabo-normanna (patrimonio UNESCO), offre un mix artistico unico al mondo. Spiccano la Cattedrale, il Palazzo dei Normanni con la Cappella Palatina e i fastosi monumenti del barocco siciliano.",en:"The capital of Arab-Norman culture (a UNESCO site), it offers an artistic mix unique in the world. Highlights include the cathedral, the Norman Palace with the Palatine Chapel and the lavish monuments of Sicilian baroque."}, bg:"Sicilia"},
+    ]},
 ];
 
 // Tours i18n (page-local)
@@ -9332,7 +9367,9 @@ function ToursPage({ lang, t, setCity, setTab }) {
 
   // ── DETAIL ──
   if (active) {
-    const heroBg = active.reg ? getBg(active.reg) : `linear-gradient(135deg, ${C.terra}, ${C.gold})`;
+    const heroStyle = active.img
+      ? { backgroundImage:`url(${active.img})`, backgroundSize:"cover", backgroundPosition:"center" }
+      : { background: active.reg ? getBg(active.reg) : `linear-gradient(135deg, ${C.terra}, ${C.gold})` };
     return (
       <div style={{ animation:"ivFade .3s ease both" }}>
         <div style={{ padding:"10px 16px 0" }}>
@@ -9343,8 +9380,8 @@ function ToursPage({ lang, t, setCity, setTab }) {
           </button>
         </div>
 
-        <div style={{ margin:"6px 16px 18px", borderRadius:16, overflow:"hidden", position:"relative", minHeight:150, display:"flex", alignItems:"flex-end", background:heroBg }}>
-          <div style={{ position:"absolute", inset:0, background:"linear-gradient(180deg, rgba(20,14,6,.15) 0%, rgba(20,14,6,.55) 45%, rgba(20,14,6,.92) 100%)" }} />
+        <div style={{ margin:"6px 16px 18px", borderRadius:16, overflow:"hidden", position:"relative", minHeight:172, display:"flex", alignItems:"flex-end", ...heroStyle }}>
+          <div style={{ position:"absolute", inset:0, background:"linear-gradient(180deg, rgba(20,14,6,.10) 0%, rgba(20,14,6,.52) 45%, rgba(20,14,6,.92) 100%)" }} />
           <div style={{ position:"relative", padding:"16px 16px 14px", width:"100%" }}>
             <div style={{ fontSize:11, letterSpacing:2, textTransform:"uppercase", color:C.gold, fontWeight:700 }}>{active.area[lang]}</div>
             <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:27, color:"#fff", lineHeight:1.1, margin:"6px 0 7px", textShadow:"0 2px 14px rgba(0,0,0,.5)" }}>{active.title[lang]}</div>
@@ -9462,19 +9499,23 @@ function ToursPage({ lang, t, setCity, setTab }) {
         {list.map(tour => (
           <button key={tour.id} onClick={() => { setActiveId(tour.id); const el = document.getElementById("scroll-root"); if (el) el.scrollTop = 0; }}
             style={{ width:"100%", textAlign:"left", cursor:"pointer", position:"relative", overflow:"hidden",
-              background:C.card, border:"1px solid "+C.border, borderLeft:"3px solid "+C.gold, borderRadius:14,
-              padding:"15px 16px", boxShadow:"0 4px 22px rgba(26,18,8,.07)", fontFamily:"'DM Sans',sans-serif" }}>
-            <div style={{ fontSize:10.5, letterSpacing:2, textTransform:"uppercase", color:C.terra, fontWeight:700 }}>{tour.area[lang]}</div>
-            <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:20, color:C.deep, margin:"5px 0 4px", lineHeight:1.15 }}>{tour.title[lang]}</div>
-            <div style={{ fontSize:13.5, color:C.gray, lineHeight:1.5 }}>{tour.summary[lang]}</div>
+              borderRadius:16, border:"none", padding:0, minHeight:158, display:"flex", flexDirection:"column", justifyContent:"flex-end",
+              backgroundImage:`url(${tour.img})`, backgroundSize:"cover", backgroundPosition:"center",
+              boxShadow:"0 6px 22px rgba(26,18,8,.18)", fontFamily:"'DM Sans',sans-serif" }}>
+            <div style={{ position:"absolute", inset:0, background:"linear-gradient(180deg, rgba(20,14,6,.10) 0%, rgba(20,14,6,.48) 50%, rgba(20,14,6,.90) 100%)" }} />
+            <div style={{ position:"relative", padding:"14px 15px 13px" }}>
+            <div style={{ fontSize:10.5, letterSpacing:2, textTransform:"uppercase", color:C.gold, fontWeight:700 }}>{tour.area[lang]}</div>
+            <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:21, color:"#fff", margin:"4px 0 4px", lineHeight:1.12, textShadow:"0 2px 12px rgba(0,0,0,.5)" }}>{tour.title[lang]}</div>
+            <div style={{ fontSize:13, color:"rgba(255,255,255,.92)", lineHeight:1.45 }}>{tour.summary[lang]}</div>
             <div style={{ display:"flex", alignItems:"center", gap:7, marginTop:11 }}>
               {tour.stops.map((st, i) => (
                 <Fragment key={i}>
-                  <span style={{ width:8, height:8, borderRadius:"50%", background:C.cream, border:`1.5px solid ${tourIsHub(st)?TOUR_HUB:C.gold}`, flex:"0 0 auto" }} />
-                  {i < tour.stops.length-1 && <span style={{ height:1.5, flex:"1 1 auto", background:"repeating-linear-gradient(to right, "+C.gray+" 0 4px, transparent 4px 7px)", opacity:.5 }} />}
+                  <span style={{ width:7, height:7, borderRadius:"50%", background: tourIsHub(st)?TOUR_HUB:C.gold, flex:"0 0 auto", boxShadow:"0 0 0 1.5px rgba(255,255,255,.35)" }} />
+                  {i < tour.stops.length-1 && <span style={{ height:1.5, flex:"1 1 auto", background:"repeating-linear-gradient(to right, rgba(255,255,255,.5) 0 4px, transparent 4px 7px)" }} />}
                 </Fragment>
               ))}
-              <span style={{ flex:"0 0 auto", fontSize:11, color:C.gray, marginLeft:6 }}><b style={{ color:C.deep }}>{tour.stops.length}</b> {TX.stops}</span>
+              <span style={{ flex:"0 0 auto", fontSize:11, color:"rgba(255,255,255,.9)", marginLeft:6 }}><b style={{ color:"#fff" }}>{tour.stops.length}</b> {TX.stops}</span>
+            </div>
             </div>
           </button>
         ))}
