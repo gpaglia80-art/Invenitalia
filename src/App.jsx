@@ -10540,22 +10540,3 @@ export default function App() {
     </div>
   );
 }
-            </button>
-              );
-            })}
-          </div>
-          <div style={{ padding:"12px 22px 18px", borderTop:"1px solid rgba(212,168,67,.15)", fontSize:11, color:C.gray }}>{CITIES.length} comuni</div>
-        </div>
-      </>)}
-    </div>
-  );
-}
-   );
-            })}
-          </div>
-          <div style={{ padding:"12px 22px 18px", borderTop:"1px solid rgba(212,168,67,.15)", fontSize:11, color:C.gray }}>{CITIES.length} comuni</div>
-        </div>
-      </>)}
-    </div>
-  );
-}
