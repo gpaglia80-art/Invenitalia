@@ -5140,10 +5140,10 @@ const _COMUNI = [
 ["Vitulano","BN",3,41.1167,14.65,3500],
 ["Sant'Arcangelo Trimonte","BN",3,41.1833,14.9333,700],
 ["Acerra","NA",3,40.945,14.3755,59000],
-["Afragola","",3],
+["Afragola","NA",3],
 ["Agerola","NA",3,40.6383,14.5333,7000],
 ["Anacapri","NA",3,40.5569,14.2145,6800],
-["Arzano","",3],
+["Arzano","NA",3],
 ["Bacoli","NA",3,40.7975,14.0813,27000],
 ["Barano d'Ischia","NA",3,40.7119,13.94,10000],
 ["Boscoreale","NA",3,40.7753,14.4758,27000],
@@ -5153,17 +5153,17 @@ const _COMUNI = [
 ["Calvizzano","NA",3,40.9009,14.177,13000],
 ["Camposano","NA",3,40.9582,14.5564,5500],
 ["Capri","NA",3,40.55,14.2372,7258],
-["Carbonara di Nola","",3],
+["Carbonara di Nola","NA",3],
 ["Cardito","NA",3,40.9375,14.2878,22000],
-["Casalnuovo di Napoli","",3],
-["Casamarciano","",3],
+["Casalnuovo di Napoli","NA",3],
+["Casamarciano","NA",3],
 ["Casamicciola Terme","NA",3,40.7447,13.9011,8000],
 ["Casandrino","NA",3,40.9264,14.1878,13000],
 ["Casavatore","NA",3,40.9083,14.2611,19000],
 ["Casola di Napoli","NA",3,40.6833,14.5167,3800],
 ["Casoria","NA",3,40.9036,14.2907,78000],
 ["Castellammare di Stabia","NA",3,40.701,14.4806,65000],
-["Castello di Cisterna","",3],
+["Castello di Cisterna","NA",3],
 ["Cercola","NA",3,40.8569,14.3519,18000],
 ["Cicciano","NA",3,40.96,14.5369,12000],
 ["Cimitile","NA",3,40.9444,14.5244,7000],
@@ -5173,7 +5173,7 @@ const _COMUNI = [
 ["Frattamaggiore","NA",3,40.9422,14.2711,29000],
 ["Frattaminore","NA",3,40.9569,14.2569,16000],
 ["Giugliano in Campania","NA",3,40.9291,14.1944,115000],
-["Gragnano","",3],
+["Gragnano","NA",3],
 ["Grumo Nevano","NA",3,40.9361,14.2569,18000],
 ["Ischia","NA",3,40.7311,13.8993,18000],
 ["Lacco Ameno","NA",3,40.7583,13.8978,4700],
@@ -5189,13 +5189,13 @@ const _COMUNI = [
 ["Mugnano di Napoli","NA",3,40.9103,14.21,34000],
 ["Napoli","NA",3,40.8518,14.2681,959470],
 ["Nola","NA",3,40.9264,14.5275,33000],
-["Ottaviano","",3],
+["Ottaviano","NA",3],
 ["Palma Campania","NA",3,40.8667,14.55,16000],
 ["Piano di Sorrento","NA",3,40.6333,14.4,14000],
 ["Pimonte","NA",3,40.6669,14.5333,6000],
 ["Poggiomarino","NA",3,40.8,14.5333,19000],
 ["Pollena Trocchia","NA",3,40.8667,14.35,13000],
-["Pomigliano d'Arco","",3],
+["Pomigliano d'Arco","NA",3],
 ["Pompei","NA",3,40.7503,14.4989,25000],
 ["Portici","NA",3,40.8153,14.3375,55000],
 ["Pozzuoli","NA",3,40.8277,14.1265,81000],
@@ -5212,8 +5212,8 @@ const _COMUNI = [
 ["Sant'Agnello","NA",3,40.6333,14.3833,9000],
 ["Sant'Anastasia","NA",3,40.8694,14.4,28000],
 ["Sant'Antimo","NA",3,40.9417,14.2333,34000],
-["Sant'Antonio Abate","",3],
-["San Vitaliano","",3],
+["Sant'Antonio Abate","NA",3],
+["San Vitaliano","NA",3],
 ["Saviano","NA",3,40.9125,14.51,16000],
 ["Scisciano","NA",3,40.9333,14.5,5000],
 ["Serrara Fontana","NA",3,40.7083,13.9,3200],
@@ -5230,7 +5230,7 @@ const _COMUNI = [
 ["Volla","NA",3,40.8667,14.35,25000],
 ["Santa Maria la Carità","NA",3,40.7167,14.4833,11000],
 ["Trecase","NA",3,40.7833,14.45,10000],
-["Massa di Somma","",3],
+["Massa di Somma","NA",3],
 ["Aiello del Sabato","AV",3,40.9167,14.8,4000],
 ["Altavilla Irpina","AV",3,41.0,14.8833,4500],
 ["Andretta","AV",3,40.9333,15.3167,2000],
@@ -8175,6 +8175,386 @@ function CatCard({ item, href, tagColor, tagLabel }) {
   );
 }
 
+
+const MONUMENT_BY_PROV = {
+  AG:"tempio_greco",
+  AL:"generic",
+  AN:"arco_romano",
+  AO:"arco_romano",
+  AP:"generic",
+  AQ:"basilica",
+  AR:"generic",
+  AT:"generic",
+  AV:"generic",
+  BA:"trullo",
+  BG:"generic",
+  BI:"generic",
+  BL:"generic",
+  BN:"generic",
+  BO:"torri",
+  BR:"generic",
+  BS:"castello",
+  BT:"generic",
+  BZ:"duomo_gotico",
+  CA:"bastione",
+  CB:"castello",
+  CE:"generic",
+  CH:"generic",
+  CL:"generic",
+  CN:"generic",
+  CO:"generic",
+  CR:"torrazzo",
+  CS:"generic",
+  CT:"etna",
+  CZ:"generic",
+  EN:"generic",
+  FC:"generic",
+  FE:"castello",
+  FG:"generic",
+  FI:"cupola",
+  FM:"generic",
+  FR:"generic",
+  GE:"faro",
+  GO:"generic",
+  GR:"generic",
+  IM:"generic",
+  IS:"generic",
+  KR:"generic",
+  LC:"generic",
+  LE:"anfiteatro",
+  LI:"generic",
+  LO:"generic",
+  LT:"generic",
+  LU:"generic",
+  MB:"generic",
+  MC:"generic",
+  ME:"faro_stretto",
+  MI:"duomo",
+  MN:"palazzo_ducale",
+  MO:"torre_civica",
+  MS:"generic",
+  MT:"sassi",
+  NA:"vesuvio",
+  NO:"generic",
+  NU:"generic",
+  OR:"generic",
+  PA:"cattedrale",
+  PC:"generic",
+  PD:"basilica",
+  PE:"generic",
+  PG:"arco_etrusco",
+  PI:"torre_pendente",
+  PN:"generic",
+  PO:"generic",
+  PR:"battistero",
+  PT:"generic",
+  PU:"generic",
+  PV:"generic",
+  PZ:"cattedrale",
+  RA:"mosaico",
+  RC:"lungomare",
+  RE:"torre_civica",
+  RG:"generic",
+  RI:"generic",
+  RM:"colosseo",
+  RN:"generic",
+  RO:"generic",
+  SA:"generic",
+  SI:"torre_civica",
+  SO:"generic",
+  SP:"generic",
+  SR:"teatro_greco",
+  SS:"fontana",
+  SV:"generic",
+  TA:"generic",
+  TE:"generic",
+  TN:"castello",
+  TO:"mole",
+  TP:"generic",
+  TR:"generic",
+  TS:"castello_mare",
+  TV:"generic",
+  UD:"generic",
+  VA:"generic",
+  VB:"generic",
+  VC:"generic",
+  VE:"campanile",
+  VI:"generic",
+  VR:"arena",
+  VT:"generic",
+  VV:"generic"
+};
+
+// ── MONUMENT ICONS ────────────────────────────────────────────────────────────
+// Small line-art SVG silhouettes for the 106 provincial-capital comuni, shown as a
+// watermark badge in the Explore hero. One dedicated icon per landmark type (32),
+// plus a "generic" civic-tower fallback for capitals without a bespoke icon.
+// Style: single-stroke antique line drawing, matches the Explore empty-state map.
+
+function MonumentSvg({ type, size = 56, opacity = 0.5 }) {
+  const common = { viewBox: "0 0 64 64", width: size, height: size, fill: "none",
+    stroke: "currentColor", strokeWidth: 1.4, strokeLinejoin: "round", strokeLinecap: "round",
+    style: { opacity, display: "block" } };
+  switch (type) {
+    case "colosseo": // Roma
+      return (<svg {...common}>
+        <path d="M6 46 Q32 16 58 46" />
+        <path d="M6 46 L58 46" />
+        {[10,16,22,28,34,40,46,52].map(x => <line key={x} x1={x} y1="40" x2={x} y2="46" />)}
+        <path d="M9 40 Q32 20 55 40" />
+        <rect x="20" y="46" width="24" height="6" />
+      </svg>);
+    case "duomo": // Milano
+      return (<svg {...common}>
+        <path d="M14 54 L14 26 L32 12 L50 26 L50 54" />
+        <line x1="32" y1="12" x2="32" y2="4" /><path d="M28 4 L36 4 M32 0 L32 8" />
+        <path d="M20 54 L20 34 L26 28 L26 54 M38 54 L38 28 L44 34 L44 54" />
+        <line x1="14" y1="54" x2="50" y2="54" />
+        {[16,22,28,34,40,46].map(x => <line key={x} x1={x} y1="46" x2={x} y2="54" />)}
+      </svg>);
+    case "vesuvio": // Napoli
+      return (<svg {...common}>
+        <path d="M4 54 L22 24 L28 32 L36 18 L60 54 Z" />
+        <path d="M33 24 Q36 19 39 23 Q41 20 36 16" opacity="0.7" />
+        <path d="M4 54 L60 54" />
+        <rect x="44" y="44" width="6" height="10" /><rect x="50" y="40" width="5" height="14" />
+      </svg>);
+    case "mole": // Torino
+      return (<svg {...common}>
+        <path d="M26 54 L26 22 L38 22 L38 54" />
+        <path d="M22 22 L42 22 L32 8 Z" />
+        <line x1="32" y1="8" x2="32" y2="2" />
+        <path d="M28 54 L28 30 M36 54 L36 30" opacity="0.7" />
+        <line x1="18" y1="54" x2="46" y2="54" />
+      </svg>);
+    case "cattedrale": // Palermo
+      return (<svg {...common}>
+        <rect x="12" y="30" width="40" height="24" />
+        <path d="M12 30 L12 20 L20 20 L20 30 M44 30 L44 20 L52 20 L52 30" />
+        <path d="M14 20 L18 14 L18 20 M46 20 L50 14 L50 20" />
+        <path d="M26 30 L26 18 Q32 12 38 18 L38 30" />
+        <line x1="32" y1="12" x2="32" y2="6" />
+        <line x1="12" y1="54" x2="52" y2="54" />
+      </svg>);
+    case "faro": // Genova (Lanterna)
+      return (<svg {...common}>
+        <path d="M26 54 L24 30 L40 30 L38 54" />
+        <path d="M27 30 L27 16 L37 16 L37 30" />
+        <rect x="29" y="8" width="6" height="8" />
+        <path d="M29 8 L32 2 L35 8" />
+        <line x1="14" y1="54" x2="50" y2="54" />
+        <path d="M44 22 Q50 26 44 32 M20 22 Q14 26 20 32" opacity="0.6" />
+      </svg>);
+    case "torri": // Bologna (Asinelli e Garisenda)
+      return (<svg {...common}>
+        <path d="M22 54 L24 14 L30 14 L30 54" />
+        <path d="M36 54 L37 24 L43 26 L42 54" />
+        <line x1="14" y1="54" x2="50" y2="54" />
+        {[20,28,36,44].map(y => null)}
+        <line x1="24" y1="24" x2="30" y2="24" /><line x1="24" y1="34" x2="30" y2="34" /><line x1="24" y1="44" x2="30" y2="44" />
+      </svg>);
+    case "cupola": // Firenze (Brunelleschi)
+      return (<svg {...common}>
+        <rect x="16" y="38" width="32" height="16" />
+        <path d="M16 38 Q32 14 48 38" />
+        <path d="M20 38 Q32 20 44 38" opacity="0.6" />
+        <line x1="32" y1="14" x2="32" y2="6" /><circle cx="32" cy="4" r="2" />
+        <line x1="14" y1="54" x2="50" y2="54" />
+      </svg>);
+    case "trullo": // Bari
+      return (<svg {...common}>
+        <path d="M16 54 L16 42 Q24 28 32 42 L32 54 Z" />
+        <path d="M32 54 L32 46 Q40 34 48 46 L48 54 Z" />
+        <circle cx="24" cy="30" r="1.6" /><circle cx="40" cy="34" r="1.6" />
+        <line x1="10" y1="54" x2="54" y2="54" />
+      </svg>);
+    case "etna": // Catania
+      return (<svg {...common}>
+        <path d="M4 54 L32 12 L60 54 Z" />
+        <path d="M27 22 Q32 16 37 22 Q34 18 30 17" opacity="0.7" />
+        <path d="M4 54 L60 54" />
+        {[14,20,26].map(x => <line key={x} x1={x} y1="48" x2={x+4} y2="54" opacity="0.5" />)}
+      </svg>);
+    case "campanile": // Venezia (San Marco)
+      return (<svg {...common}>
+        <rect x="24" y="20" width="16" height="34" />
+        <path d="M22 20 L42 20 L32 8 Z" />
+        <line x1="32" y1="8" x2="32" y2="2" />
+        <line x1="24" y1="30" x2="40" y2="30" /><line x1="24" y1="40" x2="40" y2="40" />
+        <line x1="14" y1="54" x2="50" y2="54" />
+        <path d="M14 54 Q32 58 50 54" opacity="0.5" />
+      </svg>);
+    case "arena": // Verona
+      return (<svg {...common}>
+        <ellipse cx="32" cy="40" rx="26" ry="12" />
+        <ellipse cx="32" cy="40" rx="18" ry="7" opacity="0.6" />
+        <path d="M8 36 Q32 24 56 36" />
+      </svg>);
+    case "faro_stretto": // Messina
+      return (<svg {...common}>
+        <path d="M28 54 L28 24 L36 24 L36 54" />
+        <path d="M26 24 L38 24 L32 10 Z" />
+        <line x1="32" y1="10" x2="32" y2="4" />
+        <path d="M6 50 Q32 60 58 50" opacity="0.6" />
+        <line x1="14" y1="54" x2="50" y2="54" />
+      </svg>);
+    case "basilica": // Padova / L'Aquila
+      return (<svg {...common}>
+        <rect x="14" y="32" width="36" height="22" />
+        <path d="M14 32 Q32 14 50 32" />
+        <circle cx="22" cy="22" r="3" /><circle cx="42" cy="22" r="3" />
+        <line x1="22" y1="25" x2="22" y2="32" /><line x1="42" y1="25" x2="42" y2="32" />
+        <line x1="10" y1="54" x2="54" y2="54" />
+      </svg>);
+    case "castello_mare": // Trieste (Miramare)
+      return (<svg {...common}>
+        <rect x="18" y="28" width="28" height="22" />
+        <path d="M18 28 L18 22 L24 22 L24 28 M40 28 L40 22 L46 22 L46 28" />
+        <path d="M28 28 L28 18 L36 18 L36 28" />
+        <path d="M4 50 Q32 58 60 50" opacity="0.6" />
+        <line x1="14" y1="50" x2="50" y2="50" />
+      </svg>);
+    case "castello": // Brescia, Trento, Ferrara, Campobasso
+      return (<svg {...common}>
+        <rect x="16" y="30" width="32" height="24" />
+        <path d="M16 30 L16 22 L22 22 L22 30 M42 30 L42 22 L48 22 L48 30 M26 30 L26 22 L32 22 L32 30 M32 30 L32 22 L38 22 L38 30" />
+        <rect x="27" y="40" width="10" height="14" />
+        <line x1="10" y1="54" x2="54" y2="54" />
+      </svg>);
+    case "battistero": // Parma
+      return (<svg {...common}>
+        <path d="M18 54 L18 26 Q32 14 46 26 L46 54 Z" />
+        <line x1="32" y1="14" x2="32" y2="6" /><circle cx="32" cy="4" r="2" />
+        <line x1="18" y1="40" x2="46" y2="40" />
+        <line x1="14" y1="54" x2="50" y2="54" />
+      </svg>);
+    case "torre_civica": // Modena, Reggio Emilia, Siena
+      return (<svg {...common}>
+        <rect x="26" y="14" width="12" height="40" />
+        <path d="M24 14 L40 14 L32 4 Z" />
+        <line x1="26" y1="24" x2="38" y2="24" /><line x1="26" y1="34" x2="38" y2="34" /><line x1="26" y1="44" x2="38" y2="44" />
+        <line x1="14" y1="54" x2="50" y2="54" />
+      </svg>);
+    case "lungomare": // Reggio Calabria
+      return (<svg {...common}>
+        <path d="M6 44 Q16 38 26 44 T46 44 T60 44" />
+        <path d="M6 50 Q16 46 26 50 T46 50 T60 50" opacity="0.6" />
+        {[14,24,34,44].map(x => <rect key={x} x={x} y="26" width="4" height="14" />)}
+        <path d="M12 26 Q16 22 20 26 M32 26 Q36 22 40 26" opacity="0.7" />
+      </svg>);
+    case "arco_etrusco": // Perugia
+      return (<svg {...common}>
+        <path d="M16 54 L16 28 Q16 18 26 18 L38 18 Q48 18 48 28 L48 54" />
+        <path d="M22 54 L22 30 Q22 24 28 24 L36 24 Q42 24 42 30 L42 54" />
+        <line x1="10" y1="54" x2="54" y2="54" />
+      </svg>);
+    case "mosaico": // Ravenna
+      return (<svg {...common}>
+        <rect x="16" y="20" width="32" height="34" />
+        <path d="M16 20 L24 12 L40 12 L48 20" />
+        <path d="M22 30 L26 26 L30 30 L34 26 L38 30 L42 26" opacity="0.7" />
+        <line x1="12" y1="54" x2="52" y2="54" />
+      </svg>);
+    case "torre_pendente": // Pisa
+      return (<svg {...common}>
+        <path d="M24 54 L29 14 Q32 10 35 14 L31 54 Z" />
+        <line x1="25" y1="22" x2="34" y2="22" /><line x1="25.5" y1="32" x2="34.5" y2="32" /><line x1="26" y1="42" x2="35" y2="42" />
+        <line x1="14" y1="54" x2="50" y2="54" />
+      </svg>);
+    case "anfiteatro": // Lecce
+      return (<svg {...common}>
+        <path d="M10 48 Q32 28 54 48" />
+        <path d="M16 48 Q32 34 48 48" opacity="0.6" />
+        <line x1="6" y1="48" x2="58" y2="48" />
+        <path d="M22 48 L22 40 M32 48 L32 36 M42 48 L42 40" opacity="0.6" />
+      </svg>);
+    case "sassi": // Matera
+      return (<svg {...common}>
+        <path d="M6 54 L6 40 Q6 34 12 34 L18 34 Q24 34 24 40 L24 54" />
+        <path d="M24 54 L24 32 Q24 26 30 26 L40 26 Q46 26 46 32 L46 54" />
+        <path d="M46 54 L46 38 Q46 34 50 34 L58 34 L58 54" />
+        <circle cx="14" cy="42" r="2" /><circle cx="34" cy="36" r="2" /><circle cx="52" cy="42" r="2" />
+      </svg>);
+    case "bastione": // Cagliari
+      return (<svg {...common}>
+        <rect x="14" y="34" width="36" height="20" />
+        <path d="M14 34 L14 28 L20 28 L20 34 M30 34 L30 28 L36 28 L36 34 M44 34 L44 28 L50 28 L50 34" />
+        <path d="M22 54 L22 40 L42 40 L42 54" />
+        <line x1="10" y1="54" x2="54" y2="54" />
+      </svg>);
+    case "fontana": // Sassari (Rosello)
+      return (<svg {...common}>
+        <path d="M16 54 Q16 44 24 44 L40 44 Q48 44 48 54" />
+        <rect x="26" y="30" width="12" height="14" />
+        <path d="M30 30 L30 22 M34 30 L34 22" />
+        <path d="M28 22 Q32 18 36 22" />
+        <line x1="12" y1="54" x2="52" y2="54" />
+      </svg>);
+    case "duomo_gotico": // Bolzano
+      return (<svg {...common}>
+        <rect x="18" y="32" width="28" height="22" />
+        <path d="M22 32 L22 16 L32 4 L42 16 L42 32" />
+        <line x1="32" y1="4" x2="32" y2="0" />
+        <line x1="18" y1="54" x2="46" y2="54" />
+      </svg>);
+    case "arco_romano": // Aosta, Ancona
+      return (<svg {...common}>
+        <path d="M14 54 L14 26 Q14 16 32 16 Q50 16 50 26 L50 54" />
+        <path d="M20 54 L20 28 Q20 22 32 22 Q44 22 44 28 L44 54" />
+        <line x1="10" y1="54" x2="54" y2="54" />
+      </svg>);
+    case "tempio_greco": // Agrigento
+      return (<svg {...common}>
+        <path d="M10 54 L54 54 M10 48 L54 48" />
+        {[16,24,32,40,48].map(x => <line key={x} x1={x} y1="20" x2={x} y2="48" />)}
+        <path d="M14 20 L50 20 L32 10 Z" />
+      </svg>);
+    case "teatro_greco": // Siracusa
+      return (<svg {...common}>
+        <path d="M8 50 Q32 22 56 50" />
+        <path d="M14 50 Q32 30 50 50" opacity="0.6" />
+        <path d="M20 50 Q32 38 44 50" opacity="0.4" />
+        <line x1="4" y1="50" x2="60" y2="50" />
+      </svg>);
+    case "palazzo_ducale": // Mantova
+      return (<svg {...common}>
+        <rect x="12" y="28" width="40" height="26" />
+        {[16,24,32,40,48].map(x => <rect key={x} x={x-2} y="34" width="4" height="8" />)}
+        <path d="M12 28 L12 22 L18 22 L18 28 M46 28 L46 22 L52 22 L52 28" />
+        <line x1="8" y1="54" x2="56" y2="54" />
+      </svg>);
+    case "torrazzo": // Cremona
+      return (<svg {...common}>
+        <rect x="27" y="16" width="10" height="38" />
+        <path d="M25 16 L39 16 L32 6 Z" />
+        <circle cx="32" cy="26" r="4" />
+        <line x1="14" y1="54" x2="50" y2="54" />
+      </svg>);
+    case "generic": // civic tower fallback for the other ~66 provincial capitals
+      return (<svg {...common}>
+        <rect x="26" y="18" width="12" height="36" />
+        <path d="M24 18 L40 18 L32 8 Z" />
+        <line x1="28" y1="28" x2="36" y2="28" /><line x1="28" y1="38" x2="36" y2="38" />
+        <path d="M16 54 L24 54 L24 46 L40 46 L40 54 L48 54" />
+        <line x1="12" y1="54" x2="52" y2="54" />
+      </svg>);
+    default:
+      return null;
+  }
+}
+
+// Badge shown in the Explore hero for provincial-capital comuni: a faint line-art
+// silhouette of the city's landmark, used purely as a visual identity cue.
+function MonumentBadge({ city }) {
+  const type = MONUMENT_BY_PROV[city.p];
+  if (!type) return null;
+  return (
+    <div aria-hidden="true" style={{ position:"absolute", right:10, bottom:6, color:"#fff", pointerEvents:"none" }}>
+      <MonumentSvg type={type} />
+    </div>
+  );
+}
+
 // ── i18n DICTIONARY (recovered verbatim from the live build) ──────────────────
 const TR = {en:{flagLabel:"IT \xB7 InvenItalia",subExplore:"Discover the Beauty of Italy",subTransport:"Transport \xB7 Taxis \xB7 Car Rental \xB7 Ferries",subKnow:"Surprising facts about your city",titleExplore:["Inven","Italia"],titleAround:["Get ","Around"],titleKnow:["Did You ","Know?"],navExplore:"Explore",navTransport:"Transport",navKnow:"Did You Know?",srchLbl:"Search any Italian city or town",srchHint:(a,e)=>a?`Showing ${a.n} \u2014 type to search another`:`${e} Italian cities & towns`,srchPlaceholder:"Type a city... (e.g. Roma, Gaeta, Pettorano sul Gizio)",emptyTtl:"Where in Italy?",emptySub:`Type any city, town or village above
 to discover live weather, attractions
@@ -8442,10 +8822,12 @@ const FALLBACK_FACTS = {
 function fallbackFacts(city, lang) {
   const fb = FALLBACK_FACTS[city.n];
   if (fb && fb[lang] && fb[lang].length) return fb[lang];
-  // Generic safety net — guarantees we never return null for any comune
+  // Generic safety net — guarantees we never return null for any comune.
+  // Flagged with `generic:true` so callers (e.g. Esplora Frazioni) can tell this
+  // placeholder apart from a real curated/Wikipedia-derived fact.
   const g = lang === "it"
-    ? { emoji:"📍", title:"In Breve", fact:`${city.n} è un comune italiano${city.r ? " della regione " + city.r : ""}.` }
-    : { emoji:"📍", title:"In Brief", fact:`${city.n} is an Italian comune${city.r ? " in the " + city.r + " region" : ""}.` };
+    ? { emoji:"📍", title:"In Breve", fact:`${city.n} è un comune italiano${city.r ? " della regione " + city.r : ""}.`, generic:true }
+    : { emoji:"📍", title:"In Brief", fact:`${city.n} is an Italian comune${city.r ? " in the " + city.r + " region" : ""}.`, generic:true };
   return [g];
 }
 
@@ -8756,6 +9138,7 @@ function ExplorePage({ city, setCity, lang, t }) {
           <div style={s.hero}>
             <div style={{ position:"absolute", inset:0, background:skyBg, opacity:.72 }} />
             <div style={{ ...s.heroBg, background:getBg(city.r) }} />
+            <MonumentBadge city={city} />
             <div style={s.heroInfo}>
               <div style={s.heroName}>{city.n}</div>
               <div style={s.heroReg}>📍 {city.r}{city.p ? " · " + city.p : ""}</div>
@@ -8997,6 +9380,359 @@ function FunFactsPage({ city, setCity, lang, t }) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+// FRAZIONI SEARCH HOOK + DROPDOWN (dedicated: rows are {fz, cm, pv, comune})
+// ═════════════════════════════════════════════════════════════════════════════
+function useFrazioniSearch(list) {
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState(false);
+  const [hov, setHov] = useState(-1);
+  const t = useRef(null);
+  const matches = list && q.length >= 2 ? searchFrazioni(list, q) : [];
+  const onChange = v => {
+    setQ(v); setHov(-1);
+    clearTimeout(t.current);
+    t.current = setTimeout(() => setOpen(v.length >= 2), 100);
+  };
+  return { q, setQ, open, setOpen, matches, hov, setHov, onChange };
+}
+
+function FrazioniDropdown({ srch, onPick, placeholder, noResults }) {
+  const { q, setQ, open, setOpen, matches, hov, setHov, onChange } = srch;
+  const ref = useRef(null);
+  useEffect(() => {
+    const fn = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", fn);
+    return () => document.removeEventListener("mousedown", fn);
+  }, []);
+  return (
+    <div ref={ref} style={s.srchWrap}>
+      <input
+        style={{ ...s.srchInput, borderColor: open ? C.terra : "#D9D0C0" }}
+        value={q} onChange={e => onChange(e.target.value)}
+        onKeyDown={e => e.key === "Escape" && setOpen(false)}
+        placeholder={placeholder} autoComplete="off" spellCheck="false"
+      />
+      <span style={s.srchIco}>🔍</span>
+      {open && (
+        <div style={s.dd}>
+          {matches.length === 0
+            ? <div style={s.ddEmpty}>{noResults}</div>
+            : matches.map((row, i) => (
+              <div key={row.fz + "|" + row.cm + "|" + row.pv + i} style={s.ddItem(hov === i)}
+                onMouseEnter={() => setHov(i)} onMouseLeave={() => setHov(-1)}
+                onClick={() => { setQ(row.fz); setOpen(false); onPick(row); }}>
+                <div>
+                  <div style={s.ddCity}>{row.fz}</div>
+                  <div style={s.ddReg}>{row.cm} · {row.comune.r}{row.pv ? " · " + row.pv : ""}</div>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// FRAZIONI PAGE
+// ═════════════════════════════════════════════════════════════════════════════
+function FrazioniPage({ lang, t }) {
+  const FT = t.frz;
+  const [list, setList] = useState(null); // raw [fz, cm, pv] tuples once loaded
+  const [loadErr, setLoadErr] = useState(false);
+  const srch = useFrazioniSearch(list);
+
+  const [selected, setSelected] = useState(null);   // { fz, cm, pv, comune }
+  const [pickerRows, setPickerRows] = useState(null); // disambiguation candidates, or null
+  const [weather, setWeather] = useState(null);
+  const [wLoad, setWLoad] = useState(false);
+  const [wErr, setWErr] = useState(null);
+  const [weatherIsFallback, setWeatherIsFallback] = useState(false);
+  const [transportOpen, setTransportOpen] = useState(false);
+  const [curiosityOpen, setCuriosityOpen] = useState(false);
+  const [curiosity, setCuriosity] = useState(null); // { loading, facts, fallbackText }
+  const fid = useRef(null);
+  const curKey = useRef(null);
+
+  useEffect(() => {
+    loadFrazioni().then(j => { if (!j.length) setLoadErr(true); setList(j); });
+  }, []);
+
+  useEffect(() => {
+    const onKey = e => { if (e.key === "Escape") { setTransportOpen(false); setCuriosityOpen(false); setPickerRows(null); } };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const loadWeatherFor = useCallback((row) => {
+    fid.current = (fid.current || 0) + 1;
+    const id = fid.current;
+    setWeather(null); setWErr(null); setWLoad(true);
+    setWeatherIsFallback(true); // weather is always shown for the parent comune, per spec 3b
+    fetchWeather(row.comune).then(w => {
+      if (fid.current !== id) return;
+      w ? setWeather(w) : setWErr(t.wErr);
+      setWLoad(false);
+    }).catch(() => { if (fid.current === id) { setWErr(t.wErr); setWLoad(false); } });
+  }, [t]);
+
+  const selectRow = useCallback((row) => {
+    setPickerRows(null);
+    setSelected(row);
+    setTransportOpen(false); setCuriosityOpen(false); curKey.current = null;
+    loadWeatherFor(row);
+  }, [loadWeatherFor]);
+
+  const onPick = useCallback((row) => {
+    if (!list) return;
+    const dupes = groupByExactName(list, row.fz);
+    if (dupes.length > 1) {
+      setPickerRows(dupes);
+    } else {
+      selectRow(row);
+    }
+  }, [list, selectRow]);
+
+  const openCuriosity = useCallback(() => {
+    if (!selected) return;
+    setCuriosityOpen(true);
+    const key = selected.fz + "|" + selected.cm + "|" + lang;
+    if (curKey.current === key && curiosity) return;
+    curKey.current = key;
+    setCuriosity({ loading: true, facts: null });
+    fetchFunFacts(selected.comune, lang).then(facts => {
+      const isOnlyGeneric = facts && facts.length === 1 && facts[0].generic === true;
+      setCuriosity({ loading: false, facts: isOnlyGeneric ? null : facts });
+    }).catch(() => setCuriosity({ loading: false, facts: null }));
+  }, [selected, lang, curiosity]);
+
+  const mapsQ = q => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+
+  return (<>
+    <div style={s.srchSect}>
+      <div style={s.srchLbl}>{FT.srchLbl}</div>
+      <FrazioniDropdown srch={srch} onPick={onPick} placeholder={FT.srchPlaceholder} noResults={FT.noResults} />
+      <div style={s.srchHint}>
+        {selected ? FT.showing(selected.fz) : (list ? FT.srchHint(list.length) : "…")}
+      </div>
+    </div>
+
+    {!selected ? (
+      <div style={{ ...s.empty, position:"relative", overflow:"hidden", minHeight:"calc(100dvh - 188px)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"30px 22px" }}>
+        <div style={{ position:"relative", zIndex:1 }}>
+          <div style={s.emptyIco}>🏡</div>
+          <div style={s.emptyTtl}>{FT.emptyTtl}</div>
+          <div style={s.emptySub}>{FT.emptySub}</div>
+          {loadErr && <div style={{ ...s.wErr, marginTop:14 }}>{t.wErr}</div>}
+        </div>
+      </div>
+    ) : (<>
+      {(() => {
+        const city = selected.comune;
+        const phase = getDayPhase(getLocalTime().h);
+        const skyBg = getHeroBg(getBg(city.r), phase.phase);
+        return (
+          <div style={s.hero}>
+            <div style={{ position:"absolute", inset:0, background:skyBg, opacity:.72 }} />
+            <div style={{ ...s.heroBg, background:getBg(city.r) }} />
+            <div style={s.heroInfo}>
+              <div style={s.heroName}>{selected.fz}</div>
+              <div style={s.heroReg}>{FT.belongsTo(selected.cm, selected.pv, city.r)}</div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* WEATHER (always the parent comune's, per spec 3b) */}
+      <div style={s.secTtl}>{t.weatherTtl}</div>
+      <div style={{ margin:"0 16px 6px", fontSize:11.5, color:C.gray, fontStyle:"italic" }}>{FT.weatherFallback(selected.cm)}</div>
+      {wLoad
+        ? <div style={{ textAlign:"center", padding:"20px 0" }}><div style={s.spin} /></div>
+        : weather
+          ? <div style={s.wCard}>
+              <div style={s.wTop}>
+                <div style={s.wIcon}>{weather.icon}</div>
+                <div>
+                  <div style={s.wTemp}>{weather.temp}°C</div>
+                  <div style={s.wCond}>{weather.cond}</div>
+                </div>
+                <div style={s.wMeta}>
+                  {t.feelsLike} <span style={s.wMetaB}>{weather.feels}°C</span><br/>
+                  {t.wind} <span style={s.wMetaB}>{weather.wind} km/h</span><br/>
+                  {t.humidity} <span style={s.wMetaB}>{weather.hum}%</span>
+                </div>
+              </div>
+              <div style={s.wGrid}>
+                {[[t.wLabels[0],weather.temp+"°C"],[t.wLabels[1],weather.feels+"°C"],
+                  [t.wLabels[2],weather.wind+" km/h"],[t.wLabels[3],weather.uv]].map(([l,v]) => (
+                  <div key={l} style={s.wPill}><span style={s.wPillV}>{v}</span>{l}</div>
+                ))}
+              </div>
+              {weather.days && weather.days.length > 0 && (
+                <div style={{ borderTop:"1px solid "+C.border, marginTop:10, paddingTop:10 }}>
+                  <div style={{ fontSize:11, letterSpacing:1.5, textTransform:"uppercase", color:C.gray, fontWeight:500, marginBottom:8 }}>{t.forecast7}</div>
+                  <div style={{ display:"flex", gap:6, overflowX:"auto", paddingBottom:2 }}>
+                    {weather.days.map((d, i) => (
+                      <div key={d.date} style={{ flex:"0 0 auto", minWidth:54, textAlign:"center", background:C.cream, borderRadius:9, padding:"7px 6px" }}>
+                        <div style={{ fontSize:10, color:C.gray, fontWeight:600, textTransform:"uppercase", letterSpacing:.5 }}>
+                          {i===0 ? t.today : i===1 ? t.tomorrow : weekdayShort(d.date)}
+                        </div>
+                        <div style={{ fontSize:20, lineHeight:1.4 }}>{(WMO[d.code]||{i:"🌤️"}).i}</div>
+                        <div style={{ fontSize:12, color:C.deep, fontWeight:600 }}>{d.max}°</div>
+                        <div style={{ fontSize:11, color:C.gray }}>{d.min}°</div>
+                        {d.pop != null && <div style={{ fontSize:10, color:"#3A8DDE", fontWeight:600, marginTop:1 }}>💧{d.pop}%</div>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          : <div style={s.wErr}>{wErr || t.wErr}</div>
+      }
+
+      {/* QUICK ACTIONS: Transport + Curiosities popups (spec 3e / 3f) */}
+      <div style={{ display:"flex", gap:10, margin:"14px 16px 4px" }}>
+        <button onClick={() => setTransportOpen(true)} style={{
+          flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:7,
+          background:C.card, border:"1px solid "+C.border, borderRadius:12, padding:"12px 10px",
+          fontSize:13, fontWeight:700, color:C.deep, cursor:"pointer", fontFamily:"'DM Sans',sans-serif",
+          boxShadow:"0 4px 24px rgba(26,18,8,.08)" }}>
+          {FT.transportBtn}
+        </button>
+        <button onClick={openCuriosity} style={{
+          flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:7,
+          background:C.card, border:"1px solid "+C.border, borderRadius:12, padding:"12px 10px",
+          fontSize:13, fontWeight:700, color:C.deep, cursor:"pointer", fontFamily:"'DM Sans',sans-serif",
+          boxShadow:"0 4px 24px rgba(26,18,8,.08)" }}>
+          {FT.curiosityBtn}
+        </button>
+      </div>
+
+      {/* REDUCED ATTRACTIONS (spec 3c) */}
+      <div style={s.secTtl}>{FT.attractTtl}</div>
+      <div style={s.list}>
+        {FRAZIONE_ATTRACTIONS.map((a, i) => (
+          <CatCard key={i} item={{ icon:a.icon, label:a[lang].label, sub:a[lang].sub }}
+            href={mapsQ(a.q(selected.fz + ", " + selected.cm))}
+            tagColor="#4285F4" tagLabel={FT.mapsTag} />
+        ))}
+      </div>
+
+      {/* REDUCED DINING (spec 3d) */}
+      <div style={s.secTtl}>{FT.diningTtl}</div>
+      <div style={s.list}>
+        {FRAZIONE_DINING.map((d, i) => (
+          <CatCard key={i} item={{ icon:d.icon, label:d[lang].label, sub:d[lang].sub }}
+            href={mapsQ(d.q(selected.fz + ", " + selected.cm))}
+            tagColor="#4285F4" tagLabel={FT.mapsTag} />
+        ))}
+      </div>
+
+      <div style={s.credit}>{FT.credit}</div>
+      <div style={{ height:16 }} />
+    </>)}
+
+    {/* DISAMBIGUATION SHEET (spec 3a) */}
+    {pickerRows && (
+      <div onClick={() => setPickerRows(null)} style={{ position:"fixed", inset:0, background:"rgba(10,7,3,.55)", zIndex:60, display:"flex", alignItems:"flex-end", justifyContent:"center", animation:"ivFade .2s ease both" }}>
+        <div onClick={e => e.stopPropagation()} style={{ width:"100%", maxWidth:430, background:C.card, borderTopLeftRadius:18, borderTopRightRadius:18, padding:"18px 18px calc(18px + env(safe-area-inset-bottom))", maxHeight:"76vh", overflowY:"auto", boxShadow:"0 -8px 40px rgba(0,0,0,.45)" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:10 }}>
+            <div>
+              <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:20, color:C.deep, lineHeight:1.15 }}>{FT.pickTtl}</div>
+              <div style={{ fontSize:12, color:C.gray, marginTop:3 }}>{FT.pickSub}</div>
+            </div>
+            <button onClick={() => setPickerRows(null)} aria-label="Close" style={{ background:"none", border:"none", color:C.gray, fontSize:24, lineHeight:1, cursor:"pointer", padding:0 }}>×</button>
+          </div>
+          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+            {pickerRows.map((row, i) => (
+              <button key={row.cm + "|" + row.pv + i} onClick={() => selectRow(row)}
+                style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:10, textAlign:"left", width:"100%", cursor:"pointer",
+                  background:C.cream, border:"1px solid "+C.border, borderRadius:11, padding:"11px 13px", fontFamily:"'DM Sans',sans-serif" }}>
+                <span style={{ flex:1 }}>
+                  <span style={{ display:"block", fontFamily:"'Playfair Display',Georgia,serif", fontSize:15.5, color:C.deep, lineHeight:1.2 }}>{row.fz}</span>
+                  <span style={{ display:"block", fontSize:11, color:C.gray, marginTop:2 }}>{row.cm} · {row.comune.r}{row.pv ? " · " + row.pv : ""}</span>
+                </span>
+                <span style={{ color:C.gold, fontSize:18, flex:"0 0 auto" }}>›</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* TRANSPORT POPUP (spec 3e) */}
+    {transportOpen && selected && (() => {
+      const c = selected.cm;
+      const items = [
+        { icon:"🚆", label:FT.trainLbl, sub:FT.trainSub.replace("{c}", c), url:mapsQ(`stazione treni ${c} Italia`) },
+        { icon:"🚌", label:FT.busLbl,   sub:FT.busSub.replace("{c}", c),   url:mapsQ(`fermata autobus ${c} Italia`) },
+        { icon:"🚗", label:FT.carLbl,   sub:FT.carSub.replace("{c}", c),   url:mapsQ(`autonoleggio ${c} Italia`) },
+      ];
+      return (
+        <div onClick={() => setTransportOpen(false)} style={{ position:"fixed", inset:0, background:"rgba(10,7,3,.55)", zIndex:60, display:"flex", alignItems:"flex-end", justifyContent:"center", animation:"ivFade .2s ease both" }}>
+          <div onClick={e => e.stopPropagation()} style={{ width:"100%", maxWidth:430, background:C.card, borderTopLeftRadius:18, borderTopRightRadius:18, padding:"18px 18px calc(18px + env(safe-area-inset-bottom))", maxHeight:"76vh", overflowY:"auto", boxShadow:"0 -8px 40px rgba(0,0,0,.45)" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:14 }}>
+              <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:20, color:C.deep, lineHeight:1.15 }}>{FT.transportTtl.replace("{c}", c)}</div>
+              <button onClick={() => setTransportOpen(false)} aria-label="Close" style={{ background:"none", border:"none", color:C.gray, fontSize:24, lineHeight:1, cursor:"pointer", padding:0 }}>×</button>
+            </div>
+            <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+              {items.map((item, i) => (
+                <a key={i} href={item.url} target="_blank" rel="noopener noreferrer" style={s.catCard}>
+                  <div style={s.catIco}>{item.icon}</div>
+                  <div style={{ flex:1 }}>
+                    <div style={s.catLabel}>{item.label}</div>
+                    <div style={s.catSub}>{item.sub}</div>
+                  </div>
+                  <div style={s.catRight}>
+                    <span style={{ fontSize:10, color:"#4285F4", fontWeight:700 }}>{FT.mapsTag}</span>
+                    <span style={s.arr}>›</span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    })()}
+
+    {/* CURIOSITY POPUP (spec 3f) */}
+    {curiosityOpen && selected && (
+      <div onClick={() => setCuriosityOpen(false)} style={{ position:"fixed", inset:0, background:"rgba(10,7,3,.55)", zIndex:60, display:"flex", alignItems:"flex-end", justifyContent:"center", animation:"ivFade .2s ease both" }}>
+        <div onClick={e => e.stopPropagation()} style={{ width:"100%", maxWidth:430, background:C.card, borderTopLeftRadius:18, borderTopRightRadius:18, padding:"18px 18px calc(18px + env(safe-area-inset-bottom))", maxHeight:"76vh", overflowY:"auto", boxShadow:"0 -8px 40px rgba(0,0,0,.45)" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:14 }}>
+            <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:20, color:C.deep, lineHeight:1.15 }}>{FT.curiosityTtl(selected.fz)}</div>
+            <button onClick={() => setCuriosityOpen(false)} aria-label="Close" style={{ background:"none", border:"none", color:C.gray, fontSize:24, lineHeight:1, cursor:"pointer", padding:0 }}>×</button>
+          </div>
+          {!curiosity || curiosity.loading ? (
+            <div style={{ textAlign:"center", padding:"30px 0" }}>
+              <div style={s.spin} />
+              <div style={{ marginTop:12, fontSize:13, color:C.gray }}>{FT.curiosityLoading}</div>
+            </div>
+          ) : curiosity.facts && curiosity.facts.length ? (
+            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+              {curiosity.facts.map((f, i) => (
+                <div key={i} style={{ background:C.cream, borderRadius:12, padding:"12px 14px", border:"1px solid "+C.border }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+                    <span style={{ fontSize:18 }}>{f.emoji}</span>
+                    <span style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:14.5, fontWeight:700, color:C.deep }}>{f.title}</span>
+                  </div>
+                  <div style={{ fontSize:13, color:"#5A4E3E", lineHeight:1.5 }}>{f.fact}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ background:C.cream, borderRadius:12, padding:"14px 16px", border:"1px solid "+C.border, fontSize:13.5, color:"#5A4E3E", lineHeight:1.6 }}>
+              {FT.curiosityFallback(selected.cm, selected.pv, selected.comune.r)}
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+  </>);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 // APP
 // ═════════════════════════════════════════════════════════════════════════════
 // ═════════════════════════════════════════════════════════════════════════════
@@ -9012,6 +9748,79 @@ Object.assign(TR.it, {
   titleTours: ["Itinerari ", "Curati"],
   subTours: "Percorsi tematici · borgo dopo borgo",
 });
+
+// ═════════════════════════════════════════════════════════════════════════════
+// FRAZIONI — i18n additions
+// ═════════════════════════════════════════════════════════════════════════════
+Object.assign(TR.en, {
+  navFrazioni: "Hamlets",
+  titleFrazioni: ["Explore ", "Hamlets"],
+  subFrazioni: "Italy's smaller villages & localities",
+  frz: {
+    srchLbl: "Search any Italian hamlet or locality",
+    srchPlaceholder: "Type a hamlet... (e.g. Marina, Casale, San Vito)",
+    srchHint: (n) => `${n} Italian hamlets & localities`,
+    showing: (n) => `Showing ${n} — type to search another`,
+    noResults: "No results — try a different spelling.",
+    emptyTtl: "Where in Italy?",
+    emptySub: "Type any hamlet, locality or borgo above\nto discover weather, attractions\nand where to eat.",
+    belongsTo: (cm, pv, rg) => `📍 Hamlet of ${cm}, ${pv ? pv + " · " : ""}${rg}`,
+    pickTtl: "Several hamlets share this name",
+    pickSub: "Pick the one you mean:",
+    pickClose: "Close",
+    weatherFallback: (cm) => `Weather shown for ${cm}, the municipality this hamlet belongs to.`,
+    attractTtl: "🏞️ Around the Hamlet — tap a category",
+    diningTtl: "🍴 Dining — tap a category",
+    transportBtn: "🚉 Transport",
+    transportTtl: "Transport near {c}",
+    transportSub: "Train stations, bus stops & car rental",
+    trainLbl: "Train Stations", trainSub: "Railway stations near {c}",
+    busLbl: "Bus Stops", busSub: "Bus stops & coach stations near {c}",
+    carLbl: "Car Rental", carSub: "Car hire near {c}",
+    curiosityBtn: "💡 Curiosities",
+    curiosityTtl: (n) => `Did You Know? — ${n}`,
+    curiosityLoading: "Researching facts…",
+    curiosityFallback: (cm, pv, rg) => `This hamlet belongs to the municipality of ${cm}, in the province of ${pv}, in the ${rg} region.`,
+    close: "Close",
+    mapsTag: "📍 Maps",
+    credit: "Hamlets data · Weather by Open-Meteo · Powered by Google",
+  },
+});
+Object.assign(TR.it, {
+  navFrazioni: "Frazioni",
+  titleFrazioni: ["Esplora ", "Frazioni"],
+  subFrazioni: "Le piccole frazioni e località d'Italia",
+  frz: {
+    srchLbl: "Cerca una frazione o località italiana",
+    srchPlaceholder: "Cerca una frazione... (es. Marina, Casale, San Vito)",
+    srchHint: (n) => `${n} frazioni e località italiane`,
+    showing: (n) => `Stai visualizzando ${n} — digita per cercare un'altra`,
+    noResults: "Nessun risultato — prova un'altra grafia.",
+    emptyTtl: "Dove in Italia?",
+    emptySub: "Digita una frazione, località o borgo qui sopra\nper scoprire meteo, attrazioni\ne dove mangiare.",
+    belongsTo: (cm, pv, rg) => `📍 Frazione di ${cm}, ${pv ? pv + " · " : ""}${rg}`,
+    pickTtl: "Più frazioni hanno questo nome",
+    pickSub: "Scegli quella che intendi:",
+    pickClose: "Chiudi",
+    weatherFallback: (cm) => `Meteo mostrato per ${cm}, il comune di appartenenza di questa frazione.`,
+    attractTtl: "🏞️ Nei Dintorni — tocca una categoria",
+    diningTtl: "🍴 Ristorazione — tocca una categoria",
+    transportBtn: "🚉 Trasporti",
+    transportTtl: "Trasporti vicino a {c}",
+    transportSub: "Stazioni treni, fermate bus e autonoleggio",
+    trainLbl: "Stazioni Treni", trainSub: "Stazioni ferroviarie vicino a {c}",
+    busLbl: "Fermate Bus", busSub: "Fermate e autostazioni vicino a {c}",
+    carLbl: "Autonoleggio", carSub: "Noleggio auto vicino a {c}",
+    curiosityBtn: "💡 Curiosità",
+    curiosityTtl: (n) => `Lo Sapevi Che? — ${n}`,
+    curiosityLoading: "Ricerca in corso…",
+    curiosityFallback: (cm, pv, rg) => `Questa frazione appartiene al comune di ${cm}, in provincia di ${pv}, nella regione ${rg}.`,
+    close: "Chiudi",
+    mapsTag: "📍 Mappe",
+    credit: "Dati frazioni · Meteo by Open-Meteo · Powered by Google",
+  },
+});
+
 
 // Towns that recur in this many itineraries (or more) get highlighted.
 const TOUR_MIN_HL = 2;
@@ -9212,7 +10021,7 @@ const TOURS = [
       {n:"Grottaferrata", b:{it:"Elegante centro residenziale noto per la millenaria Abbazia Greca di San Nilo, fondata nel 1004 e tuttora attiva.",en:"An elegant residential centre known for the thousand-year-old Greek Abbey of San Nilo, founded in 1004 and still active today."}},
       {n:"Nemi", b:{it:"Il comune più piccolo dell'area, arroccato su uno sperone che domina l'omonimo lago vulcanico, celebre per la coltivazione delle fragoline di bosco.",en:"The smallest municipality in the area, perched on a spur overlooking its volcanic lake and famous for growing wild strawberries."}},
     ]},
-  { id:"vino", sec:"naz", route:false, img:"/img/tours/vino.jpg", start:"Barolo",
+  { id:"vino", sec:"naz", route:true, img:"/img/tours/vino.jpg", start:"Barolo",
     area:{it:"Tema · Vino",en:"Theme · Wine"}, title:{it:"Itinerario del Vino",en:"The Wine Trail"},
     summary:{it:"Dodici comuni che danno il nome ai grandi vini italiani.",en:"Twelve towns that give their names to Italy's great wines."},
     stops:[
@@ -9229,7 +10038,7 @@ const TOURS = [
       {n:"Castelvenere", b:{it:"Situato nel beneventano (regione storica del Sannio), è uno dei comuni con la più alta densità di vitigni in Italia. È famoso per le sue cantine tufacee scavate nel sottosuolo del borgo antico e per la valorizzazione di vitigni autoctoni come la Falanghina e la Camaiola.",en:"In the Benevento area (the historic Sannio region), it is one of the towns with the highest density of vineyards in Italy. It is famous for its tuff cellars dug beneath the old village and for championing native grapes such as Falanghina and Camaiola."}, bg:"Campania"},
       {n:"Castiglione di Sicilia", b:{it:"Arroccato su una rupe sul versante nord dell'Etna, fa parte dei \"Borghi più belli d'Italia\". È uno dei centri di riferimento per i cosiddetti \"vini dell'Etna\" (Etna DOC), prodotti da vigneti che affondano le radici nel terreno lavico e che regalano rossi e bianchi di grandissima eleganza e mineralità.",en:"Perched on a crag on the northern slope of Etna, it is one of the Most Beautiful Villages in Italy. It is a reference point for the 'wines of Etna' (Etna DOC), produced from vineyards rooted in volcanic soil that yield reds and whites of great elegance and minerality."}, bg:"Sicilia"},
     ]},
-  { id:"carne", sec:"naz", route:false, img:"/img/tours/carne.jpg", start:"Firenze",
+  { id:"carne", sec:"naz", route:true, img:"/img/tours/carne.jpg", start:"Firenze",
     area:{it:"Tema · Carne",en:"Theme · Meat"}, title:{it:"Itinerario della Carne",en:"The Meat Trail"},
     summary:{it:"Un viaggio nelle grandi tradizioni italiane della carne.",en:"A journey through Italy's great meat traditions."},
     stops:[
@@ -9246,7 +10055,7 @@ const TOURS = [
       {n:"Cisternino", b:{it:"Famosa in tutta Italia per i suoi \"fornelli pronti\" (macellerie con forno a legna interno). La specialità assoluta sono le Bombette pugliesi, involtini di capocollo di maiale ripieni di formaggio e spezie.",en:"Famous throughout Italy for its 'fornelli pronti' (butchers with an in-house wood-fired oven). The absolute speciality is Apulian bombette, pork-capocollo rolls stuffed with cheese and spices."}, bg:"Puglia"},
       {n:"Cosenza", b:{it:"La sua tradizione carnivora eccelle grazie alle prelibatezze del Suino Nero di Calabria, da cui si ricavano eccellenti capocolli, salsicce e la tipica nduja, e a piatti identitari come le costolette di maiale con patate e peperoni (i tipici piparielli).",en:"Its meat tradition excels thanks to the delicacies of the Calabrian Black Pig, from which fine capocolli, sausages and the typical nduja are made, and to identity dishes such as pork chops with potatoes and peppers (the typical piparielli)."}, bg:"Calabria"},
     ]},
-  { id:"pesce", sec:"naz", route:false, img:"/img/tours/pesce.jpg", start:"Livorno",
+  { id:"pesce", sec:"naz", route:true, img:"/img/tours/pesce.jpg", start:"Livorno",
     area:{it:"Tema · Pesce",en:"Theme · Seafood"}, title:{it:"Itinerario del Pesce",en:"The Seafood Trail"},
     summary:{it:"Le capitali italiane del pesce, dal crudo alle zuppe.",en:"Italy's seafood capitals, from raw fish to hearty stews."},
     stops:[
@@ -9262,7 +10071,7 @@ const TOURS = [
       {n:"Carloforte", b:{it:"Situata sull'isola di San Pietro, è la capitale italiana del tonno rosso di mattanza, pescato nelle storiche tonnare fisse e cucinato in decine di varianti locali come il tonno alla carlofortina, la capunadda e il celebre pasticcio.",en:"On the island of San Pietro, it is Italy's capital of trap-caught bluefin tuna, fished in the historic fixed tonnare and cooked in dozens of local variations such as tuna alla carlofortina, capunadda and the famous pasticcio."}, bg:"Sardegna"},
       {n:"Milano", b:{it:"Pur non trovandosi sul mare, Milano ospita il mercato ittico all'ingrosso più importante d'Italia per freschezza e volumi. Per questo motivo la città è considerata una delle migliori piazze italiane per mangiare pesce di altissima qualità proveniente da tutti i mari della penisola.",en:"Though not on the sea, Milan hosts Italy's most important wholesale fish market for freshness and volume. For this reason the city is considered one of the best places in Italy to eat top-quality fish from all the seas of the peninsula."}, bg:"Lombardia"},
     ]},
-  { id:"goloso", sec:"naz", route:false, img:"/img/tours/goloso.jpg", start:"Torino",
+  { id:"goloso", sec:"naz", route:true, img:"/img/tours/goloso.jpg", start:"Torino",
     area:{it:"Tema · Dolci",en:"Theme · Sweets"}, title:{it:"Itinerario Goloso",en:"The Sweet-Tooth Trail"},
     summary:{it:"Le città simbolo della pasticceria italiana, da nord a sud.",en:"The towns that define Italian pastry, north to south."},
     stops:[
@@ -9279,7 +10088,7 @@ const TOURS = [
       {n:"Catania", b:{it:"Celebre per le Olivette di Sant'Agata e per la sontuosa granita artigianale servita con la classica brioche col tuppo.",en:"Famous for the Olivette di Sant'Agata and for sumptuous artisan granita served with the classic brioche col tuppo."}, bg:"Sicilia"},
       {n:"Lecce", b:{it:"Capitale del Salento e patria del Pasticciotto leccese, un guscio di friabile pasta frolla cotto al forno e ripiendo di profumata crema pasticcera caldissima.",en:"The capital of the Salento and home of the Pasticciotto leccese, a shell of crumbly shortcrust baked and filled with piping-hot scented custard."}, bg:"Puglia"},
     ]},
-  { id:"arte", sec:"naz", route:false, img:"/img/tours/arte.jpg", start:"Roma",
+  { id:"arte", sec:"naz", route:true, img:"/img/tours/arte.jpg", start:"Roma",
     area:{it:"Tema · Arte",en:"Theme · Art"}, title:{it:"Itinerario dell'Arte",en:"The Art Trail"},
     summary:{it:"Le grandi capitali dell'arte italiana, città per città.",en:"Italy’s great art capitals, city by city."},
     stops:[
@@ -9299,16 +10108,17 @@ const TOURS = [
 // Tours i18n (page-local)
 const TOUR_TXT = {
   it: { tabReg:"Regionali", tabNaz:"Nazionali", regSub:"per territorio", nazSub:"per tema",
-        stops:"tappe", route:"Apri il percorso in Maps", back:"Tutti gli itinerari",
+        stops:"tappe", route:"Apri il percorso in Maps", routePreview:"Apri il percorso in Maps (prime 5 tappe)", back:"Tutti gli itinerari",
         openMaps:"Apri in Maps", viewCity:"Vedi in Esplora", startLbl:"Partenza",
         legend:"Le città che ricorrono in più itinerari sono evidenziate.",
         inTours:(n)=>`in ${n} itinerari`, appearsIn:(n)=>`Presente in ${n} itinerari`, current:"attuale", tapHint:"Tocca per vedere gli itinerari" },
   en: { tabReg:"Regional", tabNaz:"National", regSub:"by territory", nazSub:"by theme",
-        stops:"stops", route:"Open route in Maps", back:"All itineraries",
+        stops:"stops", route:"Open route in Maps", routePreview:"Open route in Maps (first 5 stops)", back:"All itineraries",
         openMaps:"Open in Maps", viewCity:"View in Explore", startLbl:"Start",
         legend:"Towns appearing in several itineraries are highlighted.",
         inTours:(n)=>`in ${n} tours`, appearsIn:(n)=>`Appears in ${n} tours`, current:"current", tapHint:"Tap to see its itineraries" }
 };
+
 
 // recurrence counts across every stop of every itinerary
 const TOUR_COUNTS = (() => {
@@ -9322,6 +10132,92 @@ const TOUR_HAS_HUBS = Object.values(TOUR_COUNTS).some(v => v >= TOUR_MIN_HL);
 
 // lowercase comune name -> city object (for jumping into Explore)
 const CITY_BY_NAME = (() => { const m = {}; CITIES.forEach(c => { m[c.n.toLowerCase()] = c; }); return m; })();
+
+// ═════════════════════════════════════════════════════════════════════════════
+// FRAZIONI — "Esplora Frazioni" data layer
+// ═════════════════════════════════════════════════════════════════════════════
+// Collision-safe comune lookup: CITY_BY_NAME (name -> city) silently drops 5 rare
+// name collisions across provinces (e.g. "Castro" exists in both LE and other
+// provinces). For frazioni we already know the comune's province sigla, so we
+// build a name+sigla index that resolves those correctly too.
+const CITY_BY_NAME_PROV = (() => {
+  const m = {};
+  CITIES.forEach(c => { m[c.n.toLowerCase() + "|" + (c.p || "")] = c; });
+  return m;
+})();
+function resolveComune(name, sigla) {
+  return CITY_BY_NAME_PROV[name.toLowerCase() + "|" + (sigla || "")] || CITY_BY_NAME[name.toLowerCase()] || null;
+}
+
+// Lazy-loaded dataset (static/frazioni.json), same pattern as facts.json/loadPrecomp.
+// Compact tuples [frazione, comune, provinciaSigla]; region/coords/pop resolved at
+// runtime via resolveComune() against the existing CITIES dataset.
+let _frazioni = null, _frazioniP = null;
+function loadFrazioni() {
+  if (_frazioni) return Promise.resolve(_frazioni);
+  if (!_frazioniP) _frazioniP = fetch("/frazioni.json")
+    .then(r => (r.ok ? r.json() : []))
+    .then(j => (_frazioni = Array.isArray(j) ? j : []))
+    .catch(() => (_frazioni = []));
+  return _frazioniP;
+}
+
+// Search: case-insensitive substring match on frazione name, sorted by closeness
+// (prefix match first, then by comune population where known). Returns rich rows
+// with the resolved comune object attached, skipping rows whose comune can't be
+// resolved (should be ~0 since the dataset was pre-filtered against CITIES).
+function searchFrazioni(list, q, max = 14) {
+  if (!q || q.length < 2) return [];
+  const ql = q.toLowerCase();
+  const out = [];
+  for (let i = 0; i < list.length; i++) {
+    const [fz, cm, pv] = list[i];
+    if (!fz.toLowerCase().includes(ql)) continue;
+    const comune = resolveComune(cm, pv);
+    if (!comune) continue;
+    out.push({ fz, cm, pv, comune });
+    if (out.length >= max * 6) break; // cap scan-collection before final sort/slice
+  }
+  out.sort((a, b) => {
+    const ai = a.fz.toLowerCase().indexOf(ql), bi = b.fz.toLowerCase().indexOf(ql);
+    if (ai !== bi) return ai - bi;
+    return (b.comune.pop || 0) - (a.comune.pop || 0);
+  });
+  return out.slice(0, max);
+}
+
+// Group exact-name matches (case-insensitive) for the disambiguation sheet: when a
+// frazione name resolves to several different comuni, the user picks which one.
+function groupByExactName(list, fz) {
+  const key = fz.toLowerCase();
+  const seen = new Set();
+  const out = [];
+  for (const row of list) {
+    if (row.fz.toLowerCase() !== key) continue;
+    const dedupeKey = row.cm + "|" + row.pv;
+    if (seen.has(dedupeKey)) continue;
+    seen.add(dedupeKey);
+    out.push(row);
+  }
+  return out;
+}
+
+// ── REDUCED CATEGORY SETS for Esplora Frazioni (per spec 3c/3d) ──────────────
+const FRAZIONE_ATTRACTIONS = [
+  { icon:"🌳", q: c => `parco pubblico giardino ${c} Italia`,        it:{label:"Parco Pubblico",  sub:"Parchi, giardini e aree verdi"},          en:{label:"Public Park",   sub:"Parks, gardens & green spaces"} },
+  { icon:"⛪", q: c => `chiesa ${c} Italia`,                          it:{label:"Chiese",          sub:"Chiese e luoghi di culto"},               en:{label:"Churches",      sub:"Churches & places of worship"} },
+  { icon:"🛍️", q: c => `negozi ${c} Italia`,                         it:{label:"Negozi",          sub:"Negozi e attività commerciali"},          en:{label:"Shops",         sub:"Shops & local stores"} },
+  { icon:"💊", q: c => `farmacia ${c} Italia`,                        it:{label:"Farmacie",        sub:"Farmacie e parafarmacie"},                en:{label:"Pharmacies",    sub:"Pharmacies & drugstores"} },
+  { icon:"🥾", q: c => `sentiero escursione ${c} Italia`,             it:{label:"Sentieri",        sub:"Sentieri escursionistici e passeggiate"}, en:{label:"Trails",        sub:"Hiking trails & walking paths"} },
+];
+const FRAZIONE_DINING = [
+  { icon:"🍕", q: c => `pizzeria ${c} Italia`,                        it:{label:"Pizzeria",            sub:"Pizza napoletana, romana e artigianale"}, en:{label:"Pizzeria",            sub:"Neapolitan, Roman & artisan pizza"} },
+  { icon:"🍺", q: c => `pub birra artigianale ${c} Italia`,           it:{label:"Pub",                 sub:"Birra artigianale, ale e cucina da pub"}, en:{label:"Pub",                 sub:"Craft beer, ale & pub food"} },
+  { icon:"🍝", q: c => `osteria trattoria ${c} Italia`,               it:{label:"Cucina Tradizionale", sub:"Osteria, trattoria e cucina regionale"},  en:{label:"Traditional Cuisine", sub:"Osteria, trattoria & regional cooking"} },
+  { icon:"☕", q: c => `bar caffè espresso ${c} Italia`,               it:{label:"Bar Espresso",        sub:"Bar, caffè e colazione"},                 en:{label:"Espresso Bar",        sub:"Cafés, coffee & breakfast"} },
+  { icon:"🛒", q: c => `supermercato ${c} Italia`,                    it:{label:"Supermercato",        sub:"Supermercati e alimentari"},              en:{label:"Supermarket",         sub:"Supermarkets & grocery stores"} },
+];
+
 const resolveTourCity = (st) => {
   const key = (st.k && st.k[0]) || st.q || st.n;
   return CITY_BY_NAME[String(key).toLowerCase()] || null;
@@ -9329,12 +10225,18 @@ const resolveTourCity = (st) => {
 
 const tourMapsQuery = (st) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((st.q || st.n) + ", Italia")}`;
+// Google Maps URL (no API key) supports at most 3 waypoints on mobile browsers (9 on desktop).
+// For long itineraries (e.g. national/thematic tours with 10-12 stops) we cap the link at the
+// first 5 stops total (origin + 3 waypoints + destination) so the link never breaks on phone.
+const TOUR_ROUTE_MAX_STOPS = 5;
 const tourMapsRoute = (tour) => {
-  const pts = tour.stops.map(st => (st.q || st.n) + ", Italia");
+  const allPts = tour.stops.map(st => (st.q || st.n) + ", Italia");
+  const pts = allPts.length > TOUR_ROUTE_MAX_STOPS ? allPts.slice(0, TOUR_ROUTE_MAX_STOPS) : allPts;
   const params = new URLSearchParams({ api:"1", origin:pts[0], destination:pts[pts.length-1], travelmode:"driving" });
   const wp = pts.slice(1, -1).join("|"); if (wp) params.set("waypoints", wp);
   return `https://www.google.com/maps/dir/?api=1&${params.toString()}`;
 };
+const tourMapsRouteIsCapped = (tour) => tour.stops.length > TOUR_ROUTE_MAX_STOPS;
 
 // ═════════════════════════════════════════════════════════════════════════════
 // TOURS PAGE
@@ -9388,7 +10290,7 @@ function ToursPage({ lang, t, setCity, setTab }) {
             <div style={{ fontSize:14, color:"rgba(255,255,255,.93)", lineHeight:1.5 }}>{active.summary[lang]}</div>
             <div style={{ display:"flex", flexWrap:"wrap", gap:9, marginTop:13, alignItems:"center" }}>
               {active.start && <span style={{ display:"inline-flex", alignItems:"center", gap:5, fontSize:11, fontWeight:700, color:"#20160A", background:C.gold, borderRadius:20, padding:"5px 11px", letterSpacing:.3 }}>▸ {TX.startLbl}: {active.start}</span>}
-              {active.route && <a href={tourMapsRoute(active)} target="_blank" rel="noopener noreferrer" style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:12.5, fontWeight:700, color:"#fff", background:"rgba(255,255,255,.16)", border:"1px solid rgba(255,255,255,.35)", borderRadius:20, padding:"6px 12px", textDecoration:"none" }}>🗺️ {TX.route}</a>}
+              {active.route && <a href={tourMapsRoute(active)} target="_blank" rel="noopener noreferrer" style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:12.5, fontWeight:700, color:"#fff", background:"rgba(255,255,255,.16)", border:"1px solid rgba(255,255,255,.35)", borderRadius:20, padding:"6px 12px", textDecoration:"none" }}>🗺️ {tourMapsRouteIsCapped(active) ? TX.routePreview : TX.route}</a>}
             </div>
           </div>
         </div>
@@ -9530,6 +10432,7 @@ const NAV = [
   { id:"transport",   icon:"🚌", key:"navTransport" },
   { id:"curiosities", icon:"💡", key:"navKnow" },
   { id:"tours",       icon:"🧭", key:"navTours" },
+  { id:"frazioni",    icon:"🏡", key:"navFrazioni" },
 ];
 
 export default function App() {
@@ -9556,6 +10459,7 @@ export default function App() {
     transport:   { title: t.titleAround,  sub: t.subTransport },
     curiosities: { title: t.titleKnow,    sub: t.subKnow },
     tours:       { title: t.titleTours,   sub: t.subTours },
+    frazioni:    { title: t.titleFrazioni, sub: t.subFrazioni },
   };
   const { title, sub } = headerInfo[tab] || headerInfo.explore;
 
@@ -9596,6 +10500,7 @@ export default function App() {
         <div style={{ display: tab==="transport"   ? "block" : "none" }}><TransportPage city={city} setCity={setCity} lang={lang} t={t} /></div>
         <div style={{ display: tab==="curiosities" ? "block" : "none" }}><FunFactsPage  city={city} setCity={setCity} lang={lang} t={t} /></div>
         <div style={{ display: tab==="tours"       ? "block" : "none" }}><ToursPage     lang={lang} t={t} setCity={setCity} setTab={switchTab} /></div>
+        <div style={{ display: tab==="frazioni"    ? "block" : "none" }}><FrazioniPage  lang={lang} t={t} /></div>
       </div>
 
       {/* SIDE DRAWER */}
