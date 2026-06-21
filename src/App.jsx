@@ -10188,12 +10188,11 @@ function searchFrazioni(list, q, max = 14) {
 
 // Group exact-name matches (case-insensitive) for the disambiguation sheet: when a
 // frazione name resolves to several different comuni, the user picks which one.
-// `list` holds raw compact tuples [frazione, comune, provinciaSigla] — NOT row
-// objects — so each entry must be destructured positionally, not via row.fz/.cm/.pv.
 function groupByExactName(list, fz) {
   const key = fz.toLowerCase();
   const seen = new Set();
   const out = [];
+
   for (const tuple of list) {
     const [tfz, tcm, tpv] = tuple;
     if (tfz.toLowerCase() !== key) continue;
@@ -10203,6 +10202,7 @@ function groupByExactName(list, fz) {
     if (!comune) continue;
     seen.add(dedupeKey);
     out.push({ fz: tfz, cm: tcm, pv: tpv, comune });
+
   }
   return out;
 }
@@ -10532,6 +10532,25 @@ export default function App() {
                   <span style={{ fontSize:15, fontWeight: active ? 700 : 500, color: active ? C.gold : C.cream, letterSpacing:.3 }}>{t[item.key]}</span>
                 </button>
               );
+            })}
+          </div>
+          <div style={{ padding:"12px 22px 18px", borderTop:"1px solid rgba(212,168,67,.15)", fontSize:11, color:C.gray }}>{CITIES.length} comuni</div>
+        </div>
+      </>)}
+    </div>
+  );
+}
+            </button>
+              );
+            })}
+          </div>
+          <div style={{ padding:"12px 22px 18px", borderTop:"1px solid rgba(212,168,67,.15)", fontSize:11, color:C.gray }}>{CITIES.length} comuni</div>
+        </div>
+      </>)}
+    </div>
+  );
+}
+   );
             })}
           </div>
           <div style={{ padding:"12px 22px 18px", borderTop:"1px solid rgba(212,168,67,.15)", fontSize:11, color:C.gray }}>{CITIES.length} comuni</div>
