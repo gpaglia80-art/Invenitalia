@@ -10209,14 +10209,24 @@ const TOUR_TXT = {
         legend:"Le città che ricorrono in più itinerari sono evidenziate.",
         inTours:(n)=>`in ${n} itinerari`, appearsIn:(n)=>`Presente in ${n} itinerari`, current:"attuale", tapHint:"Tocca per vedere gli itinerari",
         startTrip:"Inizia il tuo viaggio", startTripSub:"Scegli fino a 5 tappe per il tuo itinerario su misura",
-        stopsPicked:(n,max)=>`${n} di ${max} tappe selezionate`, openCustomRoute:"Apri il percorso in Maps", pickAtLeastTwo:"Scegli almeno 2 tappe per generare il percorso." },
+        startTripSubUnlimited:"Scegli le tappe che vuoi, anche tutte, per il tuo itinerario su misura",
+        stopsPicked:(n,max)=>`${n} di ${max} tappe selezionate`, stopsPickedUnlimited:(n)=>`${n} tappe selezionate`,
+        selectAll:"Seleziona tutte", deselectAll:"Deseleziona tutte",
+        multiSegmentHint:(n)=>`Percorso diviso in ${n} parti consecutive per restare leggibile su Google Maps da telefono.`,
+        openSegment:(n)=>`Apri Parte ${n} in Maps`,
+        openCustomRoute:"Apri il percorso in Maps", pickAtLeastTwo:"Scegli almeno 2 tappe per generare il percorso." },
   en: { tabReg:"Regional", tabNaz:"National", regSub:"by territory", nazSub:"by theme",
         stops:"stops", route:"Open route in Maps", back:"All itineraries",
         openMaps:"Open in Maps", viewCity:"View in Explore", startLbl:"Start",
         legend:"Towns appearing in several itineraries are highlighted.",
         inTours:(n)=>`in ${n} tours`, appearsIn:(n)=>`Appears in ${n} tours`, current:"current", tapHint:"Tap to see its itineraries",
         startTrip:"Start your trip", startTripSub:"Choose up to 5 stops for your custom itinerary",
-        stopsPicked:(n,max)=>`${n} of ${max} stops selected`, openCustomRoute:"Open route in Maps", pickAtLeastTwo:"Pick at least 2 stops to generate the route." }
+        startTripSubUnlimited:"Choose as many stops as you like, even all of them, for your custom itinerary",
+        stopsPicked:(n,max)=>`${n} of ${max} stops selected`, stopsPickedUnlimited:(n)=>`${n} stops selected`,
+        selectAll:"Select all", deselectAll:"Deselect all",
+        multiSegmentHint:(n)=>`Route split into ${n} consecutive parts to keep each link mobile-friendly on Google Maps.`,
+        openSegment:(n)=>`Open Part ${n} in Maps`,
+        openCustomRoute:"Open route in Maps", pickAtLeastTwo:"Pick at least 2 stops to generate the route." }
 };
 
 
@@ -10334,23 +10344,33 @@ const resolveTourCity = (st) => {
 
 const tourMapsQuery = (st) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((st.q || st.n) + ", Italia")}`;
-// Regional tours (3-7 stops) keep the original full-route link — well within the
-// no-API-key Google Maps URL limit (3 waypoints on mobile, 9 on desktop).
-const tourMapsRoute = (tour) => {
-  const pts = tour.stops.map(st => (st.q || st.n) + ", Italia");
-  const params = new URLSearchParams({ api:"1", origin:pts[0], destination:pts[pts.length-1], travelmode:"driving" });
-  const wp = pts.slice(1, -1).join("|"); if (wp) params.set("waypoints", wp);
-  return `https://www.google.com/maps/dir/?api=1&${params.toString()}`;
-};
-// National/thematic tours (10-13 stops, spanning the whole country) instead open a
-// picker letting the person choose up to 5 stops to build their own custom route —
-// avoids ever hitting the mobile waypoint limit, and lets each person personalize.
-const TOUR_CUSTOM_MAX_STOPS = 5;
+// Trip builder: works for both regional and national tours. The person can select
+// any number of stops (no cap) for regional tours, or up to 5 for national ones
+// (whose 10-13 stops span the whole country). Google Maps' no-API-key URL only
+// supports 3 intermediate waypoints on mobile (5 stops total) — so when a
+// selection exceeds that, we split it into consecutive route segments, each
+// starting where the previous one ended, so every link stays mobile-safe.
+const TOUR_CUSTOM_MAX_STOPS = 5;     // hard cap for national/thematic tours
+const TOUR_SEGMENT_SIZE = 5;          // stops per Maps link (origin + 3 waypoints + destination)
 const tourMapsRouteCustom = (stops) => {
   const pts = stops.map(st => (st.q || st.n) + ", Italia");
   const params = new URLSearchParams({ api:"1", origin:pts[0], destination:pts[pts.length-1], travelmode:"driving" });
   const wp = pts.slice(1, -1).join("|"); if (wp) params.set("waypoints", wp);
   return `https://www.google.com/maps/dir/?api=1&${params.toString()}`;
+};
+// Splits a stop list into mobile-safe segments of TOUR_SEGMENT_SIZE stops each,
+// with each segment's last stop repeated as the next segment's first stop so the
+// route reads as one continuous itinerary across links.
+const tourMapsRouteSegments = (stops) => {
+  if (stops.length <= TOUR_SEGMENT_SIZE) return [tourMapsRouteCustom(stops)];
+  const segments = [];
+  let i = 0;
+  while (i < stops.length - 1) {
+    const seg = stops.slice(i, i + TOUR_SEGMENT_SIZE);
+    segments.push(tourMapsRouteCustom(seg));
+    i += TOUR_SEGMENT_SIZE - 1; // overlap by one stop for continuity
+  }
+  return segments;
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -10408,8 +10428,7 @@ function ToursPage({ lang, t, setCity, setTab }) {
             <div style={{ fontSize:14, color:"rgba(255,255,255,.93)", lineHeight:1.5 }}>{active.summary[lang]}</div>
             <div style={{ display:"flex", flexWrap:"wrap", gap:9, marginTop:13, alignItems:"center" }}>
               {active.start && <span style={{ display:"inline-flex", alignItems:"center", gap:5, fontSize:11, fontWeight:700, color:"#20160A", background:C.gold, borderRadius:20, padding:"5px 11px", letterSpacing:.3 }}>▸ {TX.startLbl}: {active.start}</span>}
-              {active.route && active.sec !== "naz" && <a href={tourMapsRoute(active)} target="_blank" rel="noopener noreferrer" style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:12.5, fontWeight:700, color:"#fff", background:"rgba(255,255,255,.16)", border:"1px solid rgba(255,255,255,.35)", borderRadius:20, padding:"6px 12px", textDecoration:"none" }}>🗺️ {TX.route}</a>}
-              {active.sec === "naz" && <button onClick={() => setBuilderOpen(true)} style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:12.5, fontWeight:700, color:"#fff", background:"rgba(255,255,255,.16)", border:"1px solid rgba(255,255,255,.35)", borderRadius:20, padding:"6px 12px", cursor:"pointer", fontFamily:"'DM Sans',sans-serif" }}>🧭 {TX.startTrip}</button>}
+              <button onClick={() => setBuilderOpen(true)} style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:12.5, fontWeight:700, color:"#fff", background:"rgba(255,255,255,.16)", border:"1px solid rgba(255,255,255,.35)", borderRadius:20, padding:"6px 12px", cursor:"pointer", fontFamily:"'DM Sans',sans-serif" }}>🧭 {TX.startTrip}</button>
             </div>
           </div>
         </div>
@@ -10497,27 +10516,40 @@ function ToursPage({ lang, t, setCity, setTab }) {
           );
         })()}
         {builderOpen && active && (() => {
+          const maxStops = active.sec === "naz" ? TOUR_CUSTOM_MAX_STOPS : Infinity;
           const toggleStop = (i) => {
             setBuilderSel(sel => {
               if (sel.includes(i)) return sel.filter(x => x !== i);
-              if (sel.length >= TOUR_CUSTOM_MAX_STOPS) return sel; // cap at 5
+              if (sel.length >= maxStops) return sel;
               return [...sel, i];
             });
           };
           const orderedSel = [...builderSel].sort((a, b) => a - b);
           const canGo = orderedSel.length >= 2;
+          const allPicked = orderedSel.length === active.stops.length;
+          const toggleAll = () => {
+            if (allPicked) { setBuilderSel([]); return; }
+            const cap = Number.isFinite(maxStops) ? maxStops : active.stops.length;
+            setBuilderSel(active.stops.slice(0, cap).map((_, i) => i));
+          };
+          const segments = canGo ? tourMapsRouteSegments(orderedSel.map(i => active.stops[i])) : [];
           return (
             <div onClick={() => setBuilderOpen(false)} style={{ position:"fixed", inset:0, background:"rgba(10,7,3,.55)", zIndex:60, display:"flex", alignItems:"flex-end", justifyContent:"center", animation:"ivFade .2s ease both" }}>
               <div onClick={(e) => e.stopPropagation()} style={{ width:"100%", maxWidth:430, background:C.card, borderTopLeftRadius:18, borderTopRightRadius:18, padding:"18px 18px calc(18px + env(safe-area-inset-bottom))", maxHeight:"82vh", overflowY:"auto", boxShadow:"0 -8px 40px rgba(0,0,0,.45)", animation:"ivFade .24s ease both" }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:6 }}>
                   <div>
                     <div style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:20, color:C.deep, lineHeight:1.15 }}>{TX.startTrip}</div>
-                    <div style={{ fontSize:12, color:C.gray, marginTop:3 }}>{TX.startTripSub}</div>
+                    <div style={{ fontSize:12, color:C.gray, marginTop:3 }}>{Number.isFinite(maxStops) ? TX.startTripSub : TX.startTripSubUnlimited}</div>
                   </div>
                   <button onClick={() => setBuilderOpen(false)} aria-label="Close" style={{ background:"none", border:"none", color:C.gray, fontSize:24, lineHeight:1, cursor:"pointer", padding:0 }}>×</button>
                 </div>
-                <div style={{ fontSize:11.5, fontWeight:700, color: orderedSel.length >= TOUR_CUSTOM_MAX_STOPS ? C.terra : C.gold, margin:"10px 0 4px" }}>
-                  {TX.stopsPicked(orderedSel.length, TOUR_CUSTOM_MAX_STOPS)}
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", margin:"10px 0 4px", gap:10 }}>
+                  <div style={{ fontSize:11.5, fontWeight:700, color: orderedSel.length >= maxStops ? C.terra : C.gold }}>
+                    {Number.isFinite(maxStops) ? TX.stopsPicked(orderedSel.length, maxStops) : TX.stopsPickedUnlimited(orderedSel.length)}
+                  </div>
+                  <button onClick={toggleAll} style={{ background:"none", border:"none", color:C.terra, fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:"'DM Sans',sans-serif", padding:0, flex:"0 0 auto" }}>
+                    {allPicked ? TX.deselectAll : TX.selectAll}
+                  </button>
                 </div>
                 <div style={{ display:"flex", flexDirection:"column", gap:7, marginTop:6 }}>
                   {active.stops.map((st, i) => {
@@ -10537,15 +10569,32 @@ function ToursPage({ lang, t, setCity, setTab }) {
                     );
                   })}
                 </div>
-                <a href={canGo ? tourMapsRouteCustom(orderedSel.map(i => active.stops[i])) : undefined}
-                  target="_blank" rel="noopener noreferrer"
-                  onClick={(e) => { if (!canGo) e.preventDefault(); }}
-                  style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginTop:16, width:"100%",
-                    background: canGo ? C.terra : C.border, color: canGo ? "#fff" : C.gray, border:"none", borderRadius:12,
-                    padding:"13px 0", fontSize:14.5, fontWeight:700, fontFamily:"'DM Sans',sans-serif", textDecoration:"none",
-                    cursor: canGo ? "pointer" : "default" }}>
-                  🗺️ {TX.openCustomRoute}
-                </a>
+                {segments.length > 1 && (
+                  <div style={{ fontSize:11.5, color:C.gray, marginTop:14, lineHeight:1.5 }}>{TX.multiSegmentHint(segments.length)}</div>
+                )}
+                <div style={{ display:"flex", flexDirection:"column", gap:8, marginTop:10 }}>
+                  {segments.length > 1
+                    ? segments.map((url, i) => (
+                        <a key={i} href={url} target="_blank" rel="noopener noreferrer"
+                          style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, width:"100%",
+                            background:C.terra, color:"#fff", border:"none", borderRadius:12,
+                            padding:"13px 0", fontSize:14.5, fontWeight:700, fontFamily:"'DM Sans',sans-serif", textDecoration:"none", cursor:"pointer" }}>
+                          🗺️ {TX.openSegment(i + 1)}
+                        </a>
+                      ))
+                    : (
+                        <a href={canGo ? segments[0] : undefined}
+                          target="_blank" rel="noopener noreferrer"
+                          onClick={(e) => { if (!canGo) e.preventDefault(); }}
+                          style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, width:"100%",
+                            background: canGo ? C.terra : C.border, color: canGo ? "#fff" : C.gray, border:"none", borderRadius:12,
+                            padding:"13px 0", fontSize:14.5, fontWeight:700, fontFamily:"'DM Sans',sans-serif", textDecoration:"none",
+                            cursor: canGo ? "pointer" : "default" }}>
+                          🗺️ {TX.openCustomRoute}
+                        </a>
+                      )
+                  }
+                </div>
                 {!canGo && <div style={{ fontSize:11.5, color:C.gray, textAlign:"center", marginTop:8 }}>{TX.pickAtLeastTwo}</div>}
               </div>
             </div>
