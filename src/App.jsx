@@ -9006,6 +9006,103 @@ async function fetchFunFacts(city, lang = "en") {
   return facts;
 }
 
+// Dedicated Wikipedia lookup for a single hamlet/frazione (NOT the parent comune).
+// Mirrors fetchFunFacts' parsing/cleanup logic, but:
+//  - tries hamlet-specific Wikipedia title candidates (including "(frazione)" and
+//    "Frazione, Comune" disambiguation patterns actually used by Italian Wikipedia)
+//  - NEVER falls back to the comune's own facts or to fallbackFacts() — if no
+//    hamlet-specific page is found, it returns null and the caller (FrazioniPage)
+//    shows the fixed hierarchical text instead.
+async function fetchHamletFacts(fz, cm, lang = "en") {
+  if (!window._hamletFactCache) window._hamletFactCache = new Map();
+  const ck = fz + "|" + cm + "|" + lang;
+  if (window._hamletFactCache.has(ck)) return window._hamletFactCache.get(ck);
+
+  const strip = html => {
+    if (typeof document === "undefined") return html;
+    const d = document.createElement("div");
+    d.innerHTML = html;
+    d.querySelectorAll(
+      "style,script,table,sup,h1,h2,h3,h4,h5,h6,.reference,.mw-editsection,.navbox,.toc,.thumb,.metadata,.noprint,.mw-empty-elt," +
+      "[role='note'],[class*='avviso'],[class*='ambox'],[class*='mbox'],[class*='hatnote'],[class*='dablink'],[class*='sistemare']"
+    ).forEach(z => z.remove());
+    let txt = (d.textContent || "").replace(/\[[^\]]{1,12}\]/g, "").replace(/\s+/g, " ").trim();
+    txt = txt
+      .replace(/Si propone di dividere questa pagina[^.]*?\.\s*/g, "")
+      .replace(/Questa voce o sezione[^.]*?(?:standard|Wikipedia|riferimento)[^.]*?\.\s*/g, "")
+      .replace(/Contribuisci a migliorarla[^.]*?\.\s*/g, "")
+      .replace(/Segui i (?:suggerimenti|consigli)[^.]*?\.\s*/g, "")
+      .replace(/Commento:[^.]*?(?=[A-ZÀ-Þ])/g, "")
+      .replace(/Vedi anche la discussione\.?\s*/g, "")
+      .replace(/\s+/g, " ").trim();
+    return txt;
+  };
+  const truncate = (o, R) => {
+    if (!o || o.length <= R) return o;
+    const z = o.slice(0, R);
+    const p = z.lastIndexOf(". ");
+    if (p > R * 0.6) return z.slice(0, p + 1);
+    const n = z.lastIndexOf(" ");
+    return (n > R * 0.7 ? z.slice(0, n) : z) + "…";
+  };
+  const para = (o, R) => {
+    if (!o) return "";
+    const parts = o.split(/\n+/).map(x => x.trim()).filter(x => x.length > 40);
+    let P = "";
+    for (const N of parts) {
+      if (!P) { P = N; continue; }
+      if (P.length + N.length + 1 < R) P += " " + N; else break;
+    }
+    return truncate(P || o.trim(), R);
+  };
+
+  const base = lang === "it" ? "https://it.wikipedia.org" : "https://en.wikipedia.org";
+
+  const getExtract = async title => {
+    const u = base + "/w/api.php?action=query&format=json&origin=*&prop=extracts&exintro=1&explaintext=1&redirects=1&titles=" + encodeURIComponent(title);
+    const r = await fetch(u);
+    if (!r.ok) return null;
+    const data = await r.json();
+    const pgs = data.query && data.query.pages;
+    if (!pgs) return null;
+    const pg = Object.values(pgs)[0];
+    return (!pg || pg.missing || !pg.extract || pg.extract.length < 80) ? null : { title: pg.title, extract: pg.extract };
+  };
+
+  // Italian Wikipedia hamlet article titles commonly follow "Nome (Comune)" or
+  // "Nome, Comune" patterns to disambiguate from identically-named places elsewhere.
+  // We also guard against the extract actually being about the comune itself
+  // (a frequent false-positive when "Nome" redirects straight to the comune page).
+  const candidates = lang === "it"
+    ? [`${fz} (${cm})`, `${fz}, ${cm}`, `${fz} (frazione)`, fz]
+    : [`${fz} (${cm})`, `${fz}, ${cm}, Italy`, `${fz} (hamlet)`, fz];
+
+  let page = null;
+  for (const t of candidates) {
+    const p = await getExtract(t).catch(() => null);
+    if (!p) continue;
+    // Reject if the resolved page is actually a comune's own article — either the
+    // hamlet's own comune, or an unrelated comune that merely shares the hamlet's
+    // name (e.g. a hamlet called "Casale" resolving to "Casale Monferrato").
+    const titleNorm = p.title.toLowerCase().replace(/\s*\([^)]*\)\s*/g, "").trim();
+    if (titleNorm === cm.toLowerCase()) continue;
+    if (CITY_BY_NAME[titleNorm]) continue;
+    page = p;
+    break;
+  }
+  if (!page) { window._hamletFactCache.set(ck, null); return null; }
+
+  const facts = [];
+  const intro = para(page.extract, 600);
+  if (intro && intro.length > 40) {
+    facts.push({ emoji:"🏡", title:(lang === "it" ? "Su " : "About ") + fz, fact:intro });
+  }
+  if (!facts.length) { window._hamletFactCache.set(ck, null); return null; }
+
+  window._hamletFactCache.set(ck, facts);
+  return facts;
+}
+
 // Weekday short label from ISO date, localized
 function weekdayShort(iso) {
   const d = new Date(iso + "T12:00:00");
@@ -9501,9 +9598,8 @@ function FrazioniPage({ lang, t }) {
     if (curKey.current === key && curiosity) return;
     curKey.current = key;
     setCuriosity({ loading: true, facts: null });
-    fetchFunFacts(selected.comune, lang).then(facts => {
-      const isOnlyGeneric = facts && facts.length === 1 && facts[0].generic === true;
-      setCuriosity({ loading: false, facts: isOnlyGeneric ? null : facts });
+    fetchHamletFacts(selected.fz, selected.cm, lang).then(facts => {
+      setCuriosity({ loading: false, facts: facts && facts.length ? facts : null });
     }).catch(() => setCuriosity({ loading: false, facts: null }));
   }, [selected, lang, curiosity]);
 
