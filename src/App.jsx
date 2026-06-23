@@ -1,6 +1,6 @@
 // InvenItalia — reconstructed source (V7 skeleton + live-build i18n/weather/funfacts). Stage 1: no Tours yet.
 
-import { useState, useRef, useCallback, useEffect, Fragment } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo, Fragment } from "react";
 
 // ── PALETTE ───────────────────────────────────────────────────────────────────
 const C = {
@@ -8032,6 +8032,8 @@ const DINING = [
   { icon:"🍝", q: c => `osteria trattoria ${c} Italia`,                   it:{label:"Cucina Tradizionale",   sub:"Osteria, trattoria e cucina regionale"},       en:{label:"Traditional Cuisine", sub:"Osteria, trattoria & regional cooking"} },
   { icon:"⭐", q: c => `ristorante elegante stella michelin ${c} Italia`, it:{label:"Ristorante Elegante",   sub:"Ristoranti gourmet e stelle Michelin"},        en:{label:"Fine Dining",         sub:"Gourmet restaurants & Michelin stars"} },
   { icon:"🛋️", q: c => `lounge bar aperitivo cocktail ${c} Italia`,      it:{label:"Lounge Bar",            sub:"Aperitivo, cocktail e atmosfera rilassata"},   en:{label:"Lounge Bar",          sub:"Aperitivo, cocktails & relaxed vibes"} },
+  { icon:"🍰", q: c => `pasticceria ${c} Italia`,                        it:{label:"Pasticceria",           sub:"Dolci, torte e pasticceria artigianale"},      en:{label:"Pastry Shop",         sub:"Cakes, pastries & artisan sweets"} },
+  { icon:"🍨", q: c => `gelateria artigianale ${c} Italia`,              it:{label:"Gelateria",             sub:"Gelato artigianale e granite"},                en:{label:"Gelateria",           sub:"Artisan gelato & granita"} },
   { icon:"🍔", q: c => `fast food hamburger ${c} Italia`,                 it:{label:"Fast Food",             sub:"Servizio rapido, hamburger e catene"},         en:{label:"Fast Food",           sub:"Quick service, burgers & chains"} },
   { icon:"🥗", q: c => `ristorante vegano vegetariano ${c} Italia`,       it:{label:"Vegano e Vegetariano",  sub:"Cucina vegana, vegetariana e plant-based"},    en:{label:"Vegan & Vegetarian",  sub:"Vegan, vegetarian & plant-based"} },
 ];
@@ -8556,9 +8558,9 @@ function MonumentBadge({ city }) {
 }
 
 // ── i18n DICTIONARY (recovered verbatim from the live build) ──────────────────
-const TR = {en:{flagLabel:"IT \xB7 InvenItalia",subExplore:"Discover the Beauty of Italy",subTransport:"Transport \xB7 Taxis \xB7 Car Rental \xB7 Ferries",subKnow:"Surprising facts about your city",titleExplore:["Inven","Italia"],titleAround:["Get ","Around"],titleKnow:["Did You ","Know?"],navExplore:"Explore",navTransport:"Transport",navKnow:"Did You Know?",srchLbl:"Search any Italian city or town",srchHint:(a,e)=>a?`Showing ${a.n} \u2014 type to search another`:`${e} Italian cities & towns`,srchPlaceholder:"Type a city... (e.g. Roma, Gaeta, Pettorano sul Gizio)",emptyTtl:"Where in Italy?",emptySub:`Type any city, town or village above
+const TR = {en:{flagLabel:"IT \xB7 InvenItalia",subExplore:"Discover the Beauty of Italy",subTransport:"Transport \xB7 Taxis \xB7 Car Rental \xB7 Ferries",subKnow:"Surprising facts about your city",titleExplore:["Inven","Italia"],titleAround:["Get ","Around"],titleKnow:["Did You ","Know?"],navExplore:"Explore",navTransport:"Local Transport",navKnow:"Did You Know?",srchLbl:"Search any Italian city or town",srchHint:(a,e)=>a?`Showing ${a.n} \u2014 type to search another`:`${e} Italian cities & towns`,srchPlaceholder:"Type a city... (e.g. Roma, Gaeta, Pettorano sul Gizio)",emptyTtl:"Where in Italy?",emptySub:`Type any city, town or village above
 to discover live weather, attractions
-& where to eat and drink.`,weatherTtl:"\u2601\uFE0F Live Weather & 7-Day Forecast",feelsLike:"Feels like",wind:"Wind",humidity:"Humidity",today:"Today",tomorrow:"Tomorrow",forecast7:"7-Day Forecast",wLabels:["Temperature","Feels Like","Wind","UV Index"],wErr:"\u26A0\uFE0F Weather unavailable \u2014 please try again",attractTtl:"\u{1F3DB}\uFE0F Attractions & Services",diningTtl:"\u{1F37D}\uFE0F Dining & Nightlife",hubsTtl:"\u{1F689} Transportation Hubs \u2014 find on Google Maps",rentalsTtl:"\u{1F511} Rental Services \u2014 find on Google Maps",onDemandTtl:"\u{1F50D} On-Demand Services \u2014 search on Google",transportCredit:"Sections 1 & 2 open Google Maps \xB7 Section 3 opens Google Search",knowTtl:a=>`\u{1F4A1} Did You Know? \u2014 ${a}`,knowEmpty:"Did You Know?",knowEmptySub:"Search a city above to discover surprising facts.",knowLoading:"Researching facts\u2026",knowRetry:"Try again",installMsg:"\u{1F4F2} Install InvenItalia on your phone",installBtn:"Install",mapsTag:"\u{1F4CD} Maps",searchTag:"\u{1F50D} Search",openMaps:"Open in Maps"},it:{flagLabel:"IT \xB7 InvenItalia",subExplore:"Scopri la Bellezza dell'Italia",subTransport:"Trasporti \xB7 Taxi \xB7 Auto a Noleggio \xB7 Traghetti",subKnow:"Curiosit\xE0 sulla tua citt\xE0",titleExplore:["Inven","Italia"],titleAround:["Muoversi ","in Italia"],titleKnow:["Lo Sapevi ","Che?"],navExplore:"Esplora",navTransport:"Trasporti",navKnow:"Lo Sapevi Che?",srchLbl:"Cerca una citt\xE0 o comune italiano",srchHint:(a,e)=>a?`Stai visualizzando ${a.n} \u2014 digita per cercare un'altra`:`${e} comuni italiani`,srchPlaceholder:"Cerca una citt\xE0... (es. Roma, Gaeta, Pettorano sul Gizio)",emptyTtl:"Dove in Italia?",emptySub:`Digita una citt\xE0, un comune o un paese
+& where to eat and drink.`,weatherTtl:"\u2601\uFE0F Live Weather & 7-Day Forecast",feelsLike:"Feels like",wind:"Wind",humidity:"Humidity",today:"Today",tomorrow:"Tomorrow",forecast7:"7-Day Forecast",wLabels:["Temperature","Feels Like","Wind","UV Index"],wErr:"\u26A0\uFE0F Weather unavailable \u2014 please try again",attractTtl:"\u{1F3DB}\uFE0F Attractions & Services",diningTtl:"\u{1F37D}\uFE0F Dining & Nightlife",hubsTtl:"\u{1F689} Transportation Hubs \u2014 find on Google Maps",rentalsTtl:"\u{1F511} Rental Services \u2014 find on Google Maps",onDemandTtl:"\u{1F50D} On-Demand Services \u2014 search on Google",transportCredit:"Sections 1 & 2 open Google Maps \xB7 Section 3 opens Google Search",knowTtl:a=>`\u{1F4A1} Did You Know? \u2014 ${a}`,knowEmpty:"Did You Know?",knowEmptySub:"Search a city above to discover surprising facts.",knowLoading:"Researching facts\u2026",knowRetry:"Try again",installMsg:"\u{1F4F2} Install InvenItalia on your phone",installBtn:"Install",mapsTag:"\u{1F4CD} Maps",searchTag:"\u{1F50D} Search",openMaps:"Open in Maps"},it:{flagLabel:"IT \xB7 InvenItalia",subExplore:"Scopri la Bellezza dell'Italia",subTransport:"Trasporti \xB7 Taxi \xB7 Auto a Noleggio \xB7 Traghetti",subKnow:"Curiosit\xE0 sulla tua citt\xE0",titleExplore:["Inven","Italia"],titleAround:["Muoversi ","in Italia"],titleKnow:["Lo Sapevi ","Che?"],navExplore:"Esplora",navTransport:"Trasporti Locali",navKnow:"Lo Sapevi Che?",srchLbl:"Cerca una citt\xE0 o comune italiano",srchHint:(a,e)=>a?`Stai visualizzando ${a.n} \u2014 digita per cercare un'altra`:`${e} comuni italiani`,srchPlaceholder:"Cerca una citt\xE0... (es. Roma, Gaeta, Pettorano sul Gizio)",emptyTtl:"Dove in Italia?",emptySub:`Digita una citt\xE0, un comune o un paese
 per scoprire meteo, attrazioni
 e dove mangiare.`,weatherTtl:"\u2601\uFE0F Meteo in Tempo Reale & Previsioni 7 Giorni",feelsLike:"Percepita",wind:"Vento",humidity:"Umidit\xE0",today:"Oggi",tomorrow:"Domani",forecast7:"Previsioni 7 Giorni",wLabels:["Temperatura","Percepita","Vento","Indice UV"],wErr:"\u26A0\uFE0F Meteo non disponibile \u2014 riprova pi\xF9 tardi",attractTtl:"\u{1F3DB}\uFE0F Attrazioni e Servizi",diningTtl:"\u{1F37D}\uFE0F Ristorazione e Vita Notturna",hubsTtl:"\u{1F689} Hub di Trasporto \u2014 trova su Google Maps",rentalsTtl:"\u{1F511} Servizi di Noleggio \u2014 trova su Google Maps",onDemandTtl:"\u{1F50D} Servizi a Chiamata \u2014 cerca su Google",transportCredit:"Sezioni 1 & 2 aprono Google Maps \xB7 Sezione 3 apre Google",knowTtl:a=>`\u{1F4A1} Lo Sapevi Che? \u2014 ${a}`,knowEmpty:"Lo Sapevi Che?",knowEmptySub:"Cerca una citt\xE0 per scoprire curiosit\xE0 sorprendenti.",knowLoading:"Ricerca in corso\u2026",knowRetry:"Riprova",installMsg:"\u{1F4F2} Installa InvenItalia sul tuo telefono",installBtn:"Installa",mapsTag:"\u{1F4CD} Mappe",searchTag:"\u{1F50D} Cerca",openMaps:"Apri in Maps"}};
 
@@ -8578,6 +8580,7 @@ Object.assign(TR.en, {
       { icon:"✈️", label:"Airport",        sub:"Airports near {c}",                q:"airport near {c} Italy" },
       { icon:"🚆", label:"Train Stations", sub:"Railway stations in {c}",           q:"train station {c} Italy" },
       { icon:"🚇", label:"Metro Stations", sub:"Underground & subway stops",        q:"metro station {c} Italy" },
+      { icon:"🚊", label:"Tram Stops",     sub:"Tram & light-rail stops",          q:"tram stop {c} Italy" },
       { icon:"🚌", label:"Bus Stops", sub:"Bus stops, terminals & coach stations", q:"bus stop {c} Italy" },
       { icon:"⛴️", label:"Ferry & Port",   sub:"Ferry terminals, ports & harbour",  q:"ferry terminal port {c} Italy" },
     ],
@@ -8610,6 +8613,7 @@ Object.assign(TR.it, {
       { icon:"✈️", label:"Aeroporto",         sub:"Aeroporti vicino a {c}",           q:"aeroporto vicino {c} Italia" },
       { icon:"🚆", label:"Stazioni Treni",    sub:"Stazioni ferroviarie a {c}",       q:"stazione treni {c} Italia" },
       { icon:"🚇", label:"Metropolitana",     sub:"Fermate metro e sotterranee",       q:"metropolitana {c} Italia" },
+      { icon:"🚊", label:"Fermate Tram",      sub:"Fermate tram e metro leggera",      q:"fermata tram {c} Italia" },
       { icon:"🚌", label:"Fermate Bus", sub:"Fermate, autostazioni e capolinea", q:"fermata autobus {c} Italia" },
       { icon:"⛴️", label:"Traghetti e Porto", sub:"Terminal traghetti, porti e scali", q:"terminal traghetti porto {c} Italia" },
     ],
@@ -9324,7 +9328,7 @@ function ExplorePage({ city, setCity, lang, t }) {
 // ═════════════════════════════════════════════════════════════════════════════
 // TRANSPORT PAGE
 // ═════════════════════════════════════════════════════════════════════════════
-function TransportPage({ city, setCity, lang, t }) {
+function TransportPage({ city, setCity, lang, t, goToInViaggio }) {
   const srch = useSearch(CITIES);
   useEffect(() => { if (city) srch.setQ(city.n); }, [city?.n]); // eslint-disable-line
   const onPick = useCallback(c => setCity(c), [setCity]);
@@ -9333,22 +9337,44 @@ function TransportPage({ city, setCity, lang, t }) {
   const searchQ = q => `https://www.google.com/search?q=${encodeURIComponent(q)}`;
   const TT = t.transport;
 
-  const hubs    = city ? TT.hubs.map(x    => ({ ...x, sub: x.sub.replace("{c}", city.n), url: mapsQ(x.q.replace("{c}", city.n)) })) : [];
+  // "Airport" and "Train Stations" get promoted to internal links into the richer
+  // "In Viaggio" tab whenever our RFI/ENAC datasets actually cover this comune —
+  // otherwise they keep behaving exactly as before (a generic Maps search).
+  const hubs = city ? TT.hubs.map((x, i) => {
+    const sub = x.sub.replace("{c}", city.n);
+    if (i === 0 && comuneHasAirport(city.n)) {
+      return { ...x, sub, internal:true, onClick: () => goToInViaggio("aeroporti", city.n) };
+    }
+    if (i === 1 && comuneHasStations(city.n)) {
+      return { ...x, sub, internal:true, onClick: () => goToInViaggio("stazioni", city.n) };
+    }
+    return { ...x, sub, url: mapsQ(x.q.replace("{c}", city.n)) };
+  }) : [];
   const rentals = city ? TT.rentals.map(x => ({ ...x, sub: x.sub.replace("{c}", city.n), url: mapsQ(x.q.replace("{c}", city.n)) })) : [];
   const onDemand= city ? TT.onDemand.map(x=> ({ ...x, sub: x.sub.replace("{c}", city.n), url: searchQ(x.q.replace("{c}", city.n)) })) : [];
 
   function LinkCard({ item, tag, tagColor }) {
+    const inner = (<>
+      <div style={s.catIco}>{item.icon}</div>
+      <div style={{ flex:1 }}>
+        <div style={s.catLabel}>{item.label}</div>
+        <div style={s.catSub}>{item.sub}</div>
+      </div>
+      <div style={s.catRight}>
+        <span style={{ fontSize:10, color: item.internal ? C.terra : tagColor, fontWeight:700 }}>{item.internal ? t.iv.openInViaggio : tag}</span>
+        <span style={s.arr}>›</span>
+      </div>
+    </>);
+    if (item.internal) {
+      return (
+        <button onClick={item.onClick} style={{ ...s.catCard, border:"none", width:"100%", textAlign:"left", cursor:"pointer", font:"inherit" }}>
+          {inner}
+        </button>
+      );
+    }
     return (
       <a href={item.url} target="_blank" rel="noopener noreferrer" style={s.catCard}>
-        <div style={s.catIco}>{item.icon}</div>
-        <div style={{ flex:1 }}>
-          <div style={s.catLabel}>{item.label}</div>
-          <div style={s.catSub}>{item.sub}</div>
-        </div>
-        <div style={s.catRight}>
-          <span style={{ fontSize:10, color:tagColor, fontWeight:700 }}>{tag}</span>
-          <span style={s.arr}>›</span>
-        </div>
+        {inner}
       </a>
     );
   }
@@ -9828,6 +9854,243 @@ function FrazioniPage({ lang, t }) {
   </>);
 }
 
+const _STAZIONI = [["Venezia Carpenedo","Via Trezzo, 42","Venezia","Venezia",1],["Venezia Mestre","Piazzale Favretti, 1","Venezia","Venezia",5],["Venezia Mestre Gazzera","","Venezia","Venezia",1],["Venezia Mestre Olimpia","","Venezia","Venezia",1],["Venezia Mestre Ospedale","Piazzale Ilaria Alpi","Venezia","Venezia",2],["Venezia Porto Marghera","Via Della Libertà, 9","Venezia","Venezia",1],["Venezia S.Lucia","Fondamenta S. Lucia, 1","Venezia","Venezia",5],["Belluno","Piazzale delle Foibe","Belluno","Belluno",2],["Padova","Piazzale Stazione","Padova","Padova",5],["Rovigo","Piazza Riconscenza, 7","Rovigo","Rovigo",3],["Treviso Centrale","Piazza Duca d'Aosta, 8","Treviso","Treviso",4],["Verona Porta Nuova","Piazzale XXV Aprile","Verona","Verona",5],["Verona Porta Vescovo","Viale Stazione Porta Vescovo, 6","Verona","Verona",2],["Anconetta","Viale Trieste","Vicenza","Vicenza",0],["Vicenza","Piazzale della Stazione, 21, 36100 Vicenza VI","Vicenza","Vicenza",4],["Aosta","P.za manzetti 1 Aosta","Aosta","Aosta",2],["Ellera-Corciano","Via Strada Olmo","Perugia","Perugia",1],["Perugia","Piazza Vittorio Veneto","Perugia","Perugia",3],["Perugia Capitini","Viale Centova","Perugia","Perugia",0],["Perugia Ponte S.Giovanni","Via Nino Bixio, 2","Perugia","Perugia",2],["Perugia Silvestrini","Via G. Dottori, 50","Perugia","Perugia",0],["Perugia Università","Strada S.Lucia","Perugia","Perugia",0],["Marmore","Fraz. Marmore - Via Pietro Montesi","Terni","Terni",0],["Terni","Piazza Dante, 1","Terni","Terni",3],["Bolzano Bozen","Piazza Stazione,1 _ 39100 Bolzano - BZ","Bolzano","Bolzano",4],["Bolzano Casanova Bozen Kaiserau","Via Andreina Emeri","Bolzano","Bolzano",0],["Bolzano Sud Bozen Süd","Piazza Fiera","Bolzano","Bolzano",2],["Ponte d'Adige Sigmundskron","Lungoadige, 3","Bolzano","Bolzano",1],["Povo-Mesiano","Via Mesiano 35","Trento","Trento",0],["Trento","Piazza Dante, 9 - 38122","Trento","Trento",4],["Trento S.Bartolameo","Località Masi S. Bartolameo","Trento","Trento",0],["Trento S.Chiara","Via Gocciadoro","Trento","Trento",1],["Villazzano","Via Banala, 15","Trento","Trento",0],["Arezzo","Piazza della Repubblica","Arezzo","Arezzo",4],["Firenze Campo Marte","Via Mannelli","Firenze","Firenze",4],["Firenze Castello","Piazza Davidsohn N. 1","Firenze","Firenze",1],["Firenze Rifredi","Via M. D' Azeglio","Firenze","Firenze",4],["Firenze Rovezzano","Via Rovezzano","Firenze","Firenze",1],["Firenze S.Marco Vecchio","Via Della Stazione","Firenze","Firenze",1],["Firenze Santa Maria Novella","Piazza Stazione","Firenze","Firenze",5],["Firenze Statuto","Piazza Muratori","Firenze","Firenze",2],["Le Cure","Piazza Le Cure","Firenze","Firenze",0],["Le Piagge","Piazza Cavallotti N. 1","Firenze","Firenze",1],["Empoli","Piazza Don Giovanni Minzoni 11A","Empoli","Firenze",3],["Granaiolo","Piazza Stazione","Empoli","Firenze",0],["Ponte a Elsa","Piazza Stazione","Empoli","Firenze",0],["Cavanella d'Adige","Via Lungo Adige, 66","Chioggia","Venezia",0],["Chioggia","Via Stazione, 4","Chioggia","Venezia",0],["S.Anna di Chioggia","Piazza Baldin, 46","Chioggia","Venezia",0],["Assisi","Piazza Dante Alighieri","Assisi","Perugia",2],["Orvieto","Via Antonio Gramsci","Orvieto","Terni",2],["Brennero Brenner","via Karl von etzel 9","Brennero","Bolzano",2],["Colle Isarco Gossensass","Via Fleres, 11","Brennero","Bolzano",0],["Brunico Bruneck","guglielmo marconi 1","Brunico","Bolzano",2],["Brunico Nord Bruneck Nord","","Brunico","Bolzano",2],["Mori","Via Alla Stazione","Rovereto","Trento",1],["Rovereto","Piazzale Orsi, 10 - 38068","Rovereto","Trento",4],["Chiusi-Chianciano Terme","Piazza Dante","Chiusi","Arezzo",2],["Montevarchi-Terranuova","Piazza Donatori di Sangue","Montevarchi","Arezzo",3],["S.Donnino Badia","Via Trento","Campi Bisenzio","Firenze",0],["Compiobbi","Via Della Stazione","Fiesole","Firenze",0],["Fiesole-Caldine","Via Della Stazione","Fiesole","Firenze",0],["Pian del Mugnone","Via Faentina","Fiesole","Firenze",0],["Il Neto","Via D'Azeglio","Sesto Fiorentino","Firenze",1],["Sesto Fiorentino","Piazza Luigi Galvani","Sesto Fiorentino","Firenze",3],["Zambra","Via Ruffini","Sesto Fiorentino","Firenze",1],["Follonica","Piazza Minzoni","Follonica","Grosseto",2],["Grosseto","Piazza Marconi","Grosseto","Grosseto",3],["Montepescali","Via Lapini N. 2 - Loc. Braccagni","Grosseto","Grosseto",0],["Albinia","Via Stazione","Orbetello","Grosseto",0],["Orbetello-Monte Argentario","Piazza della Stazione , 32","Orbetello","Grosseto",1],["Talamone","Via Della Stazione - Fonteblanda","Orbetello","Grosseto",0],["Antignano","Via Della Salute","Livorno","Livorno",0],["Livorno Centrale","Piazza Dante","Livorno","Livorno",4],["Quercianella-Sonnino","Via Della Stazione","Livorno","Livorno",0],["Piombino","Piazza Ferruccio Niccolini","Piombino","Livorno",1],["Piombino Marittima","Piazzale Premuda","Piombino","Livorno",1],["Populonia","Stazione","Piombino","Livorno",0],["Vignale-Riotorto","Piazza Stazione N. 1","Piombino","Livorno",0],["Lucca","Piazzale Bettino Ricasoli, 15","Lucca","Lucca",3],["Nozzano","Via Della Stazione","Lucca","Lucca",0],["Ponte a Moriano","Stazione N. 397","Lucca","Lucca",0],["S.Pietro a Vico","Stazione","Lucca","Lucca",0],["Pisa Centrale","Piazza della Stazione, snc","Pisa","Pisa",5],["Pisa S.Rossore","Via Mino Rosi, 100","Pisa","Lucca",3],["Torre del Lago Puccini","Via D.Alighieri 14","Viareggio","Lucca",1],["Viareggio","Piazza Dante Alighieri, snc","Viareggio","Lucca",3],["Carrara-Avenza","Via E. Petacchi n. 1","Carrara","Massa-Carrara",2],["Massa Centro","Piazza IV Novembre, 33","Massa","Massa-Carrara",3],["Pontremoli","Piazzale Bruno Raschi","Pontremoli","Massa-Carrara",2],["Pontedera-Casciana Terme","Piazza dell'Unita d'Italia 14/A","Pontedera","Pisa",3],["Montecatini Centro","Piazza Antonio Gramsci","Montecatini Terme","Pistoia",2],["Montecatini Terme-Monsummano","Piazzale Italia","Montecatini Terme","Pistoia",2],["Castagno","Via Di Castagno","Pistoia","Pistoia",0],["Corbezzi","Via Stazione Di Corbezzi, 4","Pistoia","Pistoia",0],["Pistoia","Piazza Dante Alighieri, 11","Pistoia","Pistoia",3],["Pistoia Ovest","Viale Adua","Pistoia","Pistoia",0],["Piteccio","","Pistoia","Pistoia",0],["Pracchia","Via Traversa Di Pracchia","Pistoia","Pistoia",0],["S.Mommè","Via Valdi E S.Mommè 58/60","Pistoia","Pistoia",0],["Prato Borgonuovo","Stazione","Prato","Prato",1],["Prato Centrale","Piazza Stazione Centrale, 13","Prato","Prato",3],["Prato Porta al Serraglio","Via Felice Cavallotti","Prato","Prato",3],["Poggibonsi-S.Gimignano","Piazza Mazzini N° 22","Poggibonsi","Siena",2],["Siena","Piazza Rosselli N° 7","Siena","Siena",3],["Agrigento Bassa","Via P.S.Mattarella","Agrigento","Agrigento",0],["Agrigento Centrale","Piazza Pirro Marconi, 1","Agrigento","Agrigento",1],["Caltanissetta Centrale","Piazza Roma","Caltanissetta","Caltanissetta",1],["Caltanissetta Xirbi","contrada xirbi","Caltanissetta","Caltanissetta",0],["Serradifalco","Via Stazione","Caltanissetta","Caltanissetta",0],["Acireale","Via San Girolamo","Acireale","Catania",1],["Guardia-Mangano-S.Venerina","Via Paluzza,8","Acireale","Catania",0],["Catania Aeroporto Fontanarossa","","Catania","Catania",1],["Catania Centrale","Piazza Papa Giovanni XXIII","Catania","Catania",3],["Europa","piazza Europa","Catania","Catania",1],["Ognina","Via Acireale","Catania","Catania",0],["Picanello","Via Libertini","Catania","Catania",0],["Enna","SP3 stazione ENNA","Enna","Enna",0],["Barcellona-Castroreale","Piazza Nuova Stazione Fs","Barcellona Pozzo Di Gotto","Messina",1],["Milazzo","Via degli Orti","Milazzo","Messina",2],["Contesse","Via Stazione (Loc. Contesse)","Messina","Messina",0],["Fiumara Gazzi","Via Galileo Galilei, Z.I.R","Messina","Messina",0],["Galati","Ss114","Messina","Messina",0],["Giampilieri","Via Stazione","Messina","Messina",0],["Messina Centrale","Piazza della Repubblica","Messina","Messina",3],["Mili Marina","S.S. 114 (Loc. Mili Marina)","Messina","Messina",0],["Ponte S.Stefano","Via Nazionale (Loc. S.Margherita)","Messina","Messina",0],["Ponte Schiavo","Incrocio Strada Statale 114 Con Strada Provinciale 35","Messina","Messina",0],["San Paolo","Via Nazionale, 194","Messina","Messina",0],["Tremestieri","Via Larderia","Messina","Messina",0],["Taormina-Giardini","Via Nazionale","Taormina","Messina",2],["Bagheria","Via Stazione","Bagheria","Palermo",2],["Capaci","","Capaci","Palermo",1],["Cefalù","Piazza Vittime 13 marzo 1978","Cefalù","Palermo",2],["Federico","Via Imperatore Federico","Palermo","Palermo",1],["Fiera","Via Ferdiando Ferri","Palermo","Palermo",1],["Giachery","Piazza Giachery","Palermo","Palermo",1],["Lolli","Piazza Lolli","Palermo","Palermo",2],["Palazzo Reale-Orleans","Corso Re Ruggero","Palermo","Palermo",2],["Palermo Brancaccio","Via Marcantonio Alaimo, 25","Palermo","Palermo",0],["Palermo Cardillo","Via Monreale","Palermo","Palermo",0],["Palermo Centrale","PIAZZALE GIULIO CESARE","Palermo","Palermo",5],["Palermo De Gasperi","","Palermo","Palermo",1],["Palermo Francia","Piazzale Gaspare Ambrosini","Palermo","Palermo",2],["Cerda","Via Stazione","Termini Imerese","Palermo",0],["Termini Imerese","Piazza Europa","Termini Imerese","Palermo",2],["Donnafugata","Contrada Donnafugata","Ragusa","Ragusa",0],["Ragusa","Piazza Gramsci","Ragusa","Ragusa",0],["Fontane Bianche","Via Delle Muse","Siracusa","Siracusa",0],["Siracusa","Piazza della Stazione centrale","Siracusa","Siracusa",3],["Targia","Contrada Targia","Siracusa","Siracusa",0],["Marsala","viale Amerigo Fazio","Marsala","Trapani",1],["Mozia-Birgi","Contrada Ragattisi","Marsala","Trapani",0],["Petrosino-Strasatti","Contrada Torreggiano, 1","Marsala","Trapani",0],["Spagnuola","Contrada Spagnuola","Marsala","Trapani",0],["Terrenove","Contrada Terrenove, 1","Marsala","Trapani",0],["Mazara del Vallo","Piazza Alcide De Gasperi","Mazara Del Vallo","Trapani",1],["Marausa","Via Marausa","Trapani","Trapani",0],["Trapani","piazza UmbertoI","Trapani","Trapani",1],["Assemini","Via Trento","Assemini","Cagliari",1],["Assemini Carmine","Via Sant’Elia","Assemini","Cagliari",0],["Assemini S.Lucia","Via Venezia","Assemini","Cagliari",0],["Cagliari","Piazza Giacomo Matteotti","Cagliari","Cagliari",3],["Cagliari S.Gilla","Viabilità Provvisoria Da Pl Via S. Paolo","Cagliari","Cagliari",0],["Elmas Aeroporto","Ingresso aeroporto","Cagliari","Cagliari",1],["Carbonia Serbariu","Via Roma","Carbonia","Carbonia Iglesias",1],["Iglesias","Via Garibaldi","Iglesias","Carbonia Iglesias",1],["S.Gavino","LOCALITA` S`ARRIDELI n. SNC","San Gavino Monreale","Medio Campidano",2],["Serramanna-Nuraminis","Corso Unione Sovietica n.2","Serramanna","Medio Campidano",1],["Borore","Via Della Resistenza","Borore","Nuoro",0],["Macomer","Piazza due stazioni","Macomer","Nuoro",1],["Olbia","Via Giacomo Pala 10","Olbia","Olbia Tempio",1],["Olbia Terranova","Via Re di Persia","Sassari","Olbia Tempio",1],["Sassari","Piazza della Stazione","Sassari","Sassari",1],["Oristano","Piazza Ungheria","Oristano","Oristano",2],["Bari Centrale","Piazza Aldo Moro","Bari","Bari",5],["Bari Loseto","","Bari","Bari",0],["Bari Palese Macchie","Via amedeo di Savoia","Bari","Bari",1],["Bari Parco Sud","Viale Caduti Di Tutte Le Guerre 12","Bari","Bari",1],["Bari S.Rita","","Bari","Bari",0],["Bari S.Spirito","Via di S. Spirito Giuseppe Garibaldi","Bari","Bari",1],["Bari Torre Quetta","via giovanni di cagno abbrescia","Bari","Bari",1],["Bari Torre a Mare","via Detta della stazione","Bari","Bari",2],["Bari Villaggio del Lavoratore","Strada Provinciale Messenape","Bari","Bari",0],["Bari Zona Industriale","Traversa Di Via Casavola","Bari","Bari",1],["Giovinazzo","Piazza Risorgimento","Giovinazzo","Bari",2],["Monopoli","Via Fracanzano","Monopoli","Bari",3],["Polignano a Mare","Viale Trieste","Polignano A Mare","Bari",2],["Barletta","Piazza Francesco Conteduca","Barletta","Barletta-Andria-Trani",4],["Bisceglie","Piazza Armando Diaz","Bisceglie","Barletta-Andria-Trani",3],["Barletta","Piazza Francesco Conteduca","Barletta","Barletta-Andria-Trani",4],["Bisceglie","Piazza Armando Diaz","Bisceglie","Barletta-Andria-Trani",3],["Minervino Murge","Via Stazione","Minervino Murge","Barletta-Andria-Trani",0],["Trani","Piazza XX Settembre","Trani","Barletta-Andria-Trani",3],["Trinitapoli-S.Ferdinando di Puglia","Largo stazione","Trinitapoli","Barletta-Andria-Trani",1],["Brindisi","Piazza Francesco Crispi","Brindisi","Brindisi",4],["Brindisi Cittadella della Ricerca","Via Cittadella della Ricerca","Brindisi","Brindisi",0],["Brindisi Perrino","Strada per lo Spada","Brindisi","Brindisi",0],["Ostuni","Via Stazione","Ostuni","Brindisi",2],["Foggia","Piazzale Vittorio Veneto","Foggia","Foggia",4],["Incoronata","Strada Statale 16","Foggia","Foggia",0],["Lecce","Piazzale Oronzo Massari","Lecce","Lecce",4],["Taranto","Viale Duca d'Aosta","Taranto","Taranto",2],["Acqui Terme","Piazzale Vittorio Veneto 1","Acqui Terme","Alessandria",2],["Alessandria","Piazza Eugenio Curiel 8","Alessandria","Alessandria",3],["S.Giuliano Piemonte","Piazza Stazione","Alessandria","Alessandria",0],["Spinetta","Via Perfumo 2","Alessandria","Alessandria",0],["Valmadonna","Via Comunale, 72","Alessandria","Alessandria",0],["Asti","Piazza Guglielmo Marconi 5","Asti","Asti",3],["S.Damiano d'Asti","Fraz.Vaglierano, 18","Asti","Asti",0],["Biella S.Paolo","Piazza San Paolo n° 6","Biella","Biella",2],["Alba","Piazza Trento e Trieste","Alba","Cuneo",2],["Mussotto","C.So Bra, 1","Alba","Cuneo",0],["Cuneo","Piazzale Libertà, 10","Cuneo","Cuneo",3],["Torino Corso Grosseto","","Torino","Torino",1],["Torino Lingotto","Via Mario Pannunzio","Torino","Torino",4],["Torino Porta Nuova","Corso Vittorio Emanuele II 53","Torino","Torino",5],["Torino Porta Susa","Piazza 18 Dicembre, 8 - 10122","Torino","Torino",5],["Torino Rebaudengo Fossata","Via Fossata 108/A - 10147","Torino","Torino",2],["Torino Stura","Corso Romania, 501 - 10156","Torino","Torino",3],["Castelrosso","Via San Rocco, 47","Chivasso","Torino",0],["Chivasso","P.za Garibaldi 1","Chivasso","Torino",3],["Collegno","Via Giacinto Collegno, 1, 10093 Collegno TO","Collegno","Torino",2],["Grugliasco","C.So Adriatico","Collegno","Torino",1],["Ivrea","Corso Nigra 67","Ivrea","Torino",2],["Pinerolo","Piazza Giuseppe Garibaldi - 10064","Pinerolo","Torino",2],["Pinerolo Olimpica","Pinerolo","Pinerolo","Torino",1],["Verbania-Pallanza","Via alla Stazione 1","Verbania","Verbania",1],["Vercelli","Piazza Roma 23","Vercelli","Vercelli",3],["Campobasso","PIAZZA VINCENZO CUOCO","Campobasso","Campobasso",0],["Termoli","Via Giuseppe Garibaldi","Termoli","Campobasso",3],["Isernia","PIAZZALE DELLA REPUBBLICA","Isernia","Isernia",1],["Rocca Ravindola","Via Donatello","Montaquila","Isernia",0],["Venafro","PIAZZA FALCONE E BORSELLINO","Venafro","Isernia",1],["Ancona","Piazza Rosselli, 1","Ancona","Ancona",4],["Ancona Torrette","Fraz. Torrette - Via Flaminia","Ancona","Ancona",1],["Palombina","Fraz Palombina - Via Flaminia, 363","Ancona","Ancona",0],["Varano","Fraz. Varano - Via Di Passo Varano","Ancona","Ancona",1],["Albacina","Loc. Borgo Tufico, 51","Fabriano","Ancona",0],["Fabriano","PIAZZALE XX SETTEMBRE","Fabriano","Ancona",2],["Jesi","Viale Trieste","Jesi","Ancona",2],["Loreto","Piazzale G. Malchiodi, 7","Loreto","Ancona",1],["Ascoli Piceno","Piazza Della Stazione, 1","Ascoli Piceno","Ascoli-Piceno",1],["Maltignano del Tronto","Via Marino Del Tronto, 172","Ascoli Piceno","Ascoli-Piceno",0],["Marino del Tronto-Folignano","Via Stazione Marino Del Tronto, 108","Ascoli Piceno","Ascoli-Piceno",0],["Offida-Castel di Lama","Via Della Stazione, 25","Ascoli Piceno","Ascoli-Piceno",0],["S.Filippo","Via Erasmo Mari","Ascoli Piceno","Ascoli-Piceno",1],["Porto d'Ascoli","Via Turati","San Benedetto Del Tronto","Ascoli-Piceno",1],["S.Benedetto del Tronto","Viale Gramsci, 22","San Benedetto Del Tronto","Ascoli-Piceno",3],["Pedaso","Piazza Stazione Fs, 2","Pedaso","Fermo",0],["Porto S.Elpidio","Piazza Della Repubblica, 12","Porto Sant'elpidio","Fermo",1],["Porto S.Giorgio-Fermo","Piazza G. Matteotti, 4","Porto San Giorgio","Fermo",2],["Civitanova Marche-Montegranaro","Piazza Rosselli","Civitanova Marche","Macerata",2],["Corridonia-Mogliano","Contrada Peschiera, 11","Macerata","Macerata",0],["Macerata","Piazza Xxv Aprile, 10","Macerata","Macerata",2],["Macerata Fontescodella","Via G. Di Pietro","Macerata","Macerata",0],["Macerata Università","Piazzale Luigi Bertelli, 1","Macerata","Macerata",0],["Tolentino Campus","","Macerata","Macerata",0],["Urbisaglia-Sforzacosta","Via Ciccolini, 9","Macerata","Macerata",0],["Fano","Piazzale Della Stazione, 1","Fano","Pesaro-Urbino",2],["Marotta-Mondolfo","Piazzale Della Stazione, 1","Mondolfo","Pesaro-Urbino",2],["Pesaro","Piazzale G. Falcone – P. Borsellino 3 - 61121 Pesaro PU","Pesaro","Pesaro-Urbino",4],["Bagnoli-Agnano Terme","VIA SIBILLA","Napoli","Napoli",2],["Cavalleggeri Aosta","VIA CAVALLEGGERI D'AOSTA","Napoli","Napoli",2],["Napoli Campi Flegrei","PIAZZALE TECCHIO","Napoli","Napoli",4],["Napoli Centrale","PIAZZA GARIBALDI","Napoli","Napoli",5],["Napoli Gianturco","VIA BRIN","Napoli","Napoli",2],["Napoli Mergellina","CORSO VITTORIO EMANUELE III","Napoli","Napoli",4],["Napoli Montesanto","PIAZZETTA OLIVELLA","Napoli","Napoli",3],["Napoli Piazza Amedeo","PIAZZA AMEDEO","Napoli","Napoli",3],["Napoli Piazza Cavour","PIAZZA CAVOUR","Napoli","Napoli",4],["Napoli Piazza Garibaldi","PIAZZA GIUSEPPE GARIBALDI, 1-80142","Napoli","Napoli",5],["Napoli Afragola","VIA ARENA SNC","Afragola","Napoli",4],["Pozzuoli Solfatara","VIA V. ORIANI","Pozzuoli","Napoli",3],["Quarto di Marano","Via Campana","Pozzuoli","Napoli",1],["S.Maria La Bruna","Viale Europa 21","Torre Del Greco","Napoli",1],["Torre del Greco","VIA FERROVIA","Torre Del Greco","Napoli",2],["Aversa","PIAZZA GIUSEPPE MAZZINI","Aversa","Caserta",4],["Capua","VIALE FERROVIE","Capua","Caserta",1],["Caserta","PIAZZA GARIBALDI","Caserta","Caserta",4],["Benevento","PIAZZA VITTORIO COLONNA 4","Benevento","Benevento",3],["Benevento Arco Traiano","Via Tiengo","Benevento","Benevento",1],["Avellino","Via F.Tedesco 646","Avellino","Avellino",0],["Duomo Via Vernieri","VIA MATTEO POLITO","Salerno","Salerno",2],["Fratte","Via Dei Greci","Salerno","Salerno",0],["Fratte-Villa Comunale","Via Nicola Buonservizi","Salerno","Salerno",0],["Salerno","PIAZZA VITTORIO VENETO","Salerno","Salerno",5],["Salerno Irno","Via Irno","Salerno","Salerno",0],["Cava dei Tirreni","PIAZZA GAETANO AVIGLIANO","Cava De' Tirreni","Salerno",2],["Mercato S.Severino","S.S. Piazza Martinez Y Cabrera","Mercato San Severino","Salerno",1],["Valle di Mercato S.Severino","Via Ferrovia","Mercato San Severino","Salerno",0],["Scafati","VIA OBERDAN","Scafati","Salerno",1],["Fisciano","Via Del Progresso - Loc.Lancusi","Fisciano","Salerno",0],["Battipaglia","Piazza Farina 1","Battipaglia","Salerno",3],["Nocera Inferiore","PIAZZA TRIESTE E TRENTO","Nocera Inferiore","Salerno",3],["Nocera Inferiore Mercato","Via Orlando","Nocera Inferiore","Salerno",0],["Bergamo","Piazzale Guglielmo Marconi, 7","Bergamo","Bergamo",3],["Bergamo Ospedale","Via Emanuela Brambilla, 24127","Bergamo","Bergamo",1],["Treviglio","Via Giuseppe Verdi, 4","Treviglio","Bergamo",3],["Treviglio Ovest","Piazzale Giuseppe Mazzini","Treviglio","Bergamo",2],["Brescia","Via della Stazione","Brescia","Brescia",5],["Cantù","V.Vittorio Veneto, 12","Cantù","Como",0],["Cantù-Cermenate","P.le Stazione, 1","Cantù","Como",1],["Albate Trecallo","V. Merzario","Como","Como",0],["Como Camerlata","via Scalabrini","Como","Como",2],["Como S.Giovanni","P.le S. Gottardo, 22100","Como","Como",4],["Crema","Piazza Martiri della Libertà, 2","Crema","Cremona",2],["Cremona","Piazza Stazione, 7","Cremona","Cremona",3],["Lecco","Piazza Lega Lombarda","Lecco","Lecco",3],["Lecco Maggianico","V. Gomez, 15","Lecco","Lecco",1],["Casalpusterlengo","P.zza Guglielmo Marconi","Casalpusterlengo","Lodi",2],["Lodi","Piazzale della Stazione 12","Lodi","Lodi",4],["Gonzaga-Reggiolo","Viale Stazione, 12","Gonzaga","Mantova",0],["Palidano","Via Guerrieri","Gonzaga","Mantova",0],["Borgochiesanuova","Circonvallazione sud","Mantova","Mantova",0],["Mantova","Piazza Don Eugenio Leoni, 10 - 46100 Mantova - MN","Mantova","Mantova",3],["Mantova Frassine","Via Brennero","Mantova","Mantova",0],["Milano Centrale","PIAZZA DUCA D'AOSTA, 1-20124","Milano","Milano",5],["Milano Certosa","Via Giovanni Fattori","Milano","Milano",3],["Milano Dateo","Corso Plebisciti","Milano","Milano",4],["Milano Forlanini","Via Roberto Ardigò","Milano","Milano",3],["Milano Greco Pirelli","Piazzale Egeo","Milano","Milano",4],["Milano Lambrate","Piazza Bottini","Milano","Milano",4],["Milano Lancetti","Viale Vincenzo Lancetti","Milano","Milano",3],["Milano Porta Garibaldi","Piazza Sigmund Freud","Milano","Milano",5],["Milano Porta Garibaldi Sotterranea","Piazza Sigmund Freud","Milano","Milano",5],["Milano Porta Venezia","Viale Regina Giovanna","Milano","Milano",4],["Sesto S.Giovanni","Piazza 1° Maggio","Sesto San Giovanni","Milano",4],["Rho","PIAZZA LIBERTA' 9","Rho","Milano",3],["Rho Fiera","PIAZZA COSTELLAZIONE","Rho","Milano",4],["Arcore","Piazza Martiri della Libertà","Arcore","Monza-Brianza",2],["Buttafava","V. Molino Sesto Giovane","Arcore","Monza-Brianza",0],["Desio","Via Umberto Tagliabue, 38","Desio","Monza-Brianza",2],["Lissone-Muggiò","Via della Pinacoteca, 6","Lissone","Monza-Brianza",3],["Monza","Via Arosio 14","Monza","Monza-Brianza",4],["Monza Sobborghi","V. Carlo Rota","Monza","Monza-Brianza",1],["Motta S.Damiano","Loc. Motta San Damiano","Pavia","Pavia",0],["Pavia","Piazza Stazione, 9","Pavia","Pavia",4],["Pavia Porta Garibaldi","Piazzale Stazione","Pavia","Pavia",1],["Vigevano","PIAZZA IV NOVEMBRE, 5","Vigevano","Pavia",3],["Sondrio","Piazzale Giovanni Bertacchi","Sondrio","Sondrio",2],["Gallarate","Piazza Giovanni XXIII","Gallarate","Varese",3],["Cantello Gaggiolo","Via Lugano in Frazione Gaggiolo","Varese","Varese",1],["Varese","Piazza Trento e Trieste","Varese","Varese",3],["Bogliasco","Via Aurelia 108","Bogliasco","Genova",1],["Camogli-S.Fruttuoso","Via XX Settembre","Camogli","Genova",2],["Genova Acquasanta","Via Acquasanta 291","Genova","Genova",0],["Genova Bolzaneto","Via G.B. Custo","Genova","Genova",2],["Genova Borzoli","Via Saracco","Genova","Genova",0],["Genova Brignole","P.zza Giuseppe Verdi","Genova","Genova",5],["Genova Cornigliano","Piazza Ernesto Savio","Genova","Genova",2],["Genova Costa di Sestri Ponente","Via Superiore Gazzo 31","Genova","Genova",1],["Genova Granara","Via Granara 1","Genova","Genova",0],["Genova Nervi","Piazza Antonio Sciolla, 1","Genova","Genova",3],["Genova Pegli","Piazza Amilcare Ponchielli","Genova","Genova",3],["Genova Piazza Principe","P.zza Acquaverde","Genova","Genova",5],["Imperia","Via Argine destro/Via Argine sinistro","Imperia","Imperia",2],["Sanremo","Piazza Don Orione","Sanremo","Imperia",3],["Bevera","Via Alla Stazione","Ventimiglia","Imperia",0],["Ventimiglia","Piazza Cesare Battisti","Ventimiglia","Imperia",3],["Ca' di Boschetti","Piazza Indipendenza","La Spezia","La-Spezia",0],["La Spezia Centrale","Piazzale Medaglie D'Oro Al Valor Militare, 20","La Spezia","La-Spezia",4],["La Spezia Migliarina","Via Maldellora N. 8","La Spezia","La-Spezia",2],["Sarzana","Piazza Guido Jurgens","Sarzana","La-Spezia",2],["Albenga","Piazza Giacomo Matteotti","Albenga","Savona",2],["Santuario","Via Alla Stazione 1","Savona","Savona",0],["Savona","Piazza Aldo Moro","Savona","Savona",4],["Anagni-Fiuggi","Via delle scalo ferroviario","Anagni","Frosinone",1],["Cassino","Piazzale ferrovia","Cassino","Frosinone",3],["Frosinone","Piazzale Kambo","Frosinone","Frosinone",2],["Ferentino-Supino","Via stazione snc","Ferentino","Frosinone",1],["Formia-Gaeta","Piazza IV Novembre","Formia","Latina",3],["Latina","Piazzale Caetani","Latina","Latina",3],["Poggio Fidoni","Fraz. Poggio Fidoni - Via Larghetto,","Rieti","Rieti",0],["Rieti","Piazza Enrico Belinguer, 1","Rieti","Rieti",1],["Anzio","Piazza R. Palomba","Anzio","Roma",2],["Anzio Colonia","Via Vasco De Gama","Anzio","Roma",1],["Lido di Lavinio","Via Di Valle Schioia, 1","Anzio","Roma",1],["Marechiaro","Via Della Fornace","Anzio","Roma",1],["Padiglione","Viale Palmolive","Anzio","Roma",1],["Villa Claudia","Viale Di Villa Claudia","Anzio","Roma",1],["Castel Gandolfo","Via A. Gramsci, 7","Castel Gandolfo","Roma",1],["Villetta","Vicolo Degli Staz","Castel Gandolfo","Roma",0],["Acqua Acetosa","Via Dell'Acqua Acetosa","Ciampino","Roma",1],["Casabianca","Via Dei Laghi, 1","Ciampino","Roma",0],["Ciampino","Piazza Luigi Rizzo","Ciampino","Roma",3],["Sassone","Via Dei Laghi","Ciampino","Roma",0],["Civitavecchia","Piazzale scipione Matteuzzi","Civitavecchia","Roma",3],["Fiumicino Aeroporto","Aeroporto L. Da Vinci","Fiumicino","Roma",4],["Maccarese-Fregene","via della stazione di Maccarese","Fiumicino","Roma",1],["Parco Leonardo","Via Giulio Romano","Fiumicino","Roma",2],["Torre in Pietra-Palidoro","Via della Stazione di Palidoro","Fiumicino","Roma",1],["Frascati","Piazzale Sandro Pertini, 5","Frascati","Roma",2],["Tor Vergata","Via Perazzeta","Frascati","Roma",1],["Appiano","Via Proba petronia - Via Appiano","Roma","Roma",2],["Capannelle","Via Delle Capannelle","Roma","Roma",1],["Cesano di Roma","Via della stazione di cesano SNC","Roma","Roma",2],["Colle Mattia","Via della Stazione di Colle Mattia","Roma","Roma",1],["Fidene","Largo Don A. Penazzi","Roma","Roma",2],["Fiera Di Roma","Via Portuense (Km 16,600)","Roma","Roma",1],["Gemelli","Via della Pineta Sacchetti SNC","Roma","Roma",3],["Ipogeo degli Ottavi","Via Trionfale SNC","Roma","Roma",2],["La Giustiniana","Via Bassano Romano SNC","Roma","Roma",2],["La Rustica Città","Via Achille Vertunni","Roma","Roma",1],["La Rustica Uir","Via Andrea Noale","Roma","Roma",1],["La Storta","Via della stazione di La Storta SNC","Roma","Roma",3],["Lunghezza","VIA DI LUNGHEZZA ,00132 ROMA","Roma","Roma",1],["Magliana","via della Magliana","Roma","Roma",2],["Muratella","Via Della Magliana (Km. 8,600)","Roma","Roma",2],["Nuovo Salario","Via della Serpentara","Roma","Roma",2],["Olgiata","Via Braccianense SNC","Roma","Roma",2],["Ottavia","Via Trionfale SNC","Roma","Roma",2],["Palmiro Togliatti","Via Collatina Vecchia","Roma","Roma",1],["Ponte Galeria","Via Portuense","Roma","Roma",2],["Ponte di Nona","VIA ENRICO FORLANINI, 00155 ROMA","Roma","Roma",1],["Quattro Venti","Viale dei Quattro Venti SNC","Roma","Roma",2],["Roma Aurelia","Via Aurelia","Roma","Roma",2],["Roma Balduina","Largo Damiano Chiesa SNC","Roma","Roma",2],["Roma Monte Mario","Via Eugenio Tanzi SNC","Roma","Roma",3],["Roma Nomentana LL","Via Val D'Aosta","Roma","Roma",3],["Roma Ostiense","Piazzale dei Partigiani","Roma","Roma",4],["Roma Prenestina","Piazza Della Stazione Prenestina, 6","Roma","Roma",1],["Roma S.Filippo Neri","Via Trionfale SNC","Roma","Roma",2],["Roma S.Pietro","Piazza della stazione di S.Pietro snc","Roma","Roma",4],["Roma Termini","Piazza dei Cinquecento","Roma","Roma",5],["Roma Tiburtina","Piazzale della Stazione Tiburtina","Roma","Roma",5],["Roma Trastevere","Piazzale Flavio Biondo","Roma","Roma",4],["Roma Tuscolana","Piazzale della Stazione Tuscolana","Roma","Roma",4],["Salone","Via Della Stazione Di Salone, 32","Roma","Roma",0],["Serenissima","Viale Della Serenissima","Roma","Roma",1],["Settebagni","Via della Stazione di Settebagni","Roma","Roma",1],["Tor Sapienza","Via Alberto Pasini","Roma","Roma",1],["Torricola","Piazza Della Stazione Di Torricola","Roma","Roma",1],["Val D`Ala","Via Val D'Ala","Roma","Roma",0],["Valle Aurelia","Via Anastasio II SNC","Roma","Roma",4],["Vigna Clara","Via Flaminia Nuova","Roma","Roma",0],["Villa Bonelli","Via Guido Miglioli","Roma","Roma",2],["Bagni di Tivoli","VIA CAIO PLINIO, 00011 TIVOLI TERME","Tivoli","Roma",1],["Tivoli","viale G. Mazzini 103","Tivoli","Roma",2],["Pomezia-S.Palomba","Via Della Stazione Di Pomezia","Pomezia","Roma",2],["Grotte S.Stefano","Via Della Stazione, 114","Viterbo","Viterbo",0],["Viterbo Porta Fiorentina","Viale Trento","Viterbo","Viterbo",2],["Viterbo Porta Romana","Via della sapienza, 11","Viterbo","Viterbo",2],["Orte","Via D. Alighieri","Orte","Viterbo",3],["Tarquinia","Via della vecchia stazione","Tarquinia","Viterbo",1],["Gorizia Centrale","PIAZZALE MARTIRI DELLA LIBERTA 20","Gorizia","Gorizia",2],["Aviano","piazzale stazione 2","Aviano","Pordenone",0],["Pordenone","PIAZZALE CADUTI DI NASSIRIYA E DI TUTTE LE MISSIONI DI PACE 1","Pordenone","Pordenone",4],["Miramare","Via Beirut 11/13","Trieste","Trieste",0],["Trieste Centrale","PIAZZA DELLA LIBERTA'","Trieste","Trieste",4],["Villa Opicina","Via Ferrovia 14","Trieste","Trieste",0],["Tarvisio Boscoverde","VIA STEFANO SPIZZO 1","Tarvisio","Udine",1],["Ugovizza-Valbruna","Via Stazione","Tarvisio","Udine",0],["San Gottardo","","Udine","Udine",1],["Udine","VIALE EUROPA UNITA 44","Udine","Udine",4],["Bologna Borgo Panigale","Via Marco Celio n.23","Bologna","Bologna",2],["Bologna Centrale","Viale Pietramellara/via Carracci","Bologna","Bologna",5],["Bologna Centrale AV","Viale Pietramellara/via Carracci","Bologna","Bologna",5],["Bologna Corticella","Via Corticella,311","Bologna","Bologna",1],["Bologna Mazzini","Via Mazzini 27","Bologna","Bologna",1],["Bologna S.Ruffillo","Via Direttissima, 12","Bologna","Bologna",1],["Bologna S.Vitale","Via Rimesse","Bologna","Bologna",2],["Casteldebole","Via Galeazza -Casteldebole","Bologna","Bologna",1],["Casalecchio Garibaldi","Via della stazione1","Casalecchio Di Reno","Bologna",2],["Casalecchio di Reno","Via ronzani 6","Casalecchio Di Reno","Bologna",1],["Imola","Piazzale Anselmo Marabini","Imola","Bologna",3],["Borgonuovo","Via cartiera","Sasso Marconi","Bologna",1],["Pontecchio Marconi","Via Vizzano, 48","Sasso Marconi","Bologna",0],["Sasso Marconi","Via Stazione ,86 40037 Sasso Marconi","Sasso Marconi","Bologna",1],["Castelmaggiore","Via Della Stazione, 2","Castel Maggiore","Bologna",1],["Coronella","Via Imperiale","Ferrara","Ferrara",0],["Ferrara","Piazzale della Stazione 1","Ferrara","Ferrara",4],["Gaibanella","Via Palmirano, 99","Ferrara","Ferrara",0],["Pontelagoscuro","Via Aminta,9","Ferrara","Ferrara",0],["Cesena","P.zza Sanguinetti 212","Cesena","Forli-Cesena",3],["Cesenatico","Piazza Ugo Bassi, 1","Cesenatico","Forli-Cesena",1],["Forlì","Via Martiri d'Ungheria 1","Forlì","Forli-Cesena",3],["Carpi","PIAZZALE STAZIONE 1","Carpi","Modena",2],["Modena","Piazza Dante Alighieri, 1","Modena","Modena",4],["Quattro Ville","Str. delle Quattro Ville","Modena","Modena",0],["Collecchio","Viale Libertà N. 67","Collecchio","Parma",1],["Ozzano Taro","Via Qualatico","Collecchio","Parma",0],["Parma","Piazzale C.A. Della Chiesa 11","Parma","Parma",4],["Vicofertile","Piazza Stazione N. 1","Parma","Parma",0],["Piacenza","Piazzale Marconi 8","Piacenza","Piacenza",4],["Faenza","Piazza Cesare Battisti 1","Faenza","Ravenna",3],["Granarolo Faentino","Via Donati, 16","Faenza","Ravenna",0],["Classe","Via Classense, 90","Ravenna","Ravenna",0],["Glorie","Via Della Stazione","Ravenna","Ravenna",0],["Lido di Classe-Lido di Savio","Viale Stazione, 30","Ravenna","Ravenna",0],["Mezzano","Viale Stazione, 18","Ravenna","Ravenna",0],["Ravenna","P.zza Carlo Luigi Farini 13","Ravenna","Ravenna",3],["Reggio Emilia","Via Giuseppe Turri/Via Eritrea","Reggio Nell'emilia","Reggio-Emilia",4],["Reggio Emilia AV Mediopadana","Via Città del Tricolore","Reggio Nell'emilia","Parma",4],["Villanova di Reggiolo","Via Moglia, 25","Reggiolo","Reggio-Emilia",0],["Bellaria","Piazzale A. Gramsci, 43 - 47041 Bellaria","Bellaria-igea Marina","Rimini",1],["Cattolica-S.Giovanni-Gabicce","Piazzale Stazione, 2","Cattolica","Rimini",2],["Igea Marina","Viale Ennio","Bellaria-igea Marina","Rimini",1],["Misano Adriatico","Via Repubblica, 90","Misano Adriatico","Rimini",1],["Riccione","Piazzale Cadorna, 1A","Riccione","Rimini",3],["Rimini","Piazzale Cesare Battisti 1","Rimini","Rimini",4],["Rimini Miramare","Fraz. Miramare - Viale Olivetti, 60","Rimini","Rimini",1],["Rimini Torre Pedrera","Via Della Lama, 2","Rimini","Rimini",0],["Rimini Viserba","Via Curiel, 11","Rimini","Rimini",1],["Riminifiera","Quartiere Fiera 47900","Rimini","Rimini",1],["Santarcangelo di Romagna","Piazzale Esperanto 5","Santarcangelo Di Romagna","Rimini",1],["Catanzaro","V.Le Europa","Catanzaro","Catanzaro",0],["Catanzaro Lido","Piazza Stazione 1","Catanzaro","Catanzaro",2],["Lamezia Terme Centrale","Piazza Lamezia","Lamezia Terme","Catanzaro",3],["Lamezia Terme-Nicastro","Corso G. Nicotera","Lamezia Terme","Catanzaro",1],["Lamezia Terme-Sambiase","Via Eroi Di Sapri","Lamezia Terme","Catanzaro",0],["Cosenza","Piazza Sila Località Vaglio Lise","Cosenza","Cosenza",1],["Diamante-Buonvicino","P.Le Aldo Moro","Diamante","Cosenza",0],["Paola","Piazzale Antonio Bandiera","Paola","Cosenza",3],["Cirò","Largo Stazione","Cirò Marina","Crotone",0],["Crotone","Piazza Stazione 1","Crotone","Crotone",1],["Bagnara","Piazza Stazione 1","Bagnara Calabra","Reggio-Calabria",1],["Locri","Piazza Stazione","Locri","Reggio-Calabria",1],["Reggio di Calabria Aeroporto","Contrada Livari inferiore","Reggio Di Calabria","Reggio-Calabria",0],["Reggio di Calabria Archi","Via Nazionale","Reggio Di Calabria","Reggio-Calabria",0],["Reggio di Calabria Bocale","Via Bruno Mascianà","Reggio Di Calabria","Reggio-Calabria",0],["Reggio di Calabria Catona","Via Nazionale","Reggio Di Calabria","Reggio-Calabria",0],["Reggio di Calabria Centrale","Piazza Giuseppe Garibaldi 1","Reggio Di Calabria","Reggio-Calabria",3],["Reggio di Calabria Gallico","Via Stazione","Reggio Di Calabria","Reggio-Calabria",0],["Reggio di Calabria Lido","Viale Genoese Zerbi","Reggio Di Calabria","Reggio-Calabria",2],["Reggio di Calabria Omeca","Via Gebbione A Mare","Reggio Di Calabria","Reggio-Calabria",0],["Reggio di Calabria Pellaro","Piazza Stazione ,1","Reggio Di Calabria","Reggio-Calabria",1],["Reggio di Calabria Pentimele","non presente","Reggio Di Calabria","Reggio-Calabria",0],["Reggio di Calabria S.Caterina","Piazza Stazione 1","Reggio Di Calabria","Reggio-Calabria",0],["Reggio di Calabria S.Gregorio","Via Delle Industrie N° 1","Reggio Di Calabria","Reggio-Calabria",0],["Villa S.Giovanni","Piazza Stazione 7","Villa San Giovanni","Reggio-Calabria",3],["Villa S.Giovanni-Cannitello","","Villa San Giovanni","Reggio-Calabria",0],["Tropea","Contrada Ferrovia","Tropea","Vibo-Valentia",1],["Vibo Marina","Piazza Stazione 1","Vibo Valentia","Vibo-Valentia",0],["Vibo Valentia-Pizzo","Via Stazione","Vibo Valentia","Vibo-Valentia",1],["Bernalda","Scalo Ferroviario","Bernalda","Matera",0],["Ferrandina-Scalo Matera","Scalo fs","Ferrandina","Matera",0],["Grassano-Garaguso-Tricarico","Via Scalo Fs","Garaguso","Matera",0],["Metaponto","Contrada torre mare","Bernalda","Matera",0],["Pisticci","Via Stazione","Pisticci","Matera",0],["Policoro-Tursi","Via Lido","Policoro","Matera",0],["Salandra-Grottole","Via Scalo Ferroviario","Salandra","Matera",0],["Acquafredda","Via Villa","Maratea","Potenza",0],["Maratea","Via Profiti","Maratea","Potenza",1],["Marina di Maratea","Via Marina S. Teresa","Maratea","Potenza",0],["Avigliano Lucania","Contrada Lavangone","Potenza","Potenza",0],["Potenza Centrale","Viale Guglielmo Marconi","Potenza","Potenza",2],["Potenza Macchia Romana","Contrada Macchia Romana","Potenza","Potenza",1],["Potenza Superiore","Piazzale Istria","Potenza","Potenza",1],["Potenza Università","Via La Marmora","Potenza","Potenza",0],["Tito","Tito Scalo S.P.95","Tito","Potenza",0],["Chieti","Piazza Marconi, 38","Chieti","Chieti",1],["Chieti-Madonna delle Piane","66100 Chieti - CH","Chieti","Chieti",1],["Ortona","Via Della Marina, 100","Ortona","Chieti",1],["Tollo-Canosa Sannita","S.S. 16 Adriatica","Ortona","Chieti",0],["Avezzano","Via Monte velino","Avezzano","L'Aquila",1],["Bazzano","Nucleo Industriale di Bazzano","L'aquila","L'Aquila",0],["L'Aquila","Piazzale Caduti 8 Dicembre '43 N° 15","L'aquila","L'Aquila",1],["L'Aquila Campo di Pile","Nucleo Industriale Pile","L'aquila","L'Aquila",0],["L'Aquila S.Gregorio","S.S. 17 - 67100 L'Aquila - AQ","L'aquila","L'Aquila",0],["L'Aquila Sassa Nucleo Sviluppo","S.S. 17 - 67100 L'Aquila - AQ","L'aquila","L'Aquila",0],["Paganica","S.S. 17 Zona Ind. Di Bazzano Paganica Scalo","L'aquila","L'Aquila",0],["Sassa-Tornimparte","S.S. 17 - Loc. Sassa Scalo","L'aquila","L'Aquila",0],["Roccaraso","","Roccaraso","L'Aquila",0],["Sulmona","Piazza Vittime Civili Di Guerra, 1","Sulmona","L'Aquila",1],["Sulmona S.Rufina","","Sulmona","L'Aquila",0],["Pescara","Via Ferrari, 1","Pescara","Pescara",4],["Pescara Porta Nuova","Piazza Vittorio Colonna, 1","Pescara","Pescara",2],["Pescara S.Marco","Via Po","Pescara","Pescara",1],["Pescara Tribunale","Via Adige","Pescara","Pescara",1],["Alba Adriatica-Nereto-Controguerra","Via Regina Margherita, 11","Alba Adriatica","Teramo",1],["Giulianova","Piazza Roma, 20","Giulianova","Teramo",2],["Roseto degli Abruzzi","Piazza Della Libertà, 21","Roseto Degli Abruzzi","Teramo",1],["Castellalto-Canzano","Via Della Stazione, 7","Teramo","Teramo",0],["Nepezzano-Piano D'Accio","S.P. 18 Località Piano D'Accio","Teramo","Teramo",0],["Teramo","Viale Crispi, 28","Teramo","Teramo",1]];
+const _AEROPORTI = [["Alghero","Alghero","SS",0,"AHO"],["Ancona","Ancona","AN",0,"AOI"],["Bari","Bari","BA",1,"BRI"],["Bergamo Orio al Serio","Orio al Serio","BG",0,"BGY"],["Bologna","Bologna","BO",1,"BLQ"],["Brescia Montichiari","Montichiari","BS",0,"VBS"],["Brindisi","Brindisi","BR",0,"BDS"],["Cagliari","Cagliari","CA",1,"CAG"],["Catania","Catania","CT",1,"CTA"],["Comiso","Comiso","RG",0,"CIY"],["Crotone","Crotone","KR",0,"CRV"],["Cuneo","Cuneo","CN",0,"CUF"],["Firenze","Firenze","FI",1,"FLR"],["Foggia","Foggia","FG",0,"FOG"],["Genova","Genova","GE",0,"GOA"],["Lamezia Terme","Lamezia Terme","CZ",1,"SUF"],["Lampedusa","Lampedusa","AG",0,"LMP"],["Milano Linate","Milano","MI",0,"LIN"],["Milano Malpensa","Milano","MI",2,"MXP"],["Napoli","Napoli","NA",1,"NAP"],["Olbia","Olbia","SS",0,"OLB"],["Palermo","Palermo","PA",1,"PMO"],["Pantelleria","Pantelleria","TP",0,"PNL"],["Parma","Parma","PR",0,"PMF"],["Perugia","Perugia","PG",0,"PEG"],["Pescara","Pescara","PE",0,"PSR"],["Pisa","Pisa","PI",1,"PSA"],["Reggio Calabria","Reggio Calabria","RC",0,"REG"],["Rimini","Rimini","RN",0,"RMI"],["Roma Ciampino","Roma","RM",0,"CIA"],["Roma Fiumicino","Roma","RM",2,"FCO"],["Salerno","Salerno","SA",0,"QSR"],["Taranto Grottaglie","Grottaglie","TA",0,"TAR"],["Torino","Torino","TO",1,"TRN"],["Trapani","Trapani","TP",0,"TPS"],["Treviso","Treviso","TV",0,"TSF"],["Trieste","Trieste","TS",0,"TRS"],["Venezia","Venezia","VE",2,"VCE"],["Verona","Verona","VR",0,"VRN"]];
+// ═════════════════════════════════════════════════════════════════════════════
+// IN VIAGGIO — data layer (stations + airports)
+// ═════════════════════════════════════════════════════════════════════════════
+// Compact tuples: stations = [Stazione, Indirizzo, Comune, Provincia, tier]
+// tier: 0=LOCAL 1=LOCAL PLUS 2=PLUS 3=MAJOR 4=HUB 5=MAIN HUB
+const STATION_TIERS = [
+  { key:"LOCAL",      it:"Local",       en:"Local",       color:"#9C8F7A" },
+  { key:"LOCAL_PLUS", it:"Local Plus",  en:"Local Plus",  color:"#8AA68C" },
+  { key:"PLUS",       it:"Plus",        en:"Plus",        color:"#5B9BD5" },
+  { key:"MAJOR",      it:"Major",       en:"Major",       color:"#D4A843" },
+  { key:"HUB",        it:"Hub",         en:"Hub",         color:"#D17A3D" },
+  { key:"MAIN_HUB",   it:"Main Hub",    en:"Main Hub",    color:"#B5472B" },
+];
+// Compact tuples: airports = [Nome, Città, Provincia, tier, IATA]
+// tier: 0=di interesse nazionale 1=strategico 2=hub internazionale
+const AIRPORT_TIERS = [
+  { key:"NAZIONALE", it:"Nazionale",          en:"National",            color:"#9C8F7A" },
+  { key:"STRATEGICO",it:"Strategico",         en:"Strategic",           color:"#D4A843" },
+  { key:"HUB",       it:"Hub Internazionale", en:"International Hub",   color:"#B5472B" },
+];
+
+function searchStations(list, q, max = 30) {
+  if (!q || q.length < 2) return list.slice(0, max);
+  const ql = q.toLowerCase();
+  const out = [];
+  for (const row of list) {
+    const [name, , comune] = row;
+    if (name.toLowerCase().includes(ql) || comune.toLowerCase().includes(ql)) out.push(row);
+  }
+  return out;
+}
+function searchAirports(list, q, max = 39) {
+  if (!q || q.length < 2) return list.slice(0, max);
+  const ql = q.toLowerCase();
+  const out = [];
+  for (const row of list) {
+    const [name, city, , , iata] = row;
+    if (name.toLowerCase().includes(ql) || city.toLowerCase().includes(ql) || iata.toLowerCase() === ql) out.push(row);
+  }
+  return out;
+}
+// Lookups used by TransportPage ("Trasporti Locali") to decide whether tapping
+// "Train Stations" / "Airport" for a given comune should jump into the richer
+// "In Viaggio" tab (real RFI/ENAC data exists for that comune) or fall back to
+// the generic Google Maps search (no data for that comune in our datasets).
+const _STATION_COMUNI = (() => { const s = new Set(); _STAZIONI.forEach(r => s.add(r[2].toLowerCase())); return s; })();
+const _AIRPORT_CITIES = (() => { const s = new Set(); _AEROPORTI.forEach(r => s.add(r[1].toLowerCase())); return s; })();
+const comuneHasStations = (name) => _STATION_COMUNI.has((name || "").toLowerCase());
+const comuneHasAirport   = (name) => _AIRPORT_CITIES.has((name || "").toLowerCase());
+const IV_TXT = {
+  it: {
+    tabStazioni: "Stazioni", tabAeroporti: "Aeroporti",
+    stazioniSub: (n) => `${n} stazioni RFI`, aeroportiSub: (n) => `${n} scali ENAC`,
+    srchStazioni: "Cerca una stazione o un comune...", srchAeroporti: "Cerca un aeroporto, città o codice IATA...",
+    noResults: "Nessun risultato — prova un'altra ricerca.",
+    resultsCount: (n) => n === 1 ? "1 risultato" : `${n} risultati`,
+    tierCount: (n) => n === 1 ? "1 elemento" : `${n} elementi`,
+    tierEmpty: "Nessun elemento in questa categoria.",
+    credit: "Stazioni: classificazione RFI · Aeroporti: classificazione ENAC · Link su Google Maps",
+  },
+  en: {
+    tabStazioni: "Stations", tabAeroporti: "Airports",
+    stazioniSub: (n) => `${n} RFI stations`, aeroportiSub: (n) => `${n} ENAC airports`,
+    srchStazioni: "Search a station or town...", srchAeroporti: "Search an airport, city or IATA code...",
+    noResults: "No results — try a different search.",
+    resultsCount: (n) => n === 1 ? "1 result" : `${n} results`,
+    tierCount: (n) => n === 1 ? "1 item" : `${n} items`,
+    tierEmpty: "No items in this category.",
+    credit: "Stations: RFI classification · Airports: ENAC classification · Links open Google Maps",
+  },
+};
+// ═════════════════════════════════════════════════════════════════════════════
+// IN VIAGGIO PAGE
+// ═════════════════════════════════════════════════════════════════════════════
+function InViaggioPage({ lang, t, ivFocus, clearIvFocus }) {
+  const TX = IV_TXT[lang];
+  const [section, setSection] = useState("stazioni"); // "stazioni" | "aeroporti"
+  const [q, setQ] = useState("");
+  const [openTiers, setOpenTiers] = useState(() => new Set());
+
+  const mapsQ = (name, addr, comune, prov) => {
+    const parts = [name, addr, comune, prov, "Italia"].filter(Boolean);
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(parts.join(", "))}`;
+  };
+
+  const isStazioni = section === "stazioni";
+  const tiers = isStazioni ? STATION_TIERS : AIRPORT_TIERS;
+  const rawList = isStazioni ? _STAZIONI : _AEROPORTI;
+
+  // Consume an incoming focus request from Trasporti Locali: switch to the right
+  // section, pre-fill the search with the city name, and open every tier that has
+  // a match so the result is visible without extra taps.
+  useEffect(() => {
+    if (!ivFocus) return;
+    setSection(ivFocus.section);
+    setQ(ivFocus.query || "");
+    if (clearIvFocus) clearIvFocus();
+  }, [ivFocus]); // eslint-disable-line
+
+  const grouped = useMemo(() => {
+    const searched = isStazioni ? searchStations(rawList, q, 9999) : searchAirports(rawList, q, 9999);
+    const byTier = tiers.map(() => []);
+    searched.forEach(row => { byTier[row[isStazioni ? 4 : 3]].push(row); });
+    byTier.forEach(arr => arr.sort((a, b) => a[0].localeCompare(b[0])));
+    return byTier;
+  }, [rawList, q, isStazioni, tiers]);
+
+  // While searching, auto-expand every tier that has at least one match so results
+  // are immediately visible without the person having to open sections by hand.
+  useEffect(() => {
+    if (!q || q.length < 2) return;
+    setOpenTiers(prev => {
+      const next = new Set(prev);
+      grouped.forEach((rows, i) => { if (rows.length) next.add(i); });
+      return next;
+    });
+  }, [q, grouped]);
+
+  const toggleTier = (i) => {
+    setOpenTiers(prev => {
+      const next = new Set(prev);
+      next.has(i) ? next.delete(i) : next.add(i);
+      return next;
+    });
+  };
+
+  const totalResults = grouped.reduce((sum, rows) => sum + rows.length, 0);
+
+  const renderRow = (row, i) => {
+    if (isStazioni) {
+      const [name, addr, comune, prov] = row;
+      return (
+        <a key={name + "|" + comune + i} href={mapsQ(name, addr, comune, prov)} target="_blank" rel="noopener noreferrer" style={s.catCard}>
+          <div style={s.catIco}>🚉</div>
+          <div style={{ flex:1 }}>
+            <div style={s.catLabel}>{name}</div>
+            <div style={s.catSub}>{addr ? addr + " · " : ""}{comune}{prov && prov !== comune ? " (" + prov + ")" : ""}</div>
+          </div>
+          <div style={s.catRight}>
+            <span style={{ fontSize:10, color:"#4285F4", fontWeight:700 }}>{t.mapsTag}</span>
+            <span style={s.arr}>›</span>
+          </div>
+        </a>
+      );
+    }
+    const [name, city, prov, , iata] = row;
+    return (
+      <a key={name + i} href={mapsQ(name + " aeroporto", "", city, prov)} target="_blank" rel="noopener noreferrer" style={s.catCard}>
+        <div style={s.catIco}>✈️</div>
+        <div style={{ flex:1 }}>
+          <div style={s.catLabel}>{name} <span style={{ fontSize:11, color:C.gray, fontWeight:500 }}>({iata})</span></div>
+          <div style={s.catSub}>{city}{prov ? " · " + prov : ""}</div>
+        </div>
+        <div style={s.catRight}>
+          <span style={{ fontSize:10, color:"#4285F4", fontWeight:700 }}>{t.mapsTag}</span>
+          <span style={s.arr}>›</span>
+        </div>
+      </a>
+    );
+  };
+
+  return (
+    <div style={{ animation:"ivFade .3s ease both" }}>
+      <div style={{ display:"flex", gap:6, margin:"14px 16px 12px", background:C.border, borderRadius:12, padding:4 }}>
+        <button onClick={() => { setSection("stazioni"); setQ(""); setOpenTiers(new Set()); }} style={{
+          flex:"1 1 0", border:"none", cursor:"pointer", fontFamily:"'DM Sans',sans-serif",
+          background: isStazioni ? C.card : "transparent",
+          color: isStazioni ? C.deep : C.gray, fontWeight: isStazioni ? 700 : 500,
+          fontSize:13, padding:"8px 6px", borderRadius:9,
+          boxShadow: isStazioni ? "0 1px 4px rgba(26,18,8,.12)" : "none" }}>
+          {TX.tabStazioni}<span style={{ display:"block", fontSize:10, color:C.gray, fontWeight:500, marginTop:1 }}>{TX.stazioniSub(_STAZIONI.length)}</span>
+        </button>
+        <button onClick={() => { setSection("aeroporti"); setQ(""); setOpenTiers(new Set()); }} style={{
+          flex:"1 1 0", border:"none", cursor:"pointer", fontFamily:"'DM Sans',sans-serif",
+          background: !isStazioni ? C.card : "transparent",
+          color: !isStazioni ? C.deep : C.gray, fontWeight: !isStazioni ? 700 : 500,
+          fontSize:13, padding:"8px 6px", borderRadius:9,
+          boxShadow: !isStazioni ? "0 1px 4px rgba(26,18,8,.12)" : "none" }}>
+          {TX.tabAeroporti}<span style={{ display:"block", fontSize:10, color:C.gray, fontWeight:500, marginTop:1 }}>{TX.aeroportiSub(_AEROPORTI.length)}</span>
+        </button>
+      </div>
+
+      <div style={{ margin:"0 16px 10px", position:"relative" }}>
+        <input
+          value={q} onChange={e => setQ(e.target.value)}
+          placeholder={isStazioni ? TX.srchStazioni : TX.srchAeroporti}
+          autoComplete="off" spellCheck="false"
+          style={{ width:"100%", boxSizing:"border-box", padding:"11px 14px 11px 38px", borderRadius:12,
+            border:"1.5px solid #D9D0C0", fontSize:14.5, fontFamily:"'DM Sans',sans-serif", color:C.deep, background:C.card }}
+        />
+        <span style={{ position:"absolute", left:13, top:"50%", transform:"translateY(-50%)", fontSize:15, opacity:.55 }}>🔍</span>
+      </div>
+
+      {q.length >= 2 && (
+        <div style={{ margin:"0 16px 10px", fontSize:12, color:C.gray }}>{TX.resultsCount(totalResults)}</div>
+      )}
+
+      <div style={{ display:"flex", flexDirection:"column", gap:10, margin:"0 16px 18px" }}>
+        {totalResults === 0 && q.length >= 2 && (
+          <div style={{ textAlign:"center", padding:"30px 0", color:C.gray, fontSize:13.5 }}>{TX.noResults}</div>
+        )}
+        {tiers.map((tier, i) => {
+          const rows = grouped[i];
+          if (q.length >= 2 && rows.length === 0) return null; // hide empty categories while searching
+          const isOpen = openTiers.has(i);
+          return (
+            <div key={tier.key} style={{ border:"1px solid " + C.border, borderRadius:14, overflow:"hidden", background:C.card }}>
+              <button onClick={() => toggleTier(i)} style={{
+                display:"flex", alignItems:"center", width:"100%", border:"none", background:"transparent", cursor:"pointer",
+                padding:"13px 15px", fontFamily:"'DM Sans',sans-serif", textAlign:"left", gap:11 }}>
+                <span style={{ width:11, height:11, borderRadius:"50%", background:tier.color, flex:"0 0 auto" }} />
+                <span style={{ flex:1 }}>
+                  <span style={{ display:"block", fontSize:14.5, fontWeight:700, color:C.deep, fontFamily:"'Playfair Display',Georgia,serif" }}>{tier[lang]}</span>
+                  <span style={{ display:"block", fontSize:11.5, color:C.gray, marginTop:1 }}>{TX.tierCount(rows.length)}</span>
+                </span>
+                <span style={{ fontSize:13, color:C.gray, transform: isOpen ? "rotate(180deg)" : "none", transition:"transform .2s ease" }}>⌄</span>
+              </button>
+              {isOpen && (
+                <div style={{ padding:"0 12px 12px", display:"flex", flexDirection:"column", gap:7 }}>
+                  {rows.length === 0
+                    ? <div style={{ padding:"6px 4px 4px", fontSize:12.5, color:C.gray }}>{TX.tierEmpty}</div>
+                    : rows.map((row, ri) => renderRow(row, ri))
+                  }
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div style={s.credit}>{TX.credit}</div>
+      <div style={{ height:16 }} />
+    </div>
+  );
+}
+
 // ═════════════════════════════════════════════════════════════════════════════
 // APP
 // ═════════════════════════════════════════════════════════════════════════════
@@ -9915,6 +10178,22 @@ Object.assign(TR.it, {
     mapsTag: "📍 Mappe",
     credit: "Dati frazioni · Meteo by Open-Meteo · Powered by Google",
   },
+});
+
+// ═════════════════════════════════════════════════════════════════════════════
+// IN VIAGGIO — nav/title i18n additions
+// ═════════════════════════════════════════════════════════════════════════════
+Object.assign(TR.en, {
+  navInViaggio: "On the Move",
+  titleInViaggio: ["On the ", "Move"],
+  subInViaggio: "Italy's main stations & airports",
+  iv: { openInViaggio: "🚉 View in On the Move" },
+});
+Object.assign(TR.it, {
+  navInViaggio: "In Viaggio",
+  titleInViaggio: ["In ", "Viaggio"],
+  subInViaggio: "Stazioni e aeroporti principali d'Italia",
+  iv: { openInViaggio: "🚉 Vedi in In Viaggio" },
 });
 
 
@@ -10656,6 +10935,7 @@ const NAV = [
   { id:"curiosities", icon:"💡", key:"navKnow" },
   { id:"tours",       icon:"🧭", key:"navTours" },
   { id:"frazioni",    icon:"🏡", key:"navFrazioni" },
+  { id:"inviaggio",   icon:"🚉", key:"navInViaggio" },
 ];
 
 export default function App() {
@@ -10663,6 +10943,7 @@ export default function App() {
   const [city, setCity] = useState(null);
   const [lang, setLang] = useState("it");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [ivFocus, setIvFocus] = useState(null); // { section, query } — cross-tab handoff into In Viaggio
   const t = TR[lang];
 
   useEffect(() => {
@@ -10675,6 +10956,10 @@ export default function App() {
     setTab(id);
     setTimeout(() => { const el = document.getElementById("scroll-root"); if (el) el.scrollTop = 0; }, 0);
   };
+  const goToInViaggio = (section, query) => {
+    setIvFocus({ section, query });
+    switchTab("inviaggio");
+  };
   const toggleLang = () => setLang(l => l === "it" ? "en" : "it");
 
   const headerInfo = {
@@ -10683,6 +10968,7 @@ export default function App() {
     curiosities: { title: t.titleKnow,    sub: t.subKnow },
     tours:       { title: t.titleTours,   sub: t.subTours },
     frazioni:    { title: t.titleFrazioni, sub: t.subFrazioni },
+    inviaggio:   { title: t.titleInViaggio, sub: t.subInViaggio },
   };
   const { title, sub } = headerInfo[tab] || headerInfo.explore;
 
@@ -10720,10 +11006,11 @@ export default function App() {
       {/* PAGES */}
       <div id="scroll-root" style={s.scroll}>
         <div style={{ display: tab==="explore"     ? "block" : "none" }}><ExplorePage   city={city} setCity={setCity} lang={lang} t={t} /></div>
-        <div style={{ display: tab==="transport"   ? "block" : "none" }}><TransportPage city={city} setCity={setCity} lang={lang} t={t} /></div>
+        <div style={{ display: tab==="transport"   ? "block" : "none" }}><TransportPage city={city} setCity={setCity} lang={lang} t={t} goToInViaggio={goToInViaggio} /></div>
         <div style={{ display: tab==="curiosities" ? "block" : "none" }}><FunFactsPage  city={city} setCity={setCity} lang={lang} t={t} /></div>
         <div style={{ display: tab==="tours"       ? "block" : "none" }}><ToursPage     lang={lang} t={t} setCity={setCity} setTab={switchTab} /></div>
         <div style={{ display: tab==="frazioni"    ? "block" : "none" }}><FrazioniPage  lang={lang} t={t} /></div>
+        <div style={{ display: tab==="inviaggio"   ? "block" : "none" }}><InViaggioPage lang={lang} t={t} ivFocus={ivFocus} clearIvFocus={() => setIvFocus(null)} /></div>
       </div>
 
       {/* SIDE DRAWER */}
