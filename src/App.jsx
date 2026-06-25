@@ -8045,7 +8045,7 @@ const DINING = [
 // for the "On-Demand Services" section of Trasporti Locali.)
 const SHOWS = [
   { icon:"🎬", mode:"maps",   q: c => `cinema ${c} Italia`,                                     it:{label:"Cinema",                  sub:"Sale cinematografiche e programmazione film"},      en:{label:"Cinema",                  sub:"Cinemas & current film screenings"} },
-  { icon:"🎭", mode:"maps",   q: c => `teatro ${c} Italia`,                                      it:{label:"Teatri",                  sub:"Teatri, prosa, opera e danza"},                      en:{label:"Theatres",                sub:"Theatres, plays, opera & dance"} },
+  { icon:"🎭", mode:"maps",   q: c => `"teatri" ${c} Italia`,                                    it:{label:"Teatri",                  sub:"Teatri, prosa, opera e danza"},                      en:{label:"Theatres",                sub:"Theatres, plays, opera & dance"} },
   { icon:"🎉", mode:"search", q: c => `eventi in programma ${c} Italia`,                          it:{label:"Eventi",                  sub:"Eventi e manifestazioni in programma"},              en:{label:"Events",                  sub:"Upcoming events & happenings"} },
   { icon:"🎵", mode:"search", q: c => `concerti ${c} Italia`,                                     it:{label:"Concerti",                sub:"Concerti dal vivo e musica"},                        en:{label:"Concerts",                sub:"Live concerts & gigs"} },
   { icon:"🚗", mode:"maps",   q: c => `cinema drive-in ${c} Italia`,                              it:{label:"Drive In",                sub:"Cinema all'aperto e drive-in"},                      en:{label:"Drive-In",                sub:"Outdoor & drive-in cinema"} },
