@@ -8038,6 +8038,24 @@ const DINING = [
   { icon:"🥗", q: c => `ristorante vegano vegetariano ${c} Italia`,       it:{label:"Vegano e Vegetariano",  sub:"Cucina vegana, vegetariana e plant-based"},    en:{label:"Vegan & Vegetarian",  sub:"Vegan, vegetarian & plant-based"} },
 ];
 
+// ── 10 SHOWS & EVENTS CATEGORIES ───────────────────────────────────────────────
+// mode:"maps" → opens Google Maps search · mode:"search" → opens Google Search
+// (events/concerts/festivals are programmi & locandine, not "places", so they
+// route to a regular Google search rather than Maps — same pattern already used
+// for the "On-Demand Services" section of Trasporti Locali.)
+const SHOWS = [
+  { icon:"🎬", mode:"maps",   q: c => `cinema ${c} Italia`,                                     it:{label:"Cinema",                  sub:"Sale cinematografiche e programmazione film"},      en:{label:"Cinema",                  sub:"Cinemas & current film screenings"} },
+  { icon:"🎭", mode:"maps",   q: c => `teatro ${c} Italia`,                                      it:{label:"Teatri",                  sub:"Teatri, prosa, opera e danza"},                      en:{label:"Theatres",                sub:"Theatres, plays, opera & dance"} },
+  { icon:"🎉", mode:"search", q: c => `eventi in programma ${c} Italia`,                          it:{label:"Eventi",                  sub:"Eventi e manifestazioni in programma"},              en:{label:"Events",                  sub:"Upcoming events & happenings"} },
+  { icon:"🎵", mode:"search", q: c => `concerti ${c} Italia`,                                     it:{label:"Concerti",                sub:"Concerti dal vivo e musica"},                        en:{label:"Concerts",                sub:"Live concerts & gigs"} },
+  { icon:"🚗", mode:"maps",   q: c => `cinema drive-in ${c} Italia`,                              it:{label:"Drive In",                sub:"Cinema all'aperto e drive-in"},                      en:{label:"Drive-In",                sub:"Outdoor & drive-in cinema"} },
+  { icon:"🥘", mode:"search", q: c => `sagre ${c} Italia`,                                        it:{label:"Sagre",                   sub:"Sagre, fiere paesane e prodotti tipici"},            en:{label:"Local Food Festivals",    sub:"Food fairs & village festivals"} },
+  { icon:"🎨", mode:"search", q: c => `eventi culturali mostre ${c} Italia`,                       it:{label:"Eventi Culturali",        sub:"Mostre, rassegne e iniziative culturali"},           en:{label:"Cultural Events",         sub:"Exhibitions & cultural happenings"} },
+  { icon:"🎪", mode:"search", q: c => `festival ${c} Italia`,                                     it:{label:"Festival",                sub:"Festival musicali, cinema e cultura"},                en:{label:"Festivals",               sub:"Music, film & arts festivals"} },
+  { icon:"📚", mode:"search", q: c => `presentazione libro ${c} Italia`,                          it:{label:"Presentazioni Libri",     sub:"Incontri con autori e presentazioni"},               en:{label:"Book Launches",           sub:"Author talks & book launches"} },
+  { icon:"🎆", mode:"search", q: c => `spettacolo pirotecnico fuochi d'artificio ${c} Italia`,    it:{label:"Spettacoli Pirotecnici",  sub:"Fuochi d'artificio e spettacoli pirotecnici"},       en:{label:"Fireworks Shows",         sub:"Fireworks displays"} },
+];
+
 // ── STYLES ────────────────────────────────────────────────────────────────────
 const s = {
   app:    { fontFamily:"'DM Sans','Segoe UI',sans-serif", background:C.cream, minHeight:"100vh", maxWidth:430, margin:"0 auto", display:"flex", flexDirection:"column" },
@@ -9430,6 +9448,69 @@ function TransportPage({ city, setCity, lang, t, goToInViaggio }) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+// SHOWS & EVENTS PAGE ("Spettacoli ed Eventi")
+// ═════════════════════════════════════════════════════════════════════════════
+function ShowsPage({ city, setCity, lang, t }) {
+  const srch = useSearch(CITIES);
+  useEffect(() => { if (city) srch.setQ(city.n); }, [city?.n]); // eslint-disable-line
+  const onPick = useCallback(c => setCity(c), [setCity]);
+
+  const mapsQ   = q => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+  const searchQ = q => `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+  const TS = t.shows;
+
+  return (<>
+    <div style={s.srchSect}>
+      <div style={s.srchLbl}>{TS.srchLbl}</div>
+      <Dropdown srch={srch} onPick={onPick} placeholder={TS.placeholder} noResults={t.noResults} />
+      {city && <div style={s.srchHint}>{TS.showing.replace("{c}", city.n)}</div>}
+    </div>
+
+    {!city ? (
+      <div style={s.empty}>
+        <div style={s.emptyIco}>🎭</div>
+        <div style={s.emptyTtl}>{TS.emptyTtl}</div>
+        <div style={s.emptySub}>{TS.emptySub}</div>
+      </div>
+    ) : (<>
+      {(() => {
+        const lt = getLocalTime();
+        const phase = getDayPhase(lt.h);
+        const skyBg = getHeroBg(getBg(city.r), phase.phase);
+        return (
+          <div style={s.hero}>
+            <div style={{ position:"absolute", inset:0, background:skyBg, opacity:.72 }} />
+            <div style={{ ...s.heroBg, background:getBg(city.r) }} />
+            <div style={s.heroInfo}>
+              <div style={s.heroName}>{city.n}</div>
+              <div style={s.heroReg}>📍 {city.r}</div>
+            </div>
+            <div style={{ position:"absolute", top:14, right:14, display:"flex", flexDirection:"column", alignItems:"flex-end", gap:2 }}>
+              <div style={{ fontSize:28, lineHeight:1 }}>{phase.icon}</div>
+              <div style={{ fontSize:20, fontWeight:700, color:"#fff", fontFamily:"'DM Sans',sans-serif", lineHeight:1, textShadow:"0 1px 6px rgba(0,0,0,.5)" }}>{lt.timeStr}</div>
+              <div style={{ fontSize:10, color:"rgba(255,255,255,.7)", letterSpacing:1, textTransform:"uppercase" }}>{phase.label} · Roma</div>
+            </div>
+          </div>
+        );
+      })()}
+
+      <div style={s.secTtl}>{TS.ttl}</div>
+      <div style={s.list}>
+        {SHOWS.map((item, i) => (
+          <CatCard key={i} item={{ icon:item.icon, label:item[lang].label, sub:item[lang].sub }}
+            href={item.mode === "maps" ? mapsQ(item.q(city.n)) : searchQ(item.q(city.n))}
+            tagColor={item.mode === "maps" ? "#4285F4" : C.terra}
+            tagLabel={item.mode === "maps" ? t.mapsTag : t.searchTag} />
+        ))}
+      </div>
+
+      <div style={s.credit}>{TS.credit}</div>
+      <div style={{ height:16 }} />
+    </>)}
+  </>);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 // FUN FACTS PAGE
 // ═════════════════════════════════════════════════════════════════════════════
 function FunFactsPage({ city, setCity, lang, t }) {
@@ -10112,7 +10193,7 @@ Object.assign(TR.it, {
 // FRAZIONI — i18n additions
 // ═════════════════════════════════════════════════════════════════════════════
 Object.assign(TR.en, {
-  navFrazioni: "Hamlets",
+  navFrazioni: "Explore Hamlets",
   titleFrazioni: ["Explore ", "Hamlets"],
   subFrazioni: "Italy's smaller villages & localities",
   frz: {
@@ -10146,7 +10227,7 @@ Object.assign(TR.en, {
   },
 });
 Object.assign(TR.it, {
-  navFrazioni: "Frazioni",
+  navFrazioni: "Esplora Frazioni",
   titleFrazioni: ["Esplora ", "Frazioni"],
   subFrazioni: "Le piccole frazioni e località d'Italia",
   frz: {
@@ -10194,6 +10275,38 @@ Object.assign(TR.it, {
   titleInViaggio: ["In ", "Viaggio"],
   subInViaggio: "Stazioni e aeroporti principali d'Italia",
   iv: { openInViaggio: "🚉 Vedi in In Viaggio" },
+});
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SPETTACOLI ED EVENTI — i18n additions
+// ═════════════════════════════════════════════════════════════════════════════
+Object.assign(TR.en, {
+  navShows: "Shows & Events",
+  titleShows: ["Shows & ", "Events"],
+  subShows: "Cinema, theatres, concerts & local happenings",
+  shows: {
+    srchLbl: "Search a city for shows & events",
+    placeholder: "Type a city... (e.g. Roma, Bologna)",
+    showing: "Showing shows & events for {c}",
+    emptyTtl: "Shows & Events",
+    emptySub: "Search any city above to find cinemas, theatres, concerts & local happenings.",
+    ttl: "🎭 Shows & Events — tap a category",
+    credit: "Maps categories open Google Maps · others open Google Search",
+  },
+});
+Object.assign(TR.it, {
+  navShows: "Spettacoli ed Eventi",
+  titleShows: ["Spettacoli ", "ed Eventi"],
+  subShows: "Cinema, teatri, concerti e manifestazioni locali",
+  shows: {
+    srchLbl: "Cerca una città per spettacoli ed eventi",
+    placeholder: "Cerca una città... (es. Roma, Bologna)",
+    showing: "Spettacoli ed eventi per {c}",
+    emptyTtl: "Spettacoli ed Eventi",
+    emptySub: "Cerca una città qui sopra per trovare cinema, teatri, concerti e manifestazioni locali.",
+    ttl: "🎭 Spettacoli ed Eventi — tocca una categoria",
+    credit: "Le categorie Maps aprono Google Maps · le altre aprono Google Search",
+  },
 });
 
 
@@ -10933,9 +11046,10 @@ const NAV = [
   { id:"explore",     icon:"🗺️", key:"navExplore" },
   { id:"transport",   icon:"🚌", key:"navTransport" },
   { id:"curiosities", icon:"💡", key:"navKnow" },
+  { id:"shows",       icon:"🎭", key:"navShows" },
   { id:"tours",       icon:"🧭", key:"navTours" },
-  { id:"frazioni",    icon:"🏡", key:"navFrazioni" },
   { id:"inviaggio",   icon:"🚉", key:"navInViaggio" },
+  { id:"frazioni",    icon:"🏡", key:"navFrazioni" },
 ];
 
 export default function App() {
@@ -10966,6 +11080,7 @@ export default function App() {
     explore:     { title: t.titleExplore, sub: t.subExplore },
     transport:   { title: t.titleAround,  sub: t.subTransport },
     curiosities: { title: t.titleKnow,    sub: t.subKnow },
+    shows:       { title: t.titleShows,   sub: t.subShows },
     tours:       { title: t.titleTours,   sub: t.subTours },
     frazioni:    { title: t.titleFrazioni, sub: t.subFrazioni },
     inviaggio:   { title: t.titleInViaggio, sub: t.subInViaggio },
@@ -11008,9 +11123,10 @@ export default function App() {
         <div style={{ display: tab==="explore"     ? "block" : "none" }}><ExplorePage   city={city} setCity={setCity} lang={lang} t={t} /></div>
         <div style={{ display: tab==="transport"   ? "block" : "none" }}><TransportPage city={city} setCity={setCity} lang={lang} t={t} goToInViaggio={goToInViaggio} /></div>
         <div style={{ display: tab==="curiosities" ? "block" : "none" }}><FunFactsPage  city={city} setCity={setCity} lang={lang} t={t} /></div>
+        <div style={{ display: tab==="shows"       ? "block" : "none" }}><ShowsPage     city={city} setCity={setCity} lang={lang} t={t} /></div>
         <div style={{ display: tab==="tours"       ? "block" : "none" }}><ToursPage     lang={lang} t={t} setCity={setCity} setTab={switchTab} /></div>
-        <div style={{ display: tab==="frazioni"    ? "block" : "none" }}><FrazioniPage  lang={lang} t={t} /></div>
         <div style={{ display: tab==="inviaggio"   ? "block" : "none" }}><InViaggioPage lang={lang} t={t} ivFocus={ivFocus} clearIvFocus={() => setIvFocus(null)} /></div>
+        <div style={{ display: tab==="frazioni"    ? "block" : "none" }}><FrazioniPage  lang={lang} t={t} /></div>
       </div>
 
       {/* SIDE DRAWER */}
