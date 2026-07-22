@@ -9351,7 +9351,9 @@ function TransportPage({ city, setCity, lang, t, goToInViaggio }) {
   useEffect(() => { if (city) srch.setQ(city.n); }, [city?.n]); // eslint-disable-line
   const onPick = useCallback(c => setCity(c), [setCity]);
 
-  const mapsQ  = q => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+  const mapsQ  = q => city?.la && city?.lo
+    ? `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${city.la},${city.lo},14z`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
   const searchQ = q => `https://www.google.com/search?q=${encodeURIComponent(q)}`;
   const TT = t.transport;
 
@@ -9448,6 +9450,84 @@ function TransportPage({ city, setCity, lang, t, goToInViaggio }) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+// PET FRIENDLY PAGE
+// ═════════════════════════════════════════════════════════════════════════════
+function PetPage({ city, setCity, lang, t }) {
+  const srch = useSearch(CITIES);
+  useEffect(() => { if (city) srch.setQ(city.n); }, [city?.n]); // eslint-disable-line
+  const onPick = useCallback(c => setCity(c), [setCity]);
+
+  // Se la città ha coordinate, le usiamo come centro mappa (risolve isole e zone costiere)
+  const mapsQ   = q => city?.la && city?.lo
+    ? `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${city.la},${city.lo},14z`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+  const searchQ = q => `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+  const TP = t.pet;
+
+  // Curiosità del giorno: ruota in base al giorno dell'anno (stessa per tutti gli utenti)
+  const todayFact = useMemo(() => {
+    const start = new Date(new Date().getFullYear(), 0, 0);
+    const dayOfYear = Math.floor((Date.now() - start) / 86400000);
+    return PET_FACTS[dayOfYear % PET_FACTS.length];
+  }, []);
+
+  return (<>
+    <div style={s.srchSect}>
+      <div style={s.srchLbl}>{TP.srchLbl}</div>
+      <Dropdown srch={srch} onPick={onPick} placeholder={TP.placeholder} noResults={t.noResults} />
+      {city && <div style={s.srchHint}>{TP.showing.replace("{c}", city.n)}</div>}
+    </div>
+
+    {!city ? (
+      <div style={s.empty}>
+        <div style={s.emptyIco}>🐾</div>
+        <div style={s.emptyTtl}>{TP.emptyTtl}</div>
+        <div style={s.emptySub}>{TP.emptySub}</div>
+      </div>
+    ) : (<>
+      {(() => {
+        const lt = getLocalTime();
+        const phase = getDayPhase(lt.h);
+        const skyBg = getHeroBg(getBg(city.r), phase.phase);
+        return (
+          <div style={s.hero}>
+            <div style={{ position:"absolute", inset:0, background:skyBg, opacity:.72 }} />
+            <div style={{ ...s.heroBg, background:getBg(city.r) }} />
+            <div style={s.heroInfo}>
+              <div style={s.heroName}>{city.n}</div>
+              <div style={s.heroReg}>📍 {city.r}</div>
+            </div>
+            <div style={{ position:"absolute", top:14, right:14, display:"flex", flexDirection:"column", alignItems:"flex-end", gap:2 }}>
+              <div style={{ fontSize:28, lineHeight:1 }}>{phase.icon}</div>
+              <div style={{ fontSize:20, fontWeight:700, color:"#fff", fontFamily:"'DM Sans',sans-serif", lineHeight:1, textShadow:"0 1px 6px rgba(0,0,0,.5)" }}>{lt.timeStr}</div>
+              <div style={{ fontSize:10, color:"rgba(255,255,255,.7)", letterSpacing:1, textTransform:"uppercase" }}>{phase.label} · Roma</div>
+            </div>
+          </div>
+        );
+      })()}
+
+      <div style={{ margin:"12px 16px 0", background:"rgba(76,175,80,0.12)", border:"0.5px solid rgba(76,175,80,0.35)", borderRadius:12, padding:"10px 14px" }}>
+        <div style={{ fontSize:12, color:"#2E7D32", fontWeight:600, marginBottom:4 }}>{TP.factTtl}</div>
+        <div style={{ fontSize:13, color:"var(--text-primary)", lineHeight:1.55 }}>{todayFact[lang]}</div>
+      </div>
+
+      <div style={s.secTtl}>{TP.ttl}</div>
+      <div style={s.list}>
+        {PET_CATS.map((item, i) => (
+          <CatCard key={i} item={{ icon:item.icon, label:item[lang].label, sub:item[lang].sub }}
+            href={item.mode === "maps" ? mapsQ(item.q(city.n)) : searchQ(item.q(city.n))}
+            tagColor={item.mode === "maps" ? "#4285F4" : C.terra}
+            tagLabel={item.mode === "maps" ? t.mapsTag : t.searchTag} />
+        ))}
+      </div>
+
+      <div style={s.credit}>{TP.credit}</div>
+      <div style={{ height:16 }} />
+    </>)}
+  </>);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 // SHOWS & EVENTS PAGE ("Spettacoli ed Eventi")
 // ═════════════════════════════════════════════════════════════════════════════
 function ShowsPage({ city, setCity, lang, t }) {
@@ -9455,7 +9535,9 @@ function ShowsPage({ city, setCity, lang, t }) {
   useEffect(() => { if (city) srch.setQ(city.n); }, [city?.n]); // eslint-disable-line
   const onPick = useCallback(c => setCity(c), [setCity]);
 
-  const mapsQ   = q => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+  const mapsQ   = q => city?.la && city?.lo
+    ? `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${city.la},${city.lo},14z`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
   const searchQ = q => `https://www.google.com/search?q=${encodeURIComponent(q)}`;
   const TS = t.shows;
 
@@ -10310,6 +10392,426 @@ Object.assign(TR.it, {
 });
 
 
+// =============================================================================
+// PET FRIENDLY — categorie e curiosità giornaliere
+// =============================================================================
+const PET_CATS = [
+  { icon:"🏖️", mode:"search", q: c => `spiagge dove sono ammessi i cani ${c}`,                              it:{label:"Spiagge Pet Friendly",       sub:"Spiagge e aree balneari dove i cani sono ammessi"},        en:{label:"Pet-Friendly Beaches",      sub:"Beaches & swimming areas welcoming dogs"} },
+  { icon:"🍽️", mode:"search", q: c => `ristoranti pet friendly cani ammessi ${c} Italia`,                    it:{label:"Ristoranti Pet Friendly",    sub:"Dove mangiare con il tuo animale"},                       en:{label:"Pet-Friendly Restaurants",  sub:"Places to eat with your pet"} },
+  { icon:"🌳", mode:"maps",   q: c => `"area cani" ${c}`,                                                    it:{label:"Parchi e Aree Cani",         sub:"Parchi e aree sgambamento libere"},                       en:{label:"Dog Parks & Green Areas",   sub:"Parks and off-lead areas for dogs"} },
+  { icon:"🏨", mode:"search", q: c => `hotel pet friendly cani ammessi ${c} Italia`,                         it:{label:"Hotel Pet Friendly",         sub:"Strutture ricettive che accettano animali"},               en:{label:"Pet-Friendly Hotels",       sub:"Accommodation that welcomes pets"} },
+  { icon:"🛒", mode:"maps",   q: c => `negozio animali ${c}`,                                                it:{label:"Negozi Animali",             sub:"Pet shop e negozi specializzati"},                        en:{label:"Pet Shops",                 sub:"Pet shops & specialist stores"} },
+  { icon:"🏥", mode:"maps",   q: c => `veterinario ${c}`,                                                    it:{label:"Veterinari",                 sub:"Cliniche veterinarie e ambulatori"},                      en:{label:"Vets & Animal Clinics",     sub:"Veterinary clinics & practices"} },
+  { icon:"☕", mode:"search", q: c => `bar ristoranti che accettano cani ${c} Italia`,                       it:{label:"Bar e Caffè Pet Friendly",   sub:"Locali che accolgono gli animali"},                       en:{label:"Pet-Friendly Cafés & Bars", sub:"Cafés & bars that welcome animals"} },
+  { icon:"🚶", mode:"search", q: c => `passeggiate sentieri cani ammessi ${c}`,                              it:{label:"Sentieri e Passeggiate",     sub:"Percorsi e passeggiate adatte ai cani"},                  en:{label:"Dog-Friendly Walks",        sub:"Trails & walks suitable for dogs"} },
+  { icon:"💇", mode:"maps",   q: c => `"toelettatura cani" ${c}`,                                           it:{label:"Toelettatura",               sub:"Groomer e centri di toelettatura per animali"},            en:{label:"Pet Grooming",              sub:"Dog groomers & pet grooming centres"} },
+  { icon:"🎡", mode:"search", q: c => `attività outdoor pet friendly cani ammessi ${c}`,                     it:{label:"Attività all'Aperto",        sub:"Escursioni e attività dove gli animali sono benvenuti"},  en:{label:"Outdoor Activities",        sub:"Excursions & activities where pets are welcome"} },
+];
+
+// 365 curiosità sugli animali — ruotano in base al giorno dell'anno
+const PET_FACTS = [
+  { it: "I cani possono riconoscere circa 250 parole e gesti, con un'intelligenza simile a quella di un bambino di due anni.", en: "Dogs can recognise around 250 words and gestures, with an intelligence similar to that of a two-year-old child." },
+  { it: "I gatti trascorrono fino al 70% della loro vita dormendo. Un gatto di 9 anni è stato sveglio per soli 3 anni.", en: "Cats spend up to 70% of their lives sleeping. A 9-year-old cat has only been awake for 3 years." },
+  { it: "Il naso di un cane è unico come le impronte digitali di un essere umano: nessun cane ha lo stesso schema nasale.", en: "A dog's nose print is unique, just like human fingerprints — no two dogs share the same nose pattern." },
+  { it: "I gatti non percepiscono il sapore dolce: mancano del recettore gustativo responsabile di questa sensazione.", en: "Cats cannot taste sweetness — they lack the taste receptor responsible for detecting sweet flavours." },
+  { it: "I cani sudano principalmente attraverso le zampe, non attraverso la pelle come gli esseri umani.", en: "Dogs sweat mainly through their paws, not through their skin like humans do." },
+  { it: "Un gatto adulto miagola quasi esclusivamente per comunicare con gli esseri umani, non con altri gatti.", en: "Adult cats meow almost exclusively to communicate with humans, not with other cats." },
+  { it: "I delfini dormono con un occhio aperto, tenendo attiva metà del cervello per continuare a respirare.", en: "Dolphins sleep with one eye open, keeping half their brain active to continue breathing." },
+  { it: "I polpi hanno tre cuori e il loro sangue è di colore blu, ricco di rame invece di ferro.", en: "Octopuses have three hearts and blue blood, rich in copper instead of iron." },
+  { it: "I cani hanno un senso dell'olfatto 10.000-100.000 volte più potente di quello umano.", en: "Dogs have a sense of smell 10,000 to 100,000 times more powerful than humans." },
+  { it: "I gatti hanno 32 muscoli nell'orecchio e possono ruotarlo di 180 gradi per individuare i suoni.", en: "Cats have 32 muscles in each ear and can rotate them 180 degrees to locate sounds." },
+  { it: "I conigli non vomitano mai: il loro apparato digerente è progettato in modo da rendere impossibile questo riflesso.", en: "Rabbits can never vomit — their digestive system is designed to make this reflex impossible." },
+  { it: "I gatti hanno ghiandole odorose sulle guance, sulla fronte e sulle zampe: quando ti strofinano, ti stanno marcando come 'loro'.", en: "Cats have scent glands on their cheeks, forehead and paws — when they rub against you, they are marking you as 'theirs'." },
+  { it: "I pappagalli ara possono vivere fino a 80 anni, superando spesso l'aspettativa di vita dei loro proprietari.", en: "Macaw parrots can live up to 80 years, often outliving their owners." },
+  { it: "I cani possono percepire le variazioni di campo magnetico terrestre e usano questa capacità per orientarsi.", en: "Dogs can sense variations in Earth's magnetic field and use this ability to navigate." },
+  { it: "I gatti bevono poca acqua perché i loro antenati selvatici ottenevano i liquidi dalla preda cacciata.", en: "Cats drink little water because their wild ancestors obtained liquids from the prey they hunted." },
+  { it: "I criceti possono immagazzinare nelle loro guance fino al doppio del proprio peso corporeo in cibo.", en: "Hamsters can store up to twice their body weight in food in their cheek pouches." },
+  { it: "I cani interpretano il linguaggio umano con entrambi gli emisferi cerebrali, proprio come facciamo noi.", en: "Dogs process human language using both cerebral hemispheres, just as we do." },
+  { it: "Le api ricordano i volti umani meglio di quanto si pensasse, grazie a un meccanismo simile a quello del nostro cervello.", en: "Bees remember human faces better than previously thought, thanks to a mechanism similar to our own brains." },
+  { it: "I gatti possono saltare fino a sei volte la loro altezza in un solo balzo.", en: "Cats can jump up to six times their own height in a single leap." },
+  { it: "I cani hanno un muscolo speciale che permette loro di alzare il sopracciglio interno, rendendo il loro sguardo più umano.", en: "Dogs have a special muscle that allows them to raise their inner eyebrow, making their gaze look more human." },
+  { it: "I polpi sono così intelligenti da aprire vasetti di vetro, risolvere labirinti e riconoscere i volti dei loro custodi.", en: "Octopuses are so intelligent they can open glass jars, solve mazes and recognise the faces of their keepers." },
+  { it: "I gatti hanno 244 ossa, 24 in più degli esseri umani, che permettono la loro straordinaria flessibilità.", en: "Cats have 244 bones — 24 more than humans — which allows their extraordinary flexibility." },
+  { it: "I cani possono rilevare alcuni tipi di cancro annusando il respiro o le urine del paziente con grande precisione.", en: "Dogs can detect certain types of cancer by sniffing a patient's breath or urine with remarkable accuracy." },
+  { it: "I gatti non vedono direttamente sotto il loro naso: c'è una zona cieca proprio davanti alla bocca.", en: "Cats cannot see directly below their nose — there is a blind spot right in front of their mouth." },
+  { it: "I cani capiscono il tono della voce umana: rispondono diversamente a voce allegra, arrabbiata o triste.", en: "Dogs understand the tone of the human voice — they respond differently to a cheerful, angry or sad tone." },
+  { it: "I gatti hanno una membrana nittitante, il 'terzo occhio', visibile nell'angolo interno dell'occhio.", en: "Cats have a nictitating membrane — a 'third eyelid' — visible in the inner corner of the eye." },
+  { it: "I cavalli possono dormire sia in piedi che sdraiati, alternando i due metodi per riposare.", en: "Horses can sleep both standing up and lying down, alternating between the two methods to rest." },
+  { it: "I pinguini si dichiarano il proprio amore regalando ciottoli: il maschio cerca il sasso più bello per la femmina.", en: "Penguins declare their love by gifting pebbles — the male searches for the finest stone to give the female." },
+  { it: "I gatti ronronano a una frequenza tra 25 e 150 Hz, che può favorire la guarigione delle ossa e dei tessuti.", en: "Cats purr at a frequency between 25 and 150 Hz, which may promote healing of bones and tissues." },
+  { it: "I cani possono sentire suoni a frequenze comprese tra 40 e 65.000 Hz, contro i 20-20.000 Hz degli umani.", en: "Dogs can hear sounds between 40 and 65,000 Hz, compared to the 20–20,000 Hz range of humans." },
+  { it: "Le lontre di mare si tengono per la zampa mentre dormono, per non separarsi durante il sonno in acqua.", en: "Sea otters hold paws while they sleep so they do not drift apart during their rest in the water." },
+  { it: "I gatti domestici condividono il 95,6% del DNA con le tigri e molti dei loro comportamenti sono identici.", en: "Domestic cats share 95.6% of their DNA with tigers, and many of their behaviours are identical." },
+  { it: "I cani annusano il posteriore degli altri per raccogliere informazioni su sesso, salute, umore e dieta.", en: "Dogs sniff each other's hindquarters to gather information about sex, health, mood and diet." },
+  { it: "I ricci sono immuni al veleno di molti serpenti grazie a una proteina speciale nel loro sangue.", en: "Hedgehogs are immune to the venom of many snakes thanks to a special protein in their blood." },
+  { it: "I gatti hanno una memoria a lungo termine sorprendente: possono ricordare persone dopo anni di assenza.", en: "Cats have a surprisingly long-term memory and can remember people after years of absence." },
+  { it: "I cani hanno un 'sesto senso' per i terremoti: percepiscono le vibrazioni del suolo molto prima degli strumenti.", en: "Dogs have a 'sixth sense' for earthquakes — they detect ground vibrations long before instruments do." },
+  { it: "Le vacche hanno migliori amiche: si stressano se separate dalla loro compagna preferita.", en: "Cows have best friends — they become stressed when separated from their favourite companion." },
+  { it: "I gatti bevono usando la lingua come cucchiaio: la piegano all'indietro e la estraggono rapidamente.", en: "Cats drink by using their tongue as a ladle — they curl it backward and withdraw it rapidly." },
+  { it: "I cani possono imparare il nome di oltre 1.000 oggetti diversi: il record appartiene a un Border Collie.", en: "Dogs can learn the names of over 1,000 different objects — the record belongs to a Border Collie." },
+  { it: "I gatti hanno una duplice risposta al catnip: alcuni ne sono attratti, altri del tutto indifferenti, per ragioni genetiche.", en: "Cats have a dual response to catnip — some are attracted, others completely indifferent, for genetic reasons." },
+  { it: "I cani capiscono quando il loro proprietario sta per tornare a casa, anche a chilometri di distanza.", en: "Dogs sense when their owner is about to return home, even from miles away." },
+  { it: "I corvidi ricordano il volto degli esseri umani che li hanno disturbati e allertano altri corvi.", en: "Corvids remember the faces of humans who have disturbed them and alert other crows." },
+  { it: "I gatti sbadigliano non per noia ma per regolare la temperatura del cervello o comunicare fiducia.", en: "Cats yawn not out of boredom but to regulate brain temperature or communicate trust." },
+  { it: "I cani hanno il senso del tempo: percepiscono quanto sei rimasto fuori casa e reagiscono di conseguenza.", en: "Dogs have a sense of time — they perceive how long you have been away and react accordingly." },
+  { it: "I piovre possono cambiare colore in meno di un secondo nonostante siano daltoniche.", en: "Octopuses can change colour in under a second despite being colour-blind." },
+  { it: "I gatti usano la coda come strumento di equilibrio durante le corse ad alta velocità.", en: "Cats use their tail as a balancing tool during high-speed running." },
+  { it: "I cani annusano l'aria in entrata e quella in uscita separatamente, rendendo il loro olfatto straordinariamente preciso.", en: "Dogs sniff incoming and outgoing air separately, making their sense of smell extraordinarily precise." },
+  { it: "Le lumache possono dormire fino a tre anni consecutivi in risposta a condizioni climatiche avverse.", en: "Snails can sleep for up to three consecutive years in response to harsh weather conditions." },
+  { it: "I gatti nascono con gli occhi blu: il colore definitivo si sviluppa entro le prime settimane di vita.", en: "Kittens are born with blue eyes — their permanent colour develops within the first few weeks of life." },
+  { it: "I cani interpretano il sorriso umano come un'espressione amichevole, mentre i lupi lo percepiscono come una minaccia.", en: "Dogs interpret the human smile as a friendly expression, whereas wolves perceive it as a threat." },
+  { it: "Gli elefanti si riconoscono allo specchio, segno di autoconsapevolezza, una capacità rara nel regno animale.", en: "Elephants recognise themselves in mirrors — a sign of self-awareness, a rare ability in the animal kingdom." },
+  { it: "I gatti comunicano la fiducia ammicando lentamente: ricambiare questo gesto crea un legame con loro.", en: "Cats communicate trust by slow blinking — returning this gesture helps build a bond with them." },
+  { it: "I cani annusano per scoprire non solo cosa ha mangiato un altro cane, ma anche il suo livello di stress.", en: "Dogs sniff to discover not only what another dog has eaten, but also its stress levels." },
+  { it: "Le rane possono sopravvivere a temperature sottozero solidificando parzialmente il loro corpo.", en: "Frogs can survive sub-zero temperatures by partially freezing their bodies." },
+  { it: "I gatti hanno bisogno di taurina nella dieta: a differenza dei cani, non riescono a sintetizzarla da soli.", en: "Cats need taurine in their diet — unlike dogs, they cannot synthesise it themselves." },
+  { it: "I cani usano la pupilla per esprimere emozioni: si dilata con la paura e si restringe con l'aggressività.", en: "Dogs use their pupils to express emotions — they dilate with fear and contract with aggression." },
+  { it: "I topi ridono quando vengono solleticati, ma a una frequenza troppo alta per essere udita dall'orecchio umano.", en: "Rats laugh when tickled, but at a frequency too high to be heard by the human ear." },
+  { it: "I gatti hanno un ritmo cardiaco doppio rispetto agli esseri umani: tra 140 e 220 battiti al minuto.", en: "Cats have a heart rate roughly double that of humans — between 140 and 220 beats per minute." },
+  { it: "I cani possono percepire l'ipoglicemia nelle persone diabetiche annusando variazioni chimiche nel respiro.", en: "Dogs can detect hypoglycaemia in diabetic people by sniffing chemical changes in their breath." },
+  { it: "Le capre hanno pupille rettangolari che permettono loro un campo visivo quasi a 360 gradi.", en: "Goats have rectangular pupils that give them an almost 360-degree field of vision." },
+  { it: "I gatti preferiscono bere acqua lontano dalla ciotola del cibo: istinto ereditato dagli antenati selvaggi.", en: "Cats prefer to drink water away from their food bowl — an instinct inherited from wild ancestors." },
+  { it: "I cani hanno un muscolo del sopracciglio, assente nei lupi, che si è evoluto grazie alla convivenza con gli umani.", en: "Dogs have a brow muscle, absent in wolves, that evolved through thousands of years of living with humans." },
+  { it: "Le formiche non dormono mai: si riposano in brevi microsonnellini di circa un minuto.", en: "Ants never sleep — they rest in brief microsleeps lasting about one minute." },
+  { it: "I gatti usano le vibrisse non solo per misurare spazi, ma anche per percepire le correnti d'aria nell'ambiente.", en: "Cats use their whiskers not only to measure spaces, but also to sense air currents in the environment." },
+  { it: "I cani amano guardare la televisione: le razze da caccia reagiscono di più alle immagini in movimento.", en: "Dogs enjoy watching television — hunting breeds react most strongly to moving images on screen." },
+  { it: "I gamberi mantide possono vedere 16 tipi di recettori del colore, contro i 3 degli esseri umani.", en: "Mantis shrimps can see with 16 types of colour receptors, compared to just 3 in humans." },
+  { it: "I gatti non miagolano agli altri gatti adulti: questa vocalizzazione è riservata quasi esclusivamente agli umani.", en: "Cats do not meow at other adult cats — this vocalisation is reserved almost exclusively for humans." },
+  { it: "I cani capiscono quando un umano finge di lanciare una palla ma decidono di seguirlo comunque.", en: "Dogs understand when a human pretends to throw a ball, but choose to follow along anyway." },
+  { it: "Le lucciole producono la luce biologica più efficiente mai misurata: quasi il 100% dell'energia si converte in luce.", en: "Fireflies produce the most efficient biological light ever measured — nearly 100% of energy converts to light." },
+  { it: "I gatti hanno un udito così sviluppato da percepire ultrasuoni emessi dai roditori nascosti nelle pareti.", en: "Cats have such acute hearing they can detect ultrasounds emitted by rodents hidden inside walls." },
+  { it: "I cani hanno un senso innato della giustizia: si rifiutano di collaborare se percepiscono una ricompensa iniqua.", en: "Dogs have an innate sense of fairness — they refuse to cooperate if they perceive an unfair reward." },
+  { it: "I camaleonti cambiano colore principalmente per comunicare emozioni, non per mimetizzarsi.", en: "Chameleons change colour primarily to communicate emotions, not for camouflage." },
+  { it: "I gatti possono fare circa 100 suoni diversi, mentre i cani ne producono circa 10.", en: "Cats can make about 100 different sounds, while dogs produce around 10." },
+  { it: "I cani annusano il pavimento in un parco per scoprire quali altri cani sono passati, quando e in quale stato d'umore.", en: "Dogs sniff the ground in a park to discover which other dogs have passed by, when and in what mood." },
+  { it: "Le api hanno cinque occhi: due composti grandi ai lati e tre semplici sulla sommità della testa.", en: "Bees have five eyes — two large compound eyes on the sides and three simple eyes on top of their head." },
+  { it: "I gatti atterrano quasi sempre in piedi grazie al 'riflesso raddrizzante', attivo fin dai primi mesi di vita.", en: "Cats almost always land on their feet thanks to the 'righting reflex', active from the first months of life." },
+  { it: "I cani possono memorizzare le emozioni degli esseri umani e ricordare eventi emotivamente significativi.", en: "Dogs can memorise human emotions and remember emotionally significant events." },
+  { it: "I coralli sono animali, non piante: vivono in colonie e si nutrono di plancton.", en: "Corals are animals, not plants — they live in colonies and feed on plankton." },
+  { it: "I gatti hanno papille gustative non solo sulla lingua, ma anche sul palato.", en: "Cats have taste buds not only on their tongue but also on their palate." },
+  { it: "I cani percepiscono il tempo trascorso attraverso l'intensità dell'odore lasciato dal proprietario in casa.", en: "Dogs perceive the passage of time through the intensity of the scent their owner has left at home." },
+  { it: "I pipistrelli sono gli unici mammiferi capaci di volo sostenuto grazie alle loro ali modificate.", en: "Bats are the only mammals capable of sustained flight, thanks to their modified forelimbs." },
+  { it: "I gatti preferiscono i giocattoli che si muovono in modo imprevedibile, imitando il comportamento delle prede.", en: "Cats prefer toys that move unpredictably, mimicking the behaviour of prey." },
+  { it: "I cani possono imparare a riconoscere il proprietario da una fotografia in bianco e nero.", en: "Dogs can learn to recognise their owner from a black-and-white photograph." },
+  { it: "Le stelle marine non hanno cervello né sangue: usano l'acqua di mare per trasportare i nutrienti.", en: "Starfish have neither a brain nor blood — they use seawater to transport nutrients through their body." },
+  { it: "I gatti regolano la loro temperatura corporea attraverso la lingua, leccandosi il pelo per raffrescarsi.", en: "Cats regulate their body temperature by licking their fur to cool down through evaporation." },
+  { it: "I cani possono essere addestrati a rilevare campi minati con una precisione superiore agli strumenti elettronici.", en: "Dogs can be trained to detect landmines with greater accuracy than electronic detection equipment." },
+  { it: "I gufi non possono muovere gli occhi nelle orbite: ruotano l'intera testa fino a 270 gradi.", en: "Owls cannot move their eyes in their sockets — they rotate their entire head up to 270 degrees." },
+  { it: "I gatti hanno una velocità massima di circa 48 km/h, più veloce di molti cani di piccola taglia.", en: "Cats reach a top speed of around 48 km/h, faster than many small dog breeds." },
+  { it: "I cani hanno un fegato che metabolizza i farmaci in modo molto diverso dagli umani: molte medicine sono tossiche per loro.", en: "Dogs metabolise drugs very differently from humans — many common medicines are toxic to them." },
+  { it: "I polpi hanno neuroni distribuiti nei tentacoli: ogni braccio può agire in modo semi-autonomo.", en: "Octopuses have neurons distributed throughout their tentacles — each arm can act semi-autonomously." },
+  { it: "I gatti non atterrano sempre in piedi da piccola altezza: il riflesso raddrizzante richiede almeno 30 cm.", en: "Cats do not always land on their feet from low heights — the righting reflex requires at least 30 cm." },
+  { it: "I cani capiscono che i bambini piccoli sono diversi dagli adulti e si comportano di conseguenza.", en: "Dogs understand that young children are different from adults and behave accordingly around them." },
+  { it: "Le farfalle gustano con i piedi: i recettori del gusto sono situati nelle zampe anteriori.", en: "Butterflies taste with their feet — taste receptors are located on their front legs." },
+  { it: "I gatti usano il graffio non solo per affilare le unghie, ma anche per lasciare segnali visivi e odorosi.", en: "Cats scratch not only to sharpen their claws but also to leave visual and scent signals." },
+  { it: "I cani possono capire quando una persona è malata e si avvicinano di più per offrire conforto.", en: "Dogs can sense when a person is unwell and move closer to offer comfort." },
+  { it: "Le tartarughe marine tornano a deporre le uova sulla stessa spiaggia dove sono nate, dopo decenni.", en: "Sea turtles return to lay their eggs on the same beach where they were born, even after decades." },
+  { it: "I gatti in gruppo non comunicano con miagolii tra loro: usano postura, olfatto e contatto.", en: "Cats in groups do not communicate with meows between themselves — they use posture, scent and contact." },
+  { it: "I cani annusano il naso altrui come saluto perché il naso è la zona più ricca di informazioni olfattive.", en: "Dogs sniff each other's noses in greeting because the nose is the area richest in olfactory information." },
+  { it: "I canguri non possono camminare all'indietro: la struttura delle zampe posteriori non lo permette.", en: "Kangaroos cannot walk backwards — the structure of their hind legs does not allow it." },
+  { it: "I gatti fissano una persona senza battere ciglio come segno di dominio o di sfida aperta.", en: "Cats stare at a person without blinking as a sign of dominance or open challenge." },
+  { it: "I cani riconoscono le emozioni sui volti umani e reagiscono a quelle negative con ansia o preoccupazione.", en: "Dogs recognise emotions on human faces and react to negative ones with anxiety or concern." },
+  { it: "I piovre cambiano struttura della pelle per imitare coralli, rocce e persino altri animali.", en: "Octopuses change their skin texture to mimic corals, rocks and even other animals." },
+  { it: "I gatti in libertà caccierebbero in media 9 prede al giorno, il doppio di quanto mangeranno effettivamente.", en: "Cats living freely would hunt an average of 9 prey a day — twice what they would actually eat." },
+  { it: "I cani possono riconoscere il volto del loro proprietario anche in una foto ritagliata da una folla.", en: "Dogs can recognise their owner's face even in a photo cropped from a crowd." },
+  { it: "I fenicotteri sono rosa perché si nutrono di crostacei e alghe ricchi di carotenoidi.", en: "Flamingos are pink because they feed on crustaceans and algae rich in carotenoids." },
+  { it: "I gatti hanno un campo visivo di 200 gradi, contro i 180 degli umani, ma vedono peggio i dettagli statici.", en: "Cats have a 200-degree field of vision compared to 180 in humans, but see static details less clearly." },
+  { it: "I cani ululano in risposta alla musica non perché soffrono, ma perché vogliono 'cantare' insieme.", en: "Dogs howl in response to music not because they are suffering, but because they want to 'sing along'." },
+  { it: "Le aragoste non invecchiano biologicamente: continuano a crescere e riprodursi senza declino visibile.", en: "Lobsters do not age biologically — they keep growing and reproducing without any visible decline." },
+  { it: "I gatti preferiscono dormire in luoghi elevati per una questione di sicurezza ereditata dai progenitori.", en: "Cats prefer to sleep in elevated places for safety reasons inherited from their wild ancestors." },
+  { it: "I cani possono percepire il campo magnetico terrestre e tendono a defecare orientandosi nord-sud.", en: "Dogs can perceive Earth's magnetic field and tend to defecate while aligned north–south." },
+  { it: "I corvi nascondono il cibo e controllano di non essere spiati: se lo sono, cambiano il nascondiglio.", en: "Crows hide food and check they are not being watched — if they are, they change the hiding spot." },
+  { it: "I gatti si graffiano gli occhi con le zampe anteriori durante il sonno a causa dei sogni vividi.", en: "Cats scratch their eyes with their front paws during sleep because of vivid dreams." },
+  { it: "I cani sentono gli infrasuoni prodotti dai temporali molto prima che siano udibili dagli umani.", en: "Dogs hear the infrasound produced by storms long before it becomes audible to humans." },
+  { it: "I koala hanno impronte digitali quasi identiche a quelle umane, spesso confondibili anche per gli esperti.", en: "Koalas have fingerprints almost identical to human ones, often indistinguishable even to experts." },
+  { it: "I gatti hanno un meccanismo nell'orecchio interno che li aiuta a capire sempre dove si trova il basso.", en: "Cats have a mechanism in their inner ear that always tells them where 'down' is." },
+  { it: "I cani amano guardare negli occhi il loro proprietario: questo rilascia ossitocina in entrambi.", en: "Dogs love to gaze into their owner's eyes — this releases oxytocin in both the dog and the human." },
+  { it: "I pesci hanno memoria: possono ricordare le persone che li hanno nutriti per mesi.", en: "Fish have memory — they can remember the people who fed them for months." },
+  { it: "I gatti possono individuare la posizione di un suono con una precisione di mezzo grado.", en: "Cats can locate the position of a sound to within half a degree of accuracy." },
+  { it: "I cani sanno quando una persona mente: distinguono le promesse mantenute da quelle disattese.", en: "Dogs know when a person is lying — they distinguish kept promises from broken ones." },
+  { it: "I pappagalli possono imitare non solo la voce umana, ma anche suoni ambientali come campanelli e telefoni.", en: "Parrots can mimic not only the human voice but also environmental sounds like doorbells and phones." },
+  { it: "I gatti hanno una vista notturna sei volte migliore di quella umana grazie al tapetum lucidum nell'occhio.", en: "Cats have night vision six times better than humans thanks to the tapetum lucidum in their eyes." },
+  { it: "I cani capiscono la differenza tra chi si avvicina con buone o cattive intenzioni in pochi secondi.", en: "Dogs understand the difference between someone approaching with good or bad intentions within seconds." },
+  { it: "Le iene sono più strettamente imparentate con i gatti che con i cani, nonostante le apparenze.", en: "Hyenas are more closely related to cats than to dogs, despite appearances." },
+  { it: "I gatti portano le prede morte in casa come 'dono' per insegnare ai loro umani a cacciare.", en: "Cats bring dead prey home as a 'gift' to teach their humans how to hunt." },
+  { it: "I cani fanno sogni: durante il sonno REM mostrano movimenti delle zampe e vocalizzazioni come se stessero correndo.", en: "Dogs dream — during REM sleep they show leg movements and vocalisations as if they are running." },
+  { it: "Le api comunicano la posizione dei fiori attraverso una danza precisa che indica direzione e distanza.", en: "Bees communicate the location of flowers through a precise dance indicating direction and distance." },
+  { it: "I gatti hanno un battito cardiaco più veloce del nostro: lo stress li porta a frequenze di 240 bpm.", en: "Cats have a faster heart rate than ours — stress can bring them to 240 beats per minute." },
+  { it: "I cani anziani dormono di più perché il cervello continua a imparare, richiedendo più tempo di consolidamento.", en: "Older dogs sleep more because their brain keeps learning and needs more time for memory consolidation." },
+  { it: "I calamari giganti hanno gli occhi più grandi del regno animale, grandi quanto una palla da basket.", en: "Giant squid have the largest eyes in the animal kingdom — as large as a basketball." },
+  { it: "I gatti preferiscono acqua corrente: la tradizione di ciotola d'acqua va contro il loro istinto naturale.", en: "Cats prefer running water — the bowl tradition goes against their natural instincts." },
+  { it: "I cani mostrano empatia: quando il loro proprietario piange, si avvicinano cercando contatto fisico.", en: "Dogs show empathy — when their owner cries, they move closer and seek physical contact." },
+  { it: "I ragni non sono insetti: appartengono alla classe degli aracnidi, con 8 zampe anziché 6.", en: "Spiders are not insects — they belong to the class of arachnids, with 8 legs instead of 6." },
+  { it: "I gatti hanno un palato duro striato che aiuta a spingere il cibo verso l'esofago durante la deglutizione.", en: "Cats have a ridged hard palate that helps push food towards the oesophagus during swallowing." },
+  { it: "I cani possono distinguere fino a 100.000 odori diversi, mentre gli esseri umani ne riconoscono circa 10.000.", en: "Dogs can distinguish up to 100,000 different smells, while humans recognise around 10,000." },
+  { it: "I tardigradi, animali microscopici, sopravvivono nel vuoto dello spazio, a temperature estreme e alle radiazioni.", en: "Tardigrades — microscopic animals — survive in the vacuum of space, extreme temperatures and radiation." },
+  { it: "I gatti usano la posizione della coda per comunicare: alta = felici, bassa = spaventati, gonfia = allarmati.", en: "Cats use tail position to communicate: high = happy, low = frightened, puffed up = alarmed." },
+  { it: "I cani capiscono il concetto di 'domani': modificano il loro comportamento in base alle aspettative future.", en: "Dogs understand the concept of 'tomorrow' — they adjust their behaviour based on future expectations." },
+  { it: "Le lucertole possono staccare la coda per sfuggire ai predatori e ricrescerla in poche settimane.", en: "Lizards can detach their tail to escape predators and regrow it within a few weeks." },
+  { it: "I gatti hanno un peso cerebrale proporzionale simile a quello dei cani, con più pieghe corticali.", en: "Cats have a proportional brain weight similar to dogs but with more cortical folds." },
+  { it: "I cani preferiscono fare i bisogni su superfici specifiche: erba alta, sabbia o terra smossa.", en: "Dogs prefer to relieve themselves on specific surfaces such as tall grass, sand or loose earth." },
+  { it: "I piovre cambiano colore non solo per mimetismo, ma anche per regolare la temperatura corporea.", en: "Octopuses change colour not only for camouflage but also to regulate their body temperature." },
+  { it: "I gatti possono percepire i terremoti prima degli strumenti grazie alla sensibilità alle vibrazioni del suolo.", en: "Cats can sense earthquakes before instruments do, thanks to their sensitivity to ground vibrations." },
+  { it: "I cani imparano nuovi comportamenti molto più facilmente quando vengono ricompensati con gioco piuttosto che con cibo.", en: "Dogs learn new behaviours much more easily when rewarded with play rather than with food." },
+  { it: "Le formiche possono trasportare oggetti pesanti fino a 50 volte il loro peso corporeo.", en: "Ants can carry objects weighing up to 50 times their own body weight." },
+  { it: "I gatti passano circa un terzo della veglia a fare la toilette: è una forma di riduzione dello stress.", en: "Cats spend about a third of their waking hours grooming — it is a form of stress reduction." },
+  { it: "I cani annusano l'aria per capire non solo cosa c'è nell'ambiente, ma anche cosa ci sarà a breve.", en: "Dogs sniff the air to understand not only what is in the environment but also what will soon be there." },
+  { it: "I cervi cambiano il colore del manto due volte l'anno: rossiccio d'estate, grigio-brunastro d'inverno.", en: "Deer change their coat colour twice a year — reddish in summer, grey-brown in winter." },
+  { it: "I gatti possiedono una ghiandola timo che regola il sistema immunitario per tutta la vita.", en: "Cats have a thymus gland that regulates their immune system throughout their life." },
+  { it: "I cani hanno una memoria episodica: ricordano eventi specifici e non solo le abitudini generali.", en: "Dogs have episodic memory — they remember specific events, not just general habits." },
+  { it: "Le meduse non hanno cuore, cervello, sangue né occhi, eppure sopravvivono da oltre 500 milioni di anni.", en: "Jellyfish have no heart, brain, blood or eyes, yet they have survived for over 500 million years." },
+  { it: "I gatti hanno un ciclo di sonno più breve degli umani: alternano sonno leggero e profondo ogni 30 minuti.", en: "Cats have a shorter sleep cycle than humans — they alternate between light and deep sleep every 30 minutes." },
+  { it: "I cani possono essere destrimani o mancini: la zampa preferita rivela la lateralizzazione cerebrale.", en: "Dogs can be right- or left-pawed — their preferred paw reveals their brain lateralisation." },
+  { it: "Le balene cantano canzoni che evolvono nel tempo: ogni anno la melodia cambia leggermente.", en: "Whales sing songs that evolve over time — each year the melody changes slightly." },
+  { it: "I gatti usano l'olfatto per riconoscere i loro cuccioli: non li riconoscono visivamente alla nascita.", en: "Cats use smell to recognise their kittens — they do not recognise them visually at birth." },
+  { it: "I cani possono diventare gelosi: mostrano comportamenti di protesta quando il proprietario dedica attenzione ad altri.", en: "Dogs can become jealous — they show protest behaviours when their owner pays attention to others." },
+  { it: "I camaleonti hanno la lingua lunga fino a due volte il loro corpo e la sparano in meno di 0,07 secondi.", en: "Chameleons have tongues up to twice the length of their body and shoot them out in under 0.07 seconds." },
+  { it: "I gatti sanno usare la leva degli occhi: gli occhi grandi e rotondi attivano l'istinto materno degli umani.", en: "Cats know how to use their eyes as a lever — large, round eyes activate humans' maternal instincts." },
+  { it: "I cani capiscono quando una persona ha paura di loro e possono diventare più prudenti o più assertivi.", en: "Dogs sense when a person is afraid of them and may become either more cautious or more assertive." },
+  { it: "Gli squali devono nuotare continuamente per respirare, poiché non hanno muscoli per pompare l'acqua.", en: "Sharks must swim continuously to breathe, as they have no muscles to pump water over their gills." },
+  { it: "I gatti hanno un solco nel palato chiamato organo di Jacobson, usato per analizzare gli odori complessi.", en: "Cats have a groove in their palate called the Jacobson's organ, used to analyse complex scents." },
+  { it: "I cani possono riconoscere le espressioni facciali degli altri cani anche in fotografie bidimensionali.", en: "Dogs can recognise the facial expressions of other dogs even in two-dimensional photographs." },
+  { it: "Le lucciole maschio lampeggia per attirare la femmina, che risponde con un ritmo specifico alla sua specie.", en: "Male fireflies flash to attract females, who respond with a pattern specific to their species." },
+  { it: "I gatti hanno le ghiandole sudoripare solo nelle zampe: per questo lasciano tracce umide su superfici calde.", en: "Cats have sweat glands only in their paws — that is why they leave damp prints on warm surfaces." },
+  { it: "I cani possono capire frasi complesse come 'porta la palla piccola rossa', distinguendo più attributi.", en: "Dogs can understand complex phrases such as 'fetch the small red ball', distinguishing multiple attributes." },
+  { it: "I gorilla imparano la lingua dei segni e possono comunicare emozioni, desideri e concetti astratti.", en: "Gorillas learn sign language and can communicate emotions, desires and abstract concepts." },
+  { it: "I gatti portano la pancia in alto come segno di fiducia assoluta, non necessariamente un invito a toccarla.", en: "Cats expose their belly as a sign of absolute trust, not necessarily an invitation to touch it." },
+  { it: "I cani percepiscono le emozioni umane attraverso l'odore: riconoscono paura, gioia, tristezza e stress.", en: "Dogs perceive human emotions through scent — they recognise fear, joy, sadness and stress." },
+  { it: "I rinoceronti comunicano attraverso gli escrementi: il loro sterco contiene informazioni su sesso ed età.", en: "Rhinoceroses communicate through their droppings — their dung contains information about sex and age." },
+  { it: "I gatti preferiscono graffiare superfici verticali per marcare il territorio in modo visibile agli altri gatti.", en: "Cats prefer to scratch vertical surfaces to mark their territory in a way visible to other cats." },
+  { it: "I cani annusano il proprio riflesso senza riconoscersi: usano l'olfatto più della vista per l'identità.", en: "Dogs sniff their own reflection without recognising themselves — they rely on scent more than sight for identity." },
+  { it: "Le scimmie bonobo risolvono i conflitti attraverso contatti sociali affettuosi invece dell'aggressione.", en: "Bonobo monkeys resolve conflicts through affectionate social contact rather than aggression." },
+  { it: "I gatti hanno un sistema vestibolare molto sviluppato che permette loro di ruotarsi durante una caduta.", en: "Cats have a highly developed vestibular system that allows them to rotate during a fall." },
+  { it: "I cani capiscono la parola 'no' ma rispondono meglio se accompagnata da un segnale visivo.", en: "Dogs understand the word 'no' but respond better when it is accompanied by a visual signal." },
+  { it: "I castori costruiscono dighe che modificano l'ecosistema circostante, creando habitat per molte specie.", en: "Beavers build dams that modify the surrounding ecosystem, creating habitats for many other species." },
+  { it: "I gatti a pelo lungo richiedono spazzolatura quotidiana per evitare i nodi, soprattutto in zone come ascelle e dietro le orecchie.", en: "Long-haired cats need daily brushing to prevent knots, especially in areas like armpits and behind the ears." },
+  { it: "I cani scodinzolano a destra quando vedono il proprietario e a sinistra quando vedono qualcosa di sconosciuto.", en: "Dogs wag their tails to the right when they see their owner and to the left when they see something unfamiliar." },
+  { it: "I piovre sono temporaneamente daltoniche ma riescono a mimetizzarsi perfettamente grazie ai fotorecettori della pelle.", en: "Octopuses are temporarily colour-blind yet achieve perfect camouflage thanks to skin photoreceptors." },
+  { it: "I gatti fanno le fusa non solo di contentezza: lo fanno anche quando sono malati o spaventati come meccanismo calmante.", en: "Cats purr not only when content — they also purr when ill or frightened as a self-soothing mechanism." },
+  { it: "I cani possono essere addestrati a rilevare le crisi epilettiche fino a 45 minuti prima che si manifestino.", en: "Dogs can be trained to detect epileptic seizures up to 45 minutes before they occur." },
+  { it: "I cinghiali hanno uno stomaco simile a quello dei maiali domestici: sono in grado di digerire quasi tutto.", en: "Wild boars have a stomach similar to domestic pigs — they can digest almost anything." },
+  { it: "I gatti non hanno bisogno di luce totale per vedere: bastano 1/6 della luce necessaria agli umani.", en: "Cats do not need full light to see — just one sixth of the light that humans require." },
+  { it: "I cani riconoscono le persone anziane come diverse dagli adulti e adattano il comportamento di conseguenza.", en: "Dogs recognise elderly people as different from adults and adapt their behaviour accordingly." },
+  { it: "Le tartarughe di terra possono vivere oltre 150 anni: sono tra i vertebrati più longevi del pianeta.", en: "Land tortoises can live over 150 years — they are among the longest-lived vertebrates on the planet." },
+  { it: "I gatti preferiscono i cucchiai in ceramica o vetro rispetto a quelli in plastica perché non alterano il sapore.", en: "Cats prefer ceramic or glass bowls over plastic ones because they do not alter the taste of food or water." },
+  { it: "I cani percepiscono le vibrazioni del suono attraverso le zampe e non solo attraverso l'udito.", en: "Dogs perceive sound vibrations through their paws as well as through their hearing." },
+  { it: "I delfini hanno nomi propri: si identificano reciprocamente con fischi caratteristici unici per ogni individuo.", en: "Dolphins have proper names — they identify each other with unique characteristic whistles." },
+  { it: "I gatti dormono fino a 16 ore al giorno per conservare energia: un'eredità dai felini selvatici.", en: "Cats sleep up to 16 hours a day to conserve energy — a legacy from their wild feline ancestors." },
+  { it: "I cani annusano a una velocità di 5 inalazioni al secondo per raccogliere il massimo di informazioni olfattive.", en: "Dogs sniff at a rate of 5 inhalations per second to gather the maximum olfactory information." },
+  { it: "I colibrì sono gli unici uccelli in grado di volare all'indietro e di rimanere fermi in aria.", en: "Hummingbirds are the only birds capable of flying backwards and hovering stationary in mid-air." },
+  { it: "I gatti hanno le vibrisse anche sulle zampe anteriori: usano anche quelle per percepire il movimento delle prede.", en: "Cats have whiskers on their front legs too — they use these to sense the movement of prey." },
+  { it: "I cani capiscono quando un altro cane è anziano e mostrano maggior rispetto nel gioco.", en: "Dogs understand when another dog is old and show greater respect during play." },
+  { it: "I granchi eremiti cambiano la conchiglia con quella di un granchio morto, spesso in file ordinate.", en: "Hermit crabs change shells with those of dead crabs, often in orderly queues." },
+  { it: "I gatti rilasciano feromoni attraverso ghiandole vicino alla base della coda per marcare il territorio.", en: "Cats release pheromones through glands near the base of their tail to mark their territory." },
+  { it: "I cani hanno una memoria olfattiva eccezionale: ricordano l'odore di un individuo per anni.", en: "Dogs have exceptional olfactory memory — they remember an individual's scent for years." },
+  { it: "I castori cambiano il corso dei fiumi in modo così radicale da essere considerati 'ingegneri ecosistemici'.", en: "Beavers change the course of rivers so radically they are considered 'ecosystem engineers'." },
+  { it: "I gatti sentono le frequenze ultrasoniche usate dai roditori per comunicare: questo li rende cacciatori perfetti.", en: "Cats hear the ultrasonic frequencies used by rodents to communicate, making them perfect hunters." },
+  { it: "I cani riescono a capire la voce di oltre 20 persone diverse e a distinguerle tra loro.", en: "Dogs can understand the voices of over 20 different people and distinguish between them." },
+  { it: "I pistoni mantide possono colpire con la velocità di una pallottola, creando onde d'urto che stordiscono le prede.", en: "Mantis shrimps can strike at the speed of a bullet, creating shock waves that stun their prey." },
+  { it: "I gatti hanno 18 dita: 5 per ogni zampa anteriore e 4 per ogni zampa posteriore.", en: "Cats have 18 toes — 5 on each front paw and 4 on each back paw." },
+  { it: "I cani capiscono il punto di vista altrui: se tu non vedi qualcosa, loro adattano il comportamento.", en: "Dogs understand other points of view — if you cannot see something, they adjust their behaviour accordingly." },
+  { it: "I guepardi sono i mammiferi più veloci sulla terra: raggiungono i 112 km/h in pochi secondi.", en: "Cheetahs are the fastest land mammals — they reach 112 km/h in just a few seconds." },
+  { it: "I gatti preferiscono i giochi che simulano la caccia: avvicinamento, agguato e cattura della preda.", en: "Cats prefer games that simulate hunting: stalking, ambushing and capturing prey." },
+  { it: "I cani capiscono se un essere umano ha ricevuto un'ingiustizia e modificano il loro atteggiamento verso chi l'ha causata.", en: "Dogs understand when a human has been treated unfairly and change their attitude towards whoever caused it." },
+  { it: "I mantidi religiosi sono uno dei pochi insetti con visione stereoscopica, utile per calcolare le distanze.", en: "Praying mantises are among the few insects with stereoscopic vision, useful for calculating distances." },
+  { it: "I gatti hanno un senso del ritmo: possono sincronizzare i movimenti con suoni ritmici.", en: "Cats have a sense of rhythm — they can synchronise their movements with rhythmic sounds." },
+  { it: "I cani mostrano comportamenti altruistici: aiutano persone in difficoltà anche senza ricevere ricompense.", en: "Dogs show altruistic behaviour — they help people in difficulty even without receiving any reward." },
+  { it: "Le stelle marine possono rigenerare interi arti persi e, in alcune specie, l'intero corpo da un singolo braccio.", en: "Starfish can regenerate entire lost limbs and, in some species, regrow a whole body from a single arm." },
+  { it: "I gatti hanno un sistema linfatico più efficiente di quello umano: si ammalano più raramente di infezioni banali.", en: "Cats have a more efficient lymphatic system than humans — they fall ill with trivial infections less often." },
+  { it: "I cani seguono la direzione dello sguardo umano per capire dove sta guardando il proprietario.", en: "Dogs follow the direction of the human gaze to understand where their owner is looking." },
+  { it: "Le api possono riconoscere i volti umani grazie a un processo cognitivo simile a quello che usiamo noi.", en: "Bees can recognise human faces through a cognitive process similar to the one we use ourselves." },
+  { it: "I gatti ronronano quando vengono nutriti con una frequenza leggermente diversa per sollecitare il pasto.", en: "Cats purr at a slightly different frequency when seeking food — a subtle way to solicit a meal." },
+  { it: "I cani si girano in cerchio prima di coricarsi per schiacciare l'erba e controllare i pericoli: istinto primitivo.", en: "Dogs circle before lying down to flatten grass and check for danger — a primitive ancestral instinct." },
+  { it: "I polpi hanno tre cuori: due pompano sangue alle branchie, uno al corpo. Si fermano durante il nuoto.", en: "Octopuses have three hearts — two pump blood to the gills, one to the body. The main heart stops when swimming." },
+  { it: "I gatti preferiscono cacciare all'alba e al tramonto, momenti in cui i roditori sono più attivi.", en: "Cats prefer to hunt at dawn and dusk, when rodents are most active." },
+  { it: "I cani capiscono le istruzioni verbali e non verbali e le combinano per interpretare le intenzioni umane.", en: "Dogs understand verbal and non-verbal instructions and combine them to interpret human intentions." },
+  { it: "Le formiche possono coltivare funghi, allevare afidi e fare la guerra a colonie rivali.", en: "Ants can cultivate fungi, farm aphids and wage war against rival colonies." },
+  { it: "I gatti hanno una memoria semantica: associano parole specifiche a oggetti o azioni conosciute.", en: "Cats have semantic memory — they associate specific words with known objects or actions." },
+  { it: "I cani possono capire quando una persona è triste e cercano di consolarla con contatto fisico o presenza.", en: "Dogs can sense when a person is sad and try to comfort them with physical contact or presence." },
+  { it: "I cavalli ricordano sia le esperienze positive che quelle negative e le associano a persone specifiche.", en: "Horses remember both positive and negative experiences and associate them with specific people." },
+  { it: "I gatti producono un suono speciale, chiamato 'chatter', quando vedono una preda irraggiungibile.", en: "Cats produce a special sound called 'chattering' when they see unreachable prey." },
+  { it: "I cani reagiscono ai sorrisi con attività nel sistema limbico, la zona cerebrale delle emozioni.", en: "Dogs respond to smiles with activity in the limbic system — the emotional centre of the brain." },
+  { it: "I trichechi dormono in acqua gonfiando la gola come un salvagente e galleggiando verticalmente.", en: "Walruses sleep in water by inflating their throat pouch like a life ring and floating vertically." },
+  { it: "I gatti sono crepuscolari: la loro attività è massima all'alba e al tramonto, non di notte.", en: "Cats are crepuscular — their activity peaks at dawn and dusk, not in the dead of night." },
+  { it: "I cani annusano il tuo umore dal sudore: i cambiamenti chimici associati alla paura sono percepibili.", en: "Dogs smell your mood in your sweat — the chemical changes associated with fear are detectable to them." },
+  { it: "Le anguille elettriche generano scariche fino a 600 volt, abbastanza da stordire un cavallo.", en: "Electric eels generate discharges of up to 600 volts — enough to stun a horse." },
+  { it: "I gatti comunicano con la coda: verticale = saluto felice, orizzontale = neutrale, tra le zampe = paura.", en: "Cats communicate with their tail: vertical = happy greeting, horizontal = neutral, tucked = fear." },
+  { it: "I cani capiscono il concetto di 'più grande è meglio' e scelgono istintivamente le porzioni più grandi.", en: "Dogs understand the concept of 'bigger is better' and instinctively choose the larger portion." },
+  { it: "I polpi possono smontare e rimontare le valvole dei filtri degli acquari per esplorare l'esterno.", en: "Octopuses can unscrew and reassemble aquarium filter valves to explore outside their tank." },
+  { it: "I gatti hanno una versione ridotta dell'amigdala rispetto agli umani, ma risponde in modo simile alla paura.", en: "Cats have a smaller amygdala than humans but it responds to fear in a similar way." },
+  { it: "I cani riconoscono le voci dei loro familiari al telefono, anche attraverso l'altoparlante.", en: "Dogs recognise the voices of their family members over the phone, even through the speaker." },
+  { it: "Le zebre hanno strisce uniche come le impronte digitali: nessun esemplare ha lo stesso motivo.", en: "Zebras have stripes as unique as fingerprints — no two individuals share the same pattern." },
+  { it: "I gatti cacciano per istinto anche quando sono sazi: il comportamento predatorio è separato dalla fame.", en: "Cats hunt by instinct even when full — predatory behaviour is separate from hunger." },
+  { it: "I cani usano il gioco come strumento sociale per stabilire gerarchie e alleanze nel gruppo.", en: "Dogs use play as a social tool to establish hierarchies and alliances within the group." },
+  { it: "I ricci si riparano dai parassiti strofinandosi con la saliva di rospo, che ha proprietà repellenti.", en: "Hedgehogs protect themselves from parasites by rubbing toad saliva on their spines — it acts as a repellent." },
+  { it: "I gatti hanno la cornea più curva degli umani, il che migliora la visione in condizioni di scarsa luce.", en: "Cats have a more curved cornea than humans, which improves their vision in low-light conditions." },
+  { it: "I cani capiscono le iniezioni di calore nelle parole: riconoscono il tono affettuoso anche in lingue sconosciute.", en: "Dogs pick up warmth in words — they recognise an affectionate tone even in languages they have never heard." },
+  { it: "I topi fanno scelte altruistiche: liberano i compagni intrappolati anche senza ricompensa.", en: "Mice make altruistic choices — they free trapped companions even without any reward." },
+  { it: "I gatti sono la specie domestica che ha cambiato meno il proprio comportamento rispetto agli antenati selvatici.", en: "Cats are the domesticated species that has changed its behaviour least compared to its wild ancestors." },
+  { it: "I cani percepiscono il campo elettrico generato dal cuore umano e usano questa informazione per relazionarsi.", en: "Dogs perceive the electric field generated by the human heart and use this information to relate to people." },
+  { it: "Le lucertole fanno flessioni per comunicare con i loro simili: è un comportamento di segnalazione sociale.", en: "Lizards do push-ups to communicate with their peers — it is a social signalling behaviour." },
+  { it: "I gatti non hanno bisogno di bere molta acqua perché il rene è estremamente efficiente nel concentrare le urine.", en: "Cats do not need to drink much water because their kidneys are extremely efficient at concentrating urine." },
+  { it: "I cani mostrano empatia verso gli estranei: consolano persone che piangono anche se non le conoscono.", en: "Dogs show empathy towards strangers — they comfort people who are crying even if they do not know them." },
+  { it: "I coralli fluorescenti convertono i raggi UV in luce verde per favorire la fotosintesi delle alghe simbiotiche.", en: "Fluorescent corals convert UV rays into green light to promote photosynthesis in their symbiotic algae." },
+  { it: "I gatti hanno una preferenza per i lati: alcuni preferiscono appoggiarsi a sinistra, altri a destra.", en: "Cats have a side preference — some prefer to lean left, others right." },
+  { it: "I cani capiscono che le persone anziane si muovono più lentamente e adattano il passo di conseguenza.", en: "Dogs understand that elderly people move more slowly and adjust their pace accordingly." },
+  { it: "I pipistrelli sono così numerosi da formare colonie di milioni di individui che si alzano in volo al tramonto.", en: "Bats form colonies of millions that take flight at sunset, darkening the sky as they emerge." },
+  { it: "I gatti distinguono i volti dei loro proprietari dalle foto, ma preferiscono riconoscere le persone con l'olfatto.", en: "Cats distinguish their owners' faces from photos but prefer to recognise people by scent." },
+  { it: "I cani seguono i punti in cui gli umani toccano gli oggetti: intuiscono che quell'area è importante.", en: "Dogs follow the points where humans touch objects — they intuit that the area is significant." },
+  { it: "I platipus hanno la bocca a forma di becco ma non sono uccelli: sono mammiferi che depongono uova.", en: "Platypuses have a beak-shaped mouth but are not birds — they are mammals that lay eggs." },
+  { it: "I gatti strofinano il muso contro gli oggetti non solo per marcarli, ma anche per esplorare le texture.", en: "Cats rub their muzzle against objects not only to mark them but also to explore their texture." },
+  { it: "I cani percepiscono le espressioni facciali dei bambini e reagiscono alle loro emozioni in modo specifico.", en: "Dogs perceive children's facial expressions and react to their emotions in a specific way." },
+  { it: "I gorilla usano rami e pietre come strumenti per raccogliere cibo, aprire noci e misurare la profondità dell'acqua.", en: "Gorillas use branches and stones as tools to collect food, crack nuts and measure water depth." },
+  { it: "I gatti usano la zampa sinistra o destra in modo preferenziale, indicando una specializzazione cerebrale.", en: "Cats use their left or right paw preferentially, indicating brain specialisation." },
+  { it: "I cani sanno che gli umani hanno la testa come punto focale: fissano gli occhi prima del corpo.", en: "Dogs know that humans have the head as their focal point — they fix their gaze on the eyes before the body." },
+  { it: "I granchi hanno il sangue blu perché usano l'emocianina, ricca di rame, al posto dell'emoglobina.", en: "Crabs have blue blood because they use haemocyanin — rich in copper — instead of haemoglobin." },
+  { it: "I gatti possono percepire i movimenti delle prede attraverso le vibrisse anche in totale oscurità.", en: "Cats can detect the movement of prey through their whiskers even in total darkness." },
+  { it: "I cani capiscono i gesti di indicazione umani meglio degli scimpanzé, nonostante l'intelligenza più sviluppata di questi ultimi.", en: "Dogs understand human pointing gestures better than chimpanzees, despite the latter's higher general intelligence." },
+  { it: "Le lumache di mare (nudibranchi) sono tra gli animali più colorati del pianeta: i colori segnalano tossicità.", en: "Sea slugs (nudibranchs) are among the most colourful animals on the planet — their colours signal toxicity." },
+  { it: "I gatti hanno bisogno di più proteine degli onnivori perché il loro metabolismo non può rallentare l'uso degli aminoacidi.", en: "Cats need more protein than omnivores because their metabolism cannot slow down amino acid usage." },
+  { it: "I cani capiscono quando un essere umano mente deliberatamente e modificano il livello di fiducia di conseguenza.", en: "Dogs understand when a human is deliberately lying and adjust their trust level accordingly." },
+  { it: "I gufi vanno in bagno al di fuori del nido, ma i pulcini di alcune specie orientano il getto verso l'esterno con precisione.", en: "Owls relieve themselves outside the nest, and chicks of some species aim the jet outward with remarkable precision." },
+  { it: "I gatti si leccano dopo essere stati toccati non per disprezzo, ma per reintegrare i propri feromoni.", en: "Cats lick themselves after being touched not out of disdain, but to restore their own pheromones." },
+  { it: "I cani interpretano correttamente il gioco umano: capiscono che le smorfie e le corse sono inviti al gioco.", en: "Dogs correctly interpret human play — they understand that funny faces and running are invitations to play." },
+  { it: "I pangolini sono gli unici mammiferi completamente ricoperti di squame, composte di cheratina come le nostre unghie.", en: "Pangolins are the only mammals completely covered in scales, made of keratin like our own nails." },
+  { it: "I gatti riconoscono il loro nome anche in mezzo ad altri suoni, ma scelgono di rispondere solo quando vogliono.", en: "Cats recognise their name among other sounds but choose to respond only when they feel like it." },
+  { it: "I cani capiscono il concetto di 'nascondere': sanno che un oggetto esiste anche quando non lo vedono.", en: "Dogs understand the concept of 'hiding' — they know an object exists even when they cannot see it." },
+  { it: "Le scimmie mangiano con la mano preferita: circa il 65% dei bonobo è destrorso.", en: "Monkeys eat with a preferred hand — around 65% of bonobos are right-handed." },
+  { it: "I gatti preferiscono i giocattoli che interagiscono con loro piuttosto che quelli statici.", en: "Cats prefer toys that interact with them rather than static ones." },
+  { it: "I cani annusano il pavimento per capire non solo chi è passato, ma anche in quale direzione stava andando.", en: "Dogs sniff the floor to understand not only who has passed by, but also which direction they were heading." },
+  { it: "I mantidi religiosi sono l'unico insetto con un solo orecchio, situato sul ventre, ma sentono in modo eccellente.", en: "Praying mantises are the only insect with a single ear, located on the abdomen, yet they hear excellently." },
+  { it: "I gatti hanno la milza che filtra il sangue e può immagazzinare globuli rossi da rilasciare sotto sforzo.", en: "Cats have a spleen that filters blood and can store red blood cells to release during physical exertion." },
+  { it: "I cani capiscono il significato della parola 'passeggiate' e iniziano a eccitarsi anche solo sentendola pronunciare.", en: "Dogs understand the meaning of the word 'walkies' and start to get excited just hearing it spoken." },
+  { it: "Le mosche riescono a vedere i movimenti 10 volte più lenti rispetto agli umani: per loro ci muoviamo al rallentatore.", en: "Flies perceive movements 10 times slower than we do — to them, we move in slow motion." },
+  { it: "I gatti preferiscono dormire sugli oggetti del proprietario perché l'odore familiare li fa sentire al sicuro.", en: "Cats prefer to sleep on their owner's belongings because the familiar scent makes them feel safe." },
+  { it: "I cani capiscono la direzione da cui proviene un suono entro 1/600 di secondo grazie alle orecchie mobili.", en: "Dogs pinpoint the direction of a sound within 1/600th of a second thanks to their mobile ears." },
+  { it: "Le stelle di mare possono avere da 5 a 40 braccia, a seconda della specie, e ognuna funziona in modo autonomo.", en: "Starfish can have between 5 and 40 arms depending on the species, and each works autonomously." },
+  { it: "I gatti hanno un sistema di comunicazione facciale con oltre 25 espressioni riconoscibili dagli altri gatti.", en: "Cats have a facial communication system with over 25 expressions recognisable to other cats." },
+  { it: "I cani riconoscono circa 50 parole nella lingua madre del proprietario e imparano quelle nuove rapidamente.", en: "Dogs recognise around 50 words in their owner's native language and learn new ones quickly." },
+  { it: "I delfini identificano i tumorali negli animali e negli esseri umani attraverso l'ecolocazione avanzata.", en: "Dolphins can identify tumours in animals and humans through advanced echolocation." },
+  { it: "I gatti sono in grado di atterrare sui piedi da grandi altezze grazie al riflesso di raddrizzamento che si attiva in 0,1 secondi.", en: "Cats land on their feet from great heights thanks to the righting reflex, which activates in 0.1 seconds." },
+  { it: "I cani possono essere gelosi non solo verso altri animali, ma anche verso gli oggetti che attraggono l'attenzione del proprietario.", en: "Dogs can be jealous not only of other animals but also of objects that attract their owner's attention." },
+  { it: "I trichechi usano le zanne non per combattere, ma per aggrapparsi al ghiaccio e tirarsi fuori dall'acqua.", en: "Walruses use their tusks not for fighting but to grip the ice and haul themselves out of the water." },
+  { it: "I gatti hanno una terza palpebra, la membrana nittitante, che li protegge durante la caccia.", en: "Cats have a third eyelid, the nictitating membrane, which protects them during hunting." },
+  { it: "I cani capiscono quando un essere umano ha bisogno d'aiuto e cercano attivamente persone per allertarle.", en: "Dogs understand when a human needs help and actively seek other people to alert them." },
+  { it: "I rinoceronti comunicano attraverso l'urina spruzzata su cespugli: ogni individuo ha un odore unico.", en: "Rhinoceroses communicate by spraying urine on bushes — each individual has a unique scent." },
+  { it: "I gatti cambiano le abitudini di sonno in base alle routine del proprietario per sincronizzare i momenti di contatto.", en: "Cats change their sleeping habits according to their owner's routine to synchronise moments of contact." },
+  { it: "I cani sono in grado di usare le informazioni apprese da un conspecifico senza averle sperimentate direttamente.", en: "Dogs can use information learned from another dog without having experienced it directly themselves." },
+,
+
+,
+  { it: "I gatti hanno una memoria a breve termine di circa 16 ore, molto più lunga di quella di molti altri animali.", en: "Cats have a short-term memory of around 16 hours, far longer than that of many other animals." },
+  { it: "I cani sanno imitare le azioni umane dopo un ritardo: una forma di memoria episodica avanzata.", en: "Dogs can imitate human actions after a delay — a form of advanced episodic memory." },
+  { it: "Le farfalle migranti percorrono migliaia di chilometri usando il sole come bussola.", en: "Migratory butterflies travel thousands of kilometres using the sun as a compass." },
+  { it: "I gatti preferiscono i ritmi circadiani: si svegliano e dormono agli stessi orari ogni giorno.", en: "Cats prefer circadian rhythms — they wake and sleep at the same times every day." },
+  { it: "I cani riconoscono le foto dei loro simili e le distinguono da quelle di altri animali.", en: "Dogs recognise photos of other dogs and distinguish them from photos of other animals." },
+  { it: "I gatti hanno ghiandole sebacee vicino alla radice dei baffi che producono feromoni individuali.", en: "Cats have sebaceous glands near the base of their whiskers that produce individual pheromones." },
+  { it: "I cani mostrano comportamenti rituali di saluto che variano in base al grado di familiarità.", en: "Dogs show ritual greeting behaviours that vary according to how well they know the other individual." },
+  { it: "I camaleonti cambiano colore in base all'umore, non solo all'ambiente circostante.", en: "Chameleons change colour based on their mood, not only to match their surroundings." },
+  { it: "I gatti producono il suono 'trill' per salutare persone o animali con cui hanno un legame stretto.", en: "Cats produce a trilling sound to greet people or animals with whom they share a close bond." },
+  { it: "I cani percepiscono la differenza tra una persona che mente e una che si sbaglia.", en: "Dogs perceive the difference between a person who is lying and one who is making a mistake." },
+  { it: "I polpi sognano: cambiano colore rapidamente durante il sonno, suggerendo attività onirica.", en: "Octopuses dream — they change colour rapidly during sleep, suggesting dream activity." },
+  { it: "I gatti hanno un livello di acido urico nelle urine molto alto che rafforza il profumo del territorio.", en: "Cats have very high uric acid levels in their urine which intensifies the scent of their territory." },
+  { it: "I cani imparano a leggere l'umore del proprietario dai cambiamenti ormonali nell'odore corporeo.", en: "Dogs learn to read their owner's mood from hormonal changes in body odour." },
+  { it: "Le rondini costruiscono nidi con la saliva: alcune specie orientali usano solo saliva, senza altri materiali.", en: "Swallows build nests with saliva — some Asian species use only saliva, with no other materials." },
+  { it: "I gatti vedono il colore blu e giallo ma hanno difficoltà con il rosso e il verde.", en: "Cats see blue and yellow colours but have difficulty with red and green." },
+  { it: "I cani capiscono il valore relativo delle ricompense: preferiscono la carne al biscotto.", en: "Dogs understand the relative value of rewards — they prefer meat to a biscuit." },
+  { it: "I ricci comunicano attraverso una serie di grugniti, fischi e clic che variano per emozione.", en: "Hedgehogs communicate through a series of grunts, whistles and clicks that vary with emotion." },
+  { it: "I gatti hanno un metabolismo basale più alto dei cani: necessitano di più calorie per chilogrammo di peso.", en: "Cats have a higher basal metabolic rate than dogs — they need more calories per kilogram of body weight." },
+  { it: "I cani sviluppano dipendenza affettiva: la separazione prolungata causa stress fisico misurabile.", en: "Dogs develop emotional dependency — prolonged separation causes measurable physical stress." },
+  { it: "Le tartarughe di terra comunicano attraverso vibrazioni del suolo percepite con le zampe.", en: "Land tortoises communicate through ground vibrations felt through their legs." },
+  { it: "I gatti usano la pupilla verticale per calcolare la distanza dalla preda con grande precisione.", en: "Cats use their vertical pupils to calculate the distance to prey with great precision." },
+  { it: "I cani capiscono la permanenza dell'oggetto: cercano un giocattolo nascosto anche dopo minuti.", en: "Dogs understand object permanence — they search for a hidden toy even after several minutes." },
+  { it: "I gatti hanno tre tipi di capelli nel manto: guardie, intermedi e sottopelo, ciascuno con funzione specifica.", en: "Cats have three types of hair in their coat — guard, awn and down — each with a specific function." },
+  { it: "I cani riconoscono le persone di aspetto diverso senza pregiudizi: l'identità è basata sull'odore.", en: "Dogs recognise people of different appearances without prejudice — identity is based on scent." },
+  { it: "I pappagalli cenerini possono imparare centinaia di parole e usarle in contesti appropriati.", en: "African grey parrots can learn hundreds of words and use them in appropriate contexts." },
+  { it: "I gatti mantengono la temperatura corporea intorno a 38,5 gradi Celsius, leggermente superiore agli umani.", en: "Cats maintain a body temperature of around 38.5 degrees Celsius — slightly above that of humans." },
+  { it: "I cervi maschi perdono e ricrescono il palco ogni anno: è il tessuto a crescita più rapida dei mammiferi.", en: "Male deer shed and regrow their antlers every year — the fastest-growing tissue in mammals." },
+  { it: "I gatti usano la lingua per termoregolarsi: il liquido evaporando abbassa la temperatura corporea.", en: "Cats use their tongue to thermoregulate — evaporating saliva lowers their body temperature." },
+  { it: "I granchi violinisti hanno una chela molto più grande dell'altra, usata per la comunicazione e il corteggiamento.", en: "Fiddler crabs have one claw much larger than the other, used for communication and courtship." },
+  { it: "I gatti hanno un'eccellente coordinazione occhio-zampa che li rende predatori di precisione millimetrica.", en: "Cats have excellent eye-to-paw coordination that makes them hunters of millimetre precision." },
+  { it: "I pangolini rotolano in una palla quando sono minacciati: le squame di cheratina li proteggono dai predatori.", en: "Pangolins roll into a ball when threatened — their keratin scales protect them from predators." },
+  { it: "I gatti hanno una risposta allo stress diversa dai cani: tendono a nascondersi piuttosto che cercare conforto.", en: "Cats have a different stress response from dogs — they tend to hide rather than seek comfort." },
+  { it: "I cani riconoscono le voci familiari tra molte voci sconosciute anche in ambienti rumorosi.", en: "Dogs pick out familiar voices from many unknown ones even in noisy environments." },
+  { it: "I trichechi usano i baffi sensibili per trovare molluschi sul fondo del mare nel buio totale.", en: "Walruses use their sensitive whiskers to find shellfish on the seabed in total darkness." },
+  { it: "I gatti vedono chiaramente a distanze dai 15 ai 60 metri: al di là diventano sfocate.", en: "Cats see clearly at distances of 15 to 60 metres — beyond that images become blurry." },
+  { it: "Le lontre usano pietre come strumenti per rompere i molluschi: le conservano in una tasca sotto l'ascella.", en: "Otters use stones to crack shellfish open — they store a favourite stone in an armpit pouch." },
+  { it: "I gatti scelgono con cura il luogo in cui dormire: cercano punti elevati, caldi e con visuale ampia.", en: "Cats choose their sleeping spot carefully — they look for elevated, warm places with a wide view." },
+  { it: "I fenicotteri nascono grigi: il colore rosa si sviluppa gradualmente con la dieta ricca di carotenoidi.", en: "Flamingos are born grey — the pink colour develops gradually with a diet rich in carotenoids." },
+  { it: "I gatti usano vocalizzazioni diverse con ogni persona della famiglia: adattano il modo di comunicare.", en: "Cats use different vocalisations with each family member — they adapt their communication style." },
+  { it: "I cani possono imparare a distinguere il suono di automobili diverse: riconoscono quella del proprietario.", en: "Dogs can learn to distinguish between different car sounds — they recognise their owner's vehicle." },
+  { it: "I galli e le galline comunicano con oltre 30 vocalizzazioni diverse per coordinare il gruppo.", en: "Roosters and hens communicate with over 30 different vocalisations to coordinate group behaviour." },
+  { it: "I gatti preferiscono i giochi brevi e frequenti piuttosto che sessioni lunghe: rispecchia lo stile di caccia.", en: "Cats prefer short, frequent play sessions rather than long ones — this mirrors their hunting style." },
+  { it: "Le aquile hanno una vista otto volte più acuta degli umani e vedono anche nell'ultravioletto.", en: "Eagles have eyesight eight times sharper than humans and can also see into the ultraviolet spectrum." },
+  { it: "I gatti hanno i recettori del dolore meno sensibili degli umani nelle zone cutanee esterne.", en: "Cats have less sensitive pain receptors than humans in their outer skin areas." },
+  { it: "I cani capiscono la quantità: preferiscono il contenitore con più cibo anche senza contare esplicitamente.", en: "Dogs understand quantity — they choose the container with more food without explicitly counting." },
+  { it: "I cervi odorano i predatori da oltre un chilometro grazie alle narici altamente sensibili.", en: "Deer can smell predators from over a kilometre away thanks to their highly sensitive nostrils." },
+  { it: "I gatti assorbono informazioni sull'ambiente anche dormendo: le orecchie si muovono durante il sonno.", en: "Cats absorb information about their environment even while sleeping — their ears move during rest." },
+  { it: "I granchi pulitori rimuovono i parassiti da pesci più grandi in apposite stazioni sui fondali.", en: "Cleaner crabs remove parasites from larger fish at dedicated cleaning stations on the seabed." },
+  { it: "I gatti in natura non bevono vicino al cibo: riduce il rischio di contaminazione dell'acqua dalla preda.", en: "Cats in the wild do not drink near food — it reduces the risk of water being contaminated by prey." },
+  { it: "I cani riconoscono le persone attraverso il suono dei passi ancora prima di vederle o annusarle.", en: "Dogs recognise people by the sound of their footsteps before they see or smell them." },
+  { it: "Le api regine vivono fino a 5 anni, mentre le api operaie vivono solo 6 settimane in estate.", en: "Queen bees live up to 5 years, while worker bees live only 6 weeks during summer." },
+  { it: "I gatti hanno ghiandole specializzate sulle labbra che depositano feromoni quando si leccano i baffi.", en: "Cats have specialised glands on their lips that deposit pheromones when they lick their whiskers." },
+  { it: "I delfini nuotano accanto alle navi per sfruttare la spinta dell'onda di prua e risparmiare energia.", en: "Dolphins swim alongside ships to exploit the bow wave and save energy." },
+  { it: "I gatti preferiscono cacciare prede piccole e veloci che stimolano maggiormente l'istinto predatorio.", en: "Cats prefer to hunt small, fast prey — it stimulates their predatory instinct more powerfully." },
+  { it: "I gorilla costruiscono nidi freschi ogni notte: raramente dormono due notti nello stesso posto.", en: "Gorillas build fresh nests every night — they rarely sleep in the same spot two nights running." },
+  { it: "I gatti usano il tremore della coda come segnale di grande eccitazione o ansia.", en: "Cats use tail quivering as a signal of great excitement or anxiety." },
+  { it: "I cani capiscono le mappe cognitive: ricordano la posizione degli oggetti nell'ambiente in cui vivono.", en: "Dogs understand cognitive maps — they remember the position of objects in the environment they live in." },
+  { it: "I polpi aprono vasetti avvitati dall'interno degli acquari: la loro intelligenza sorprende i ricercatori.", en: "Octopuses open screw-top jars from inside aquariums — their intelligence continually surprises researchers." },
+  { it: "I gatti riconoscono la voce del proprietario tra molte altre voci, ma scelgono quando rispondere.", en: "Cats recognise their owner's voice among many others but choose when to respond." },
+  { it: "I cani reagiscono alla musica classica con comportamenti di rilassamento simili a quelli umani.", en: "Dogs respond to classical music with relaxation behaviours similar to those of humans." },
+  { it: "I lupi comunicano attraverso ululati che trasmettono informazioni su posizione, stato emotivo e identità.", en: "Wolves communicate through howls that convey information about position, emotional state and identity." },
+  { it: "I gatti hanno bisogno di almeno un pasto di carne al giorno: non possono sopravvivere come onnivori.", en: "Cats need at least one meat meal a day — they cannot survive as omnivores." },
+  { it: "I cani capiscono il pianto umano meglio di qualsiasi altro segnale emotivo e reagiscono di conseguenza.", en: "Dogs understand human crying better than any other emotional signal and react accordingly." },
+  { it: "Le libellule catturano il 95% delle prede che inseguono: sono i predatori di maggior successo del pianeta.", en: "Dragonflies catch 95% of the prey they pursue — they are the most successful predators on the planet." },
+  { it: "I gatti cambiano abitudini alimentari in base alla stagione: mangiano di più in autunno.", en: "Cats change their eating habits with the seasons — they eat more in autumn." },
+  { it: "I cani percepiscono i cambiamenti barometrici e si agitano prima delle tempeste per questa ragione.", en: "Dogs perceive barometric changes and become restless before storms for this reason." },
+  { it: "I pinguini imperatore si passano l'uovo tra i piedi per tenerlo al caldo durante l'inverno antartico.", en: "Emperor penguins pass the egg between their feet to keep it warm during the Antarctic winter." },
+  { it: "I gatti hanno la pelle più elastica dei cani: questo riduce le lesioni durante i combattimenti.", en: "Cats have more elastic skin than dogs — this reduces injuries during fights." },
+  { it: "I cani adottano comportamenti di consolazione: leccare, appoggiarsi e restare vicini a chi soffre.", en: "Dogs adopt comforting behaviours — licking, leaning and staying close to whoever is suffering." },
+  { it: "I platipus usano l'elettrorecettore nel becco per rilevare i campi elettrici delle prede nell'acqua.", en: "Platypuses use electroreceptors in their bill to detect the electric fields of prey in the water." },
+  { it: "I gatti hanno un udito che copre da 48 Hz a 85.000 Hz: sentono frequenze invisibili agli umani.", en: "Cats hear from 48 Hz to 85,000 Hz — they detect frequencies invisible to humans." },
+  { it: "I cani riconoscono le espressioni di sorpresa e le associano a situazioni inaspettate.", en: "Dogs recognise expressions of surprise and associate them with unexpected situations." },
+  { it: "I rinoceronti bianchi sono in realtà grigi: il nome deriva da un malinteso linguistico dall'afrikaans.", en: "White rhinos are actually grey — the name comes from a linguistic misunderstanding from Afrikaans." },
+  { it: "I gatti preferiscono le crocchette fresche a quelle aperte da giorni: hanno un olfatto molto selettivo.", en: "Cats prefer fresh kibble to food opened days ago — they have a very selective sense of smell." },
+  { it: "I cani capiscono le intenzioni umane anche quando le parole sono pronunciate in modo neutro.", en: "Dogs understand human intentions even when words are spoken in a neutral tone." },
+  { it: "I polpi si travestono da pietra, corallo e foglia marina per avvicinarsi alle prede senza essere visti.", en: "Octopuses disguise themselves as rocks, corals and sea leaves to approach prey unseen." },
+  { it: "I gatti mostrano preferenze musicali: tendono ad ignorare la musica umana ma reagiscono a quella studiata per loro.", en: "Cats show musical preferences — they tend to ignore human music but respond to music designed for them." },
+  { it: "I cani hanno imparato a interpretare il linguaggio del corpo umano durante 15.000 anni di coevoluzione.", en: "Dogs have learned to interpret human body language over 15,000 years of coevolution." },
+];
+
+// i18n Pet Friendly
+Object.assign(TR.en, {
+  navPet: "Pet Friendly",
+  titlePet: ["Pet ", "Friendly"],
+  subPet: "Dog-friendly beaches, restaurants, parks & more",
+  pet: {
+    srchLbl: "Search a city for pet-friendly places",
+    placeholder: "Type a city... (e.g. Roma, Rimini)",
+    showing: "Pet-friendly places in {c}",
+    emptyTtl: "Pet Friendly",
+    emptySub: "Search any city above to find dog-friendly beaches, restaurants, parks and more.",
+    factTtl: "🐾 Did you know?",
+    ttl: "🐾 Pet-Friendly Places — tap a category",
+    credit: "Maps categories open Google Maps · others open Google Search",
+  },
+});
+Object.assign(TR.it, {
+  navPet: "Pet Friendly",
+  titlePet: ["Pet ", "Friendly"],
+  subPet: "Spiagge, ristoranti, parchi e molto altro per te e il tuo animale",
+  pet: {
+    srchLbl: "Cerca una città per luoghi pet friendly",
+    placeholder: "Cerca una città... (es. Roma, Rimini)",
+    showing: "Luoghi pet friendly a {c}",
+    emptyTtl: "Pet Friendly",
+    emptySub: "Cerca una città qui sopra per trovare spiagge, ristoranti, parchi e molto altro dove gli animali sono benvenuti.",
+    factTtl: "🐾 Lo sapevi?",
+    ttl: "🐾 Luoghi Pet Friendly — tocca una categoria",
+    credit: "Le categorie Maps aprono Google Maps · le altre aprono Google Search",
+  },
+});
+
 // Towns that recur in this many itineraries (or more) get highlighted.
 const TOUR_MIN_HL = 2;
 const TOUR_HUB = "#D9531E";
@@ -11044,6 +11546,7 @@ function ToursPage({ lang, t, setCity, setTab }) {
 
 const NAV = [
   { id:"explore",     icon:"🗺️", key:"navExplore" },
+  { id:"pet",         icon:"🐾", key:"navPet" },
   { id:"transport",   icon:"🚌", key:"navTransport" },
   { id:"curiosities", icon:"💡", key:"navKnow" },
   { id:"shows",       icon:"🎭", key:"navShows" },
@@ -11078,6 +11581,7 @@ export default function App() {
 
   const headerInfo = {
     explore:     { title: t.titleExplore, sub: t.subExplore },
+    pet:         { title: t.titlePet,     sub: t.subPet },
     transport:   { title: t.titleAround,  sub: t.subTransport },
     curiosities: { title: t.titleKnow,    sub: t.subKnow },
     shows:       { title: t.titleShows,   sub: t.subShows },
@@ -11121,6 +11625,7 @@ export default function App() {
       {/* PAGES */}
       <div id="scroll-root" style={s.scroll}>
         <div style={{ display: tab==="explore"     ? "block" : "none" }}><ExplorePage   city={city} setCity={setCity} lang={lang} t={t} /></div>
+        <div style={{ display: tab==="pet"         ? "block" : "none" }}><PetPage       city={city} setCity={setCity} lang={lang} t={t} /></div>
         <div style={{ display: tab==="transport"   ? "block" : "none" }}><TransportPage city={city} setCity={setCity} lang={lang} t={t} goToInViaggio={goToInViaggio} /></div>
         <div style={{ display: tab==="curiosities" ? "block" : "none" }}><FunFactsPage  city={city} setCity={setCity} lang={lang} t={t} /></div>
         <div style={{ display: tab==="shows"       ? "block" : "none" }}><ShowsPage     city={city} setCity={setCity} lang={lang} t={t} /></div>
