@@ -10697,9 +10697,6 @@ const PET_FACTS = [
   { it: "I rinoceronti comunicano attraverso l'urina spruzzata su cespugli: ogni individuo ha un odore unico.", en: "Rhinoceroses communicate by spraying urine on bushes — each individual has a unique scent." },
   { it: "I gatti cambiano le abitudini di sonno in base alle routine del proprietario per sincronizzare i momenti di contatto.", en: "Cats change their sleeping habits according to their owner's routine to synchronise moments of contact." },
   { it: "I cani sono in grado di usare le informazioni apprese da un conspecifico senza averle sperimentate direttamente.", en: "Dogs can use information learned from another dog without having experienced it directly themselves." },
-,
-
-,
   { it: "I gatti hanno una memoria a breve termine di circa 16 ore, molto più lunga di quella di molti altri animali.", en: "Cats have a short-term memory of around 16 hours, far longer than that of many other animals." },
   { it: "I cani sanno imitare le azioni umane dopo un ritardo: una forma di memoria episodica avanzata.", en: "Dogs can imitate human actions after a delay — a form of advanced episodic memory." },
   { it: "Le farfalle migranti percorrono migliaia di chilometri usando il sole come bussola.", en: "Migratory butterflies travel thousands of kilometres using the sun as a compass." },
